@@ -1,0 +1,14 @@
+{
+  "name": "proyecto-anual-v2",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "nodemon": "3.1.14"
+  }
+}
