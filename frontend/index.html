@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de pruebas</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        fieldset { margin-bottom: 15px; padding: 15px; border-radius: 5px; }
+        label { display: inline-block; width: 140px; margin-bottom: 5px; }
+        input { margin-bottom: 5px; padding: 5px; width: 200px; }
+        button { padding: 8px 12px; margin-top: 5px; cursor: pointer; }
+        #resultado { margin-top: 15px; padding: 10px; font-weight: bold; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Comunidad Activa - Panel de Pruebas</h1>
+
+    <!-- FORMULARIO DE SOLICITUD DE MEMBRESÍA -->
+    <fieldset>
+        <legend>Solicitud de Preinscripción a Socio</legend>
+        <label>Nombre:</label> <input id="regName" required><br>
+        <label>Apellido:</label> <input id="regSurname" required><br>
+        <label>DNI:</label> <input type="number" id="regDni" required><br>
+        <label>Fecha Nacimiento:</label> <input type="date" id="regBirthdate" required><br>
+        <label>Email:</label> <input type="email" id="regEmail" required><br>
+        <label>Teléfono:</label> <input type="tel" id="regPhone" required><br>
+        <button id="btnRegister">Enviar Solicitud</button>
+    </fieldset>
+
+    <hr>
+
+    <!-- FORMULARIO DE AUTENTICACIÓN -->
+    <h2>Control de Sesión</h2>
+    <fieldset>
+        <legend>Credenciales de Acceso</legend>
+        <label>Email:</label> <input type="email" id="txtEmail" placeholder="admin@club.com">
+        <label>Password:</label> <input type="password" id="txtPass" placeholder="Contraseña">
+        <button id="btnLogin">Iniciar Sesión</button>
+        <button id="btnLogout" disabled>Cerrar Sesión</button>
+        <span id="sessionStatus" style="margin-left:15px; font-weight:bold; color:red;">Sesión Cerrada</span>
+    </fieldset>
+
+    <hr>
+
+    <!-- PANEL DE PRUEBAS DE ENDPOINTS -->
+    <h2>Prueba de Servicios Protegidos</h2>
+    <button id="btnProfile">Consultar Perfil (/api/memberProfile/getMemberProfile)</button>
+    <button id="btnActivities">Listar Actividades (/api/activity/listActivities)</button>
+    
+    <div id="resultado"></div>
+
+    <script>
+        const BASE_URL = "http://localhost:3000";
+        let accessToken = null;
+
+        // CLASES DE ERROR MAPPING CON ESPECIFICACIÓN V2
+        class SpecificationError extends Error {
+            constructor(message, detail) {
+                super(message);
+                this.name = "SpecificationError (HTTP 400)";
+                this.detail = detail;
+                this.status = 400;
+            }
+        }
+
+        class UnauthorizedError extends Error {
+            constructor(message, detail) {
+                super(message);
+                this.name = "UnauthorizedError (HTTP 401)";
+                this.detail = detail;
+                this.status = 401;
+            }
+        }
+
+        class DomainError extends Error {
+            constructor(message, detail) {
+                super(message);
+                this.name = "DomainError (HTTP 422)";
+                this.detail = detail;
+                this.status = 422;
+            }
+        }
+
+        class ProgramError extends Error {
+            constructor(message, detail) {
+                super(message);
+                this.name = "ProgramError (HTTP 500)";
+                this.detail = detail;
+                this.status = 500;
+            }
+        }
+
+        // FUNCIÓN CENTRALIZADA DE PETICIONES HTTP (EXCLUSIVO POST SEGÚN DOC V2)
+        async function RPCWebAPIFetch(endpoint, content = {}) {
+            let pathLimpio = endpoint.startsWith("/") ? endpoint : "/" + endpoint;
+            let urlDestino = BASE_URL + pathLimpio;
+
+            let cabecerasHTTP = {
+                "Content-Type": "application/json"
+            };
+
+            if (accessToken) {
+                cabecerasHTTP["Authorization"] = "Bearer " + accessToken;
+            }
+
+            let opciones = {
+                method: "POST", // La especificación exige POST para todos los endpoints
+                headers: cabecerasHTTP,
+                body: JSON.stringify(content)
+            };
+
+            try {
+                let respuesta = await fetch(urlDestino, opciones);
+                let datos;
+
+                try {
+                    datos = await respuesta.json();
+                } catch (e) {
+                    datos = { exception: "InvalidJSON", detail: ["La respuesta no es un JSON válido."] };
+                }
+
+                if (respuesta.ok) {
+                    return datos;
+                }
+
+                let excepcion = datos.exception || "ErrorGenerico";
+                let detalle = Array.isArray(datos.detail) ? datos.detail.join(", ") : (datos.detail || "Sin detalles");
+
+                if (respuesta.status === 400) throw new SpecificationError(excepcion, detalle);
+                if (respuesta.status === 401) throw new UnauthorizedError(excepcion, detalle);
+                if (respuesta.status === 422) throw new DomainError(excepcion, detalle);
+                
+                throw new ProgramError(excepcion, detalle);
+
+            } catch (error) {
+                if (error.status) throw error;
+                throw new ProgramError("NetworkError", error.message);
+            }
+        }
+
+        // LÓGICA DE INTERFAZ Y MANEJADORES
+        function mostrarResultado(mensaje, esError = false) {
+            const resDiv = document.getElementById("resultado");
+            resDiv.style.backgroundColor = esError ? "#ffe6e6" : "#e6ffe6";
+            resDiv.style.color = esError ? "#cc0000" : "#006600";
+            resDiv.innerText = mensaje;
+        }
+
+        async function onBtnRegisterClick() {
+            const payload = {
+                name: document.getElementById("regName").value,
+                surname: document.getElementById("regSurname").value,
+                dni: Number(document.getElementById("regDni").value),
+                birthdate: document.getElementById("regBirthdate").value,
+                email: document.getElementById("regEmail").value,
+                phone: Number(document.getElementById("regPhone").value)
+            };
+
+            try {
+                const data = await RPCWebAPIFetch("/api/membership/createMembershipApplication", payload);
+                mostrarResultado("Respuesta: " + data.message);
+            } catch (error) {
+                mostrarResultado(`Fallo [${error.name}]: ${error.message} - Detalle: ${error.detail}`, true);
+            }
+        }
+
+        async function onBtnLoginClick() {
+            const email = document.getElementById("txtEmail").value;
+            const password = document.getElementById("txtPass").value;
+
+            try {
+                const data = await RPCWebAPIFetch("/api/auth/login", { email, password });
+                
+                // Si la API devuelve el token en la respuesta
+                accessToken = data.accessToken || "token_simulado_v2";
+
+                document.getElementById("sessionStatus").innerText = `Sesión Activa (${data.role || 'Usuario'})`;
+                document.getElementById("sessionStatus").style.color = "green";
+                document.getElementById("btnLogin").disabled = true;
+                document.getElementById("btnLogout").disabled = false;
+
+                mostrarResultado(`¡Bienvenido ${data.name || ''}! Rol: ${data.role || 'N/A'}`);
+            } catch (error) {
+                mostrarResultado(`Fallo en Login [${error.name}]: ${error.message} - Detalle: ${error.detail}`, true);
+            }
+        }
+
+        async function onBtnLogoutClick() {
+            try {
+                await RPCWebAPIFetch("/api/auth/logout", {});
+            } catch (e) {
+                // Se limpia el estado frontend independientemente
+            }
+            
+            accessToken = null;
+            document.getElementById("sessionStatus").innerText = "Sesión Cerrada";
+            document.getElementById("sessionStatus").style.color = "red";
+            document.getElementById("btnLogin").disabled = false;
+            document.getElementById("btnLogout").disabled = true;
+            mostrarResultado("Sesión finalizada en el cliente.");
+        }
+
+        function main() {
+            document.getElementById("btnRegister").onclick = onBtnRegisterClick;
+            document.getElementById("btnLogin").onclick = onBtnLoginClick;
+            document.getElementById("btnLogout").onclick = onBtnLogoutClick;
+
+            document.getElementById("btnProfile").onclick = () => RPCWebAPIFetch("/api/memberProfile/getMemberProfile")
+                .then(d => mostrarResultado(JSON.stringify(d)))
+                .catch(e => mostrarResultado(`[${e.name}]: ${e.detail}`, true));
+
+            document.getElementById("btnActivities").onclick = () => RPCWebAPIFetch("/api/activity/listActivities", { status: "ACTIVE" })
+                .then(d => mostrarResultado(JSON.stringify(d)))
+                .catch(e => mostrarResultado(`[${e.name}]: ${e.detail}`, true));
+        }
+
+        window.onload = main;
+    </script>
+</body>
+</html>

@@ -7,6 +7,18 @@ const base = `http://localhost:${instanceConfig.server.port}`
 
 async function requestDispatcher(request, response) {
 
+    // Cabeceras CORS
+    response.setHeader("Access-Control-Allow-Origin", "*");
+    response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");  
+
+    // Responder preflight OPTIONS
+    if (request.method === "OPTIONS") {
+        response.writeHead(204);
+        response.end();
+        return;
+    }
+
     const url = new URL(request.url, base);
     console.log("protocolo + dominio + puerto completo: " + url)
 
