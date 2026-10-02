@@ -49,7 +49,6 @@
 - **RESPONSE**:
 ```json
 {
-  //"accessToken": "string", 
   "idUser": "number", 
   "name": "string", 
   "surname": "string", 
