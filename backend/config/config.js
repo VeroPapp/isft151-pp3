@@ -6,6 +6,9 @@ function default_config() {
         server: {
             ip: "127.0.0.1",
             port: 3000
+        },
+        database: {
+            path: "../database/db.sqlite3"
         }
     };
 
