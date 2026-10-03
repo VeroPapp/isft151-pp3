@@ -41,7 +41,10 @@ class ErrorSpecification {
 // * HTTP 422
 class ErrorDomain {
     constructor() {
-        this.message = { exception: "FALTAN_PARAMETROS", detail: ["Error de lógica de negocio"] }
+        this.message = {
+            exception: "REGLA_NEGOCIO_VIOLADA",
+            detail: ["La operación no cumple con las reglas del sistema"]
+        }
         this.type = "ErrorDomain"
         this.code = 422
 
@@ -57,6 +60,10 @@ class ErrorDomain {
 
     getCode() {
         return this.code
+    }
+    
+    setMessage(message) {
+        this.message.detail.push(message)
     }
 }
 

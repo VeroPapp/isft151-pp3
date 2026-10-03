@@ -2,13 +2,12 @@ const { readFileSync } = require("node:fs")
 
 function default_config() {
     const config = {
-
         server: {
             ip: "127.0.0.1",
             port: 3000
         },
         database: {
-            path: "../database/db.sqlite3"
+            path: "./database/club.sqlite3"
         }
     };
 
@@ -21,7 +20,7 @@ function loadConfig() {
     let config = null
 
     try {
-
+        // * __dirname obtiene la carpeta donde se encuentra el archivo config.js que se ejecuta actualmente, en este caso C:/backend/config y busca el archivo config.json en esa carpeta.
         const data = readFileSync(__dirname + "/config.json", "utf8")
         config = JSON.parse(data)
         console.log("configuracion cargada...")

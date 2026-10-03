@@ -20,7 +20,7 @@ async function requestDispatcher(request, response) {
     }
 
     const url = new URL(request.url, base);
-    console.log("protocolo + dominio + puerto completo: " + url)
+    console.log("protocolo + dominio + endpoint completo: " + url)
 
     const path = url.pathname;
     console.log("path + endpoint de la peticion: " + path);

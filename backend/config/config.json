@@ -4,6 +4,6 @@
 		"port": 3000
 	},
 	"database": {
-		"path": "../database/db.sqlite3"
+		"path": "./database/club.sqlite3"
 	}
 }

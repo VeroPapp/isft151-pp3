@@ -1,41 +1,10 @@
 const { ErrorAuthentication, ErrorDomain, ErrorInternServer, ErrorSpecification } = require("../helpers/errorHandler.js")
+const { authenticate, getUserByEmail } = require("../models/auth.js")
+const { getStatusById } = require("../models/status.js")
+const { getRoleById } = require("../models/roles.js")
+const { listSessions, UserSession } = require("./session.js")
 
-const { authenticate } = require("../models/auth.js")
-
-const { calcularHashSHA256 } = require("../helpers/hash.js")
-
-
-
-// * POR AHORA ACA..... LUEGO MODULARIZARRRRRR
-const listSessions = new Map();  //clave-valor  -> clave: email,  valor: sessionObj
-
-class UserSession {
-    constructor() {
-        this.status = 'disabled';
-        this.hash = null
-    }
-
-    setData(idUser, email){
-        let cadena = idUser + email
-        const result = calcularHashSHA256(cadena)
-        this.hash = result
-    }
-
-    getData() {
-        return this.hash
-    }
-
-    setStatus(status) {
-        this.status = status
-    }
-
-    getStatus() {
-        return this.status
-    }
-
-}
-
-function login(request, response) {
+async function login(request, response) {
 
     let body = ""
 
@@ -51,57 +20,70 @@ function login(request, response) {
                 throw error
             }
 
-            // * se valida que el body no sea "" anteriormente, porq si lo convierto a JSON.parse("") me lanza un error inmediatamente.
+            // * se valida que el body no sea "" anteriormente, porq si lo convierto a JSON.parse("") me lanza un error inmediatamente. 500
             request.body = JSON.parse(body)
-
-            console.log(request.body);
-
+            
             const { email, password } = request.body
-
-            // * ------------------- DUDA VA ACA O EN MODELS?????-------------------------------------
             if (!email || !password) {
                 const err = new ErrorSpecification();
                 throw err
             }
+            
+            const usersExists = authenticate(email, password)
+            
+            if (!usersExists) {
+                const error = new ErrorAuthentication()
+                throw error
+            } 
 
-            let isAuthenticated = null
-            let user = null
-
-            // * ----------------------------------------
-            isAuthenticated = authenticate(email, password)
-
-            if (isAuthenticated) {
-
-                if (!havePreviousSession) {
-                    const newSession = new UserSession();
-                    newSession.setData(isAuthenticated.idUser, email)
-                    newSession.setStatus('enabled');
-
-                    listSessions.set(email, newSession);
-                    
-                    user = {
-                        "idUser": isAuthenticated.idUser,
-                        "name": isAuthenticated.name,
-                        "surname": isAuthenticated.surname,
-                        "role": isAuthenticated.role,
-                        "temporaryPassword": isAuthenticated.temporaryPassword
-                    }
-
-                }
-
-                // if()
-                // ..................
-
+            if (usersExists.temporaryPassword === 1) {
+                const error = new ErrorDomain()
+                error.setMessage("El usuario debe cambiar la contraseña temporal antes de iniciar sesión.")
+                throw error
             }
 
-            response.writeHead(200, { "Content-Type": "application/json" })
+            const statusExists = getStatusById(usersExists.statusId)
+            if (!statusExists || statusExists.name === "PENDING" || statusExists.name === "REJECTED") {
+                const error = new ErrorDomain()
+                error.setMessage("El usuario no tiene un estado válido para iniciar sesión. Es necesario que este habilitado para poder iniciar sesión.")
+                throw error
+            }
+
+            const roleExists = getRoleById(usersExists.roleId)
+            if (!roleExists) {
+                const error = new ErrorDomain()
+                error.setMessage("El usuario no tiene un rol válido para iniciar sesión. Es necesario que este habilitado para poder iniciar sesión.")
+                throw error
+            }
+
+            const user = {
+                idUser: usersExists.idUser,
+                name: usersExists.name,
+                surname: usersExists.surname,
+                role: roleExists.name,
+                temporaryPassword: Boolean(usersExists.temporaryPassword)
+            }
+
+            let currentSession = listSessions.get(email)
+
+            if (!currentSession) {
+                currentSession = new UserSession();
+                await currentSession.setHash(usersExists.id_user, email)
+                currentSession.setStatus('enabled');
+
+                listSessions.set(email, currentSession);
+            }
+
+            currentSession.setStatus("enabled")
+
+            console.log(user);
+            console.log(currentSession.getHash());
+
+            response.writeHead(200, {
+                "Content-Type": "application/json",
+                "x-accessToken": `${currentSession.getHash()}`
+            })
             response.end(JSON.stringify(user))
-
-
-
-
-
-
 
 
         } catch (error) {
@@ -136,10 +118,7 @@ function login(request, response) {
 
 }
 
-
 function logout(request, response) {
-
 }
-
 
 module.exports = { login }

@@ -13,10 +13,10 @@ function router() {
 
 
     // ----- MEMBERSHIP APPLICATION ROUTES -----
-    router.set('/api/membership/createMembershipApplication', createMembershipApplication);
-    router.set('/api/membership/listMembershipApplications', listMembershipApplications);
-    router.set('/api/membership/approveMembershipApplication', approveMembershipApplication);
-    router.set('/api/membership/rejectMembershipApplication', rejectMembershipApplication);
+    // router.set('/api/membership/createMembershipApplication', createMembershipApplication);
+    // router.set('/api/membership/listMembershipApplications', listMembershipApplications);
+    // router.set('/api/membership/approveMembershipApplication', approveMembershipApplication);
+    // router.set('/api/membership/rejectMembershipApplication', rejectMembershipApplication);
 
 
     return router
