@@ -1,8 +1,8 @@
-const { objectDB } = require("../database/conectDB.js")
+const { objectDB } = require("../database/connectDB.js")
 
 function getStatusById(id){
     try {
-        const sql = "SELECT * FROM user_status WHERE id_status = ?"
+        const sql = "SELECT * FROM userStatus WHERE idStatus = ?"
         const stmt = objectDB.prepare(sql)
         const statusExists = stmt.get(id)
 
@@ -10,9 +10,9 @@ function getStatusById(id){
             return null
         }
 
-        const { id_status, name } = statusExists
+        const { idStatus, name } = statusExists
 
-        return { id: id_status, name }
+        return { id: idStatus, name }
     } catch (error) {
         throw error
     }

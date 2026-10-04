@@ -1,43 +1,61 @@
-const { dbObject } = require("../database/connectionDB.js")
+const { objectDB } = require("../database/connectDB.js")
+const { ErrorDomain } = require("../helpers/errorHandler.js")
 
-async function createMembershipApplicationDB(name, surname, dni, birthdate, email, phone) {
-    
+
+function createMembershipApplicationDB(name, surname, dni, birthdate, email, phone) {
+
     // Verificar si ya existe un usuario con ese DNI o email
-    const [users] = await dbObject.query(
-        `SELECT id_user 
-         FROM USER 
-         WHERE dni = ? OR email = ?`,
-        [dni, email]
-    )
+    const sqlCheck = `
+        SELECT idUser
+        FROM users
+        WHERE dni = ? OR email = ?
+    `
 
-    if (users.length > 0) {
+    const stmtCheck = objectDB.prepare(sqlCheck)
+    const userExists = stmtCheck.get(dni, email)
+
+    if (userExists) {
         const error = new ErrorDomain()
         throw error
     }
 
-    // Crear usuario con estado PENDING y sin rol
-    const [result] = await dbObject.query(
-        `INSERT INTO USER
-        (name, surname, dni, birthdate, email, phone, status, id_role)
-        VALUES (?, ?, ?, ?, ?, ?, 'PENDING', NULL)`,
-        [name, surname, dni, birthdate, email, phone]
+    // Crear usuario con estado PENDING,
+    // sin rol y con contraseña temporal
+    const sqlInsert = `
+        INSERT INTO users
+        (
+            name,
+            surname,
+            dni,
+            birthdate,
+            email,
+            phone,
+            password,
+            temporaryPassword,
+            idStatus,
+            idRole
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
+    `
+
+    const stmtInsert = objectDB.prepare(sqlInsert)
+
+    const result = stmtInsert.run(
+        name,
+        surname,
+        dni,
+        birthdate,
+        email,
+        phone,
+        dni, // La contraseña temporal es el mismo DNI
+        1, // La contraseña temporal está activa
+        1 // El estado PENDING tiene idStatus = 1
     )
 
-    return result.insertId
+    return result.lastInsertRowid
 }
 
-
-async function assignMemberRolePendingDB(idUser, idRol) {
-  const sql = `
-    INSERT INTO user_rol (id_user, id_rol, status, assignment_date)
-    VALUES ($1, $2, 'PENDING', NOW())
-    RETURNING id_user_rol
-  `;
-  const result = await dbObject.query(sql, [idUser, idRol]);
-  return result.rows[0];
-}
 
 module.exports = {
-  createMembershipApplicationDB,
-  assignMemberRolePendingDB
-};
+    createMembershipApplicationDB
+}

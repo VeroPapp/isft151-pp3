@@ -8,9 +8,11 @@ const base = `http://localhost:${instanceConfig.server.port}`
 async function requestDispatcher(request, response) {
 
     // Cabeceras CORS
-    response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+    response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
     response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-    response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");  
+    response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization"); 
+    
+    response.setHeader("Access-Control-Expose-Headers", "x-accessToken");
 
     // Responder preflight OPTIONS
     if (request.method === "OPTIONS") {

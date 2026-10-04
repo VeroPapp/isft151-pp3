@@ -1,4 +1,4 @@
-const { objectDB } = require("../database/conectDB.js")
+const { objectDB } = require("../database/connectDB.js")
 
 function authenticate(emailUser, password) {
 
@@ -12,9 +12,9 @@ function authenticate(emailUser, password) {
             return null
         }
 
-        const { id_user, name, surname, id_role, temporary_password, id_status, email } = userExists
+        const { idUser, name, surname, idRole, temporaryPassword, idStatus, email } = userExists
 
-        return { idUser: id_user, name, surname, roleId: id_role, temporaryPassword: temporary_password, statusId: id_status, email }
+        return { idUser, name, surname, idRole, temporaryPassword, idStatus, email }
 
     } catch (error) {
 

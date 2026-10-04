@@ -1,8 +1,8 @@
-const { objectDB } = require("../database/conectDB.js")
+const { objectDB } = require("../database/connectDB.js")
 
 function getRoleById(id){
     try {
-        const sql = "SELECT * FROM role WHERE id_role = ?"
+        const sql = "SELECT * FROM roles WHERE idRole = ?"
         const stmt = objectDB.prepare(sql)
         const roleExists = stmt.get(id)
 
@@ -10,9 +10,9 @@ function getRoleById(id){
             return null
         }
 
-        const { id_role, name } = roleExists
+        const { idRole, name } = roleExists
 
-        return { id: id_role, name }
+        return { id: idRole, name }
     } catch (error) {
         throw error
     }

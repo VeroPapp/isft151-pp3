@@ -13,6 +13,7 @@ async function login(request, response) {
     })
 
     request.on("end", async () => {
+
         try {
 
             if (!body) {
@@ -22,39 +23,50 @@ async function login(request, response) {
 
             // * se valida que el body no sea "" anteriormente, porq si lo convierto a JSON.parse("") me lanza un error inmediatamente. 500
             request.body = JSON.parse(body)
-            
+
             const { email, password } = request.body
+
             if (!email || !password) {
                 const err = new ErrorSpecification();
                 throw err
             }
-            
+
+            // ---- 1 - VALIDA QUE EL USUARIO EXISTA Y QUE LA CONTRASEÑA SEA CORRECTA ----
             const usersExists = authenticate(email, password)
-            
+
             if (!usersExists) {
                 const error = new ErrorAuthentication()
                 throw error
-            } 
-
-            if (usersExists.temporaryPassword === 1) {
-                const error = new ErrorDomain()
-                error.setMessage("El usuario debe cambiar la contraseña temporal antes de iniciar sesión.")
-                throw error
             }
 
-            const statusExists = getStatusById(usersExists.statusId)
-            if (!statusExists || statusExists.name === "PENDING" || statusExists.name === "REJECTED") {
+
+            // ---- 2 - VALIDA QUE EL USUARIO TENGA UN ESTADO ACTIVO PARA INICIAR SESION ----
+            const statusExists = getStatusById(usersExists.idStatus)
+
+            if (!statusExists || statusExists.name === "PENDING" || statusExists.name === "REJECTED" || statusExists.name === "INACTIVE") {
                 const error = new ErrorDomain()
                 error.setMessage("El usuario no tiene un estado válido para iniciar sesión. Es necesario que este habilitado para poder iniciar sesión.")
                 throw error
             }
 
-            const roleExists = getRoleById(usersExists.roleId)
+
+            // ---- 3- VALIDA QUE EL USUARIO TENGA UN ROL ASIGNADO PARA INICIAR SESION ----
+            const roleExists = getRoleById(usersExists.idRole)
+
             if (!roleExists) {
                 const error = new ErrorDomain()
                 error.setMessage("El usuario no tiene un rol válido para iniciar sesión. Es necesario que este habilitado para poder iniciar sesión.")
                 throw error
             }
+
+
+            //no deberia tirar error, deberia dejarlo loguear pero redireccionar a la pantalla de cambiar contraseña
+            //if (usersExists.temporaryPassword === 1) {
+            //    const error = new ErrorDomain()
+            //    error.setMessage("El usuario debe cambiar la contraseña temporal antes de iniciar sesión.")
+            //    throw error
+            //}
+
 
             const user = {
                 idUser: usersExists.idUser,
@@ -64,26 +76,26 @@ async function login(request, response) {
                 temporaryPassword: Boolean(usersExists.temporaryPassword)
             }
 
+            // ---- CREA UNA SESION PARA EL USUARIO SI NO EXISTE, O LA HABILITA SI YA EXISTE ----
             let currentSession = listSessions.get(email)
 
             if (!currentSession) {
                 currentSession = new UserSession();
-                await currentSession.setHash(usersExists.id_user, email)
+                await currentSession.setHash(usersExists.idUser, email)
                 currentSession.setStatus('enabled');
 
                 listSessions.set(email, currentSession);
             }
 
             currentSession.setStatus("enabled")
-
-            console.log(user);
-            console.log(currentSession.getHash());
+            console.log(`Sesión iniciada para el usuario: ${email}. Hash de sesión: ${currentSession.getHash()}`)
 
             response.writeHead(200, {
                 "Content-Type": "application/json",
                 "x-accessToken": `${currentSession.getHash()}`
             })
-            response.end(JSON.stringify(user))
+
+            response.end(JSON.stringify(user));
 
 
         } catch (error) {
@@ -118,7 +130,5 @@ async function login(request, response) {
 
 }
 
-function logout(request, response) {
-}
 
 module.exports = { login }

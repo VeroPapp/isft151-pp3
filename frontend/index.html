@@ -120,7 +120,10 @@
                 }
 
                 if (respuesta.ok) {
-                    return datos;
+                    return {
+                        datos,
+                        _accessToken: respuesta.headers.get("x-accessToken")
+                    };
                 }
 
                 let excepcion = datos.exception || "ErrorGenerico";
@@ -150,15 +153,15 @@
             const payload = {
                 name: document.getElementById("regName").value,
                 surname: document.getElementById("regSurname").value,
-                dni: Number(document.getElementById("regDni").value),
+                dni: document.getElementById("regDni").value,
                 birthdate: document.getElementById("regBirthdate").value,
                 email: document.getElementById("regEmail").value,
-                phone: Number(document.getElementById("regPhone").value)
+                phone: document.getElementById("regPhone").value
             };
 
             try {
                 const data = await RPCWebAPIFetch("/api/membership/createMembershipApplication", payload);
-                mostrarResultado("Respuesta: " + data.message);
+                mostrarResultado("Respuesta: " + data.datos.message);
             } catch (error) {
                 mostrarResultado(`Fallo [${error.name}]: ${error.message} - Detalle: ${error.detail}`, true);
             }
@@ -172,14 +175,20 @@
                 const data = await RPCWebAPIFetch("/api/auth/login", { email, password });
                 
                 // Si la API devuelve el token en la respuesta
-                accessToken = data.accessToken || "token_simulado_v2";
+                accessToken = data._accessToken;
 
                 document.getElementById("sessionStatus").innerText = `Sesión Activa (${data.role || 'Usuario'})`;
                 document.getElementById("sessionStatus").style.color = "green";
                 document.getElementById("btnLogin").disabled = true;
                 document.getElementById("btnLogout").disabled = false;
+                
+                mostrarResultado(`¡Bienvenido ${data.datos.name || ''}! Rol: ${data.datos.role || 'N/A'}`);
+                
+                if (data.datos.temporaryPassword) {
+                    window.location.href = "change-password.html";
+                    return;
+                }
 
-                mostrarResultado(`¡Bienvenido ${data.name || ''}! Rol: ${data.role || 'N/A'}`);
             } catch (error) {
                 mostrarResultado(`Fallo en Login [${error.name}]: ${error.message} - Detalle: ${error.detail}`, true);
             }

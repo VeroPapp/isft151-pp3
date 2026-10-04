@@ -1,5 +1,6 @@
 const { defaultHandler } = require("../services/defaultHandler.js")
 const { login } = require("../services/auth.js")
+const { createMembershipApplication } = require("../services/membership.js")
 
 function router() {
 
@@ -13,7 +14,7 @@ function router() {
 
 
     // ----- MEMBERSHIP APPLICATION ROUTES -----
-    // router.set('/api/membership/createMembershipApplication', createMembershipApplication);
+    router.set('/api/membership/createMembershipApplication', createMembershipApplication);
     // router.set('/api/membership/listMembershipApplications', listMembershipApplications);
     // router.set('/api/membership/approveMembershipApplication', approveMembershipApplication);
     // router.set('/api/membership/rejectMembershipApplication', rejectMembershipApplication);
