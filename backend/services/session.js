@@ -1,51 +1,50 @@
-const { calcularHashSHA256 } = require("../helpers/hash.js")
+const { calcularHashSHA256 } = require("../helpers/hash.js");
 
-const sessionsByUsers = new Map();  // clave(email) -> valor(token) 
-const listSessions = new Map();  // clave(token) -> valor(objeto sesion) 
+// Mapeos de sesión
+const sessionsByUsers = new Map();  // clave(email) -> valor(token)
+const listSessions = new Map();     // clave(token) -> valor(objeto sesión)
 
 class UserSession {
     constructor() {
         this.status = 'disabled';
-        this.hash = null
-        this.role = null
-        this.userEmail = null
-        this.userId = null
+        this.hash = null;
+        this.role = null;
+        this.userEmail = null;
+        this.userId = null;
     }
 
     async setHash(idUser, email) {
-        let cadena = `${idUser}:${email}`
-        const result = await calcularHashSHA256(cadena)
-        this.hash = result
-        this.userEmail = email
-        this.userId = idUser
-        return this.hash
+        let cadena = `${idUser}:${email}`;
+        const result = await calcularHashSHA256(cadena);
+        this.hash = result;
+        this.userEmail = email;
+        this.userId = idUser;
+        return this.hash;
     }
 
     getHash() {
-        return this.hash
+        return this.hash;
     }
 
     setRole(role) {
-        this.role = role
+        this.role = role;
     }
 
     getRole() {
-        return this.role
+        return this.role;
     }
 
     setStatus(status) {
-        this.status = status
+        this.status = status;
     }
 
     getStatus() {
-        return this.status
+        return this.status;
     }
 
     getEmail() {
-        return this.userEmail
+        return this.userEmail;
     }
-
 }
 
-
-module.exports = { listSessions, UserSession, sessionsByUsers }
+module.exports = { listSessions, UserSession, sessionsByUsers };

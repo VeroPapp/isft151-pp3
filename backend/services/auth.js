@@ -1,190 +1,121 @@
-const { ErrorAuthentication, ErrorDomain, ErrorInternServer, ErrorSpecification } = require("../helpers/errorHandler.js")
-const { authenticate } = require("../models/auth.js")
-const { getStatusById } = require("../models/status.js")
-const { getRoleById } = require("../models/roles.js")
-const { listSessions, UserSession, sessionsByUsers } = require("./session.js")
-const { validateSession, validateRole } = require("../middlewares/auth.js")
+const { sendSuccess } = require("../helpers/responseHandler.js");
+const { BadRequestError, UnauthorizedError, ForbiddenError } = require("../helpers/errorHandler.js");
+const { authenticate } = require("../models/auth.js");
+const { getStatusById } = require("../models/status.js");
+const { getRoleById } = require("../models/roles.js");
+const { listSessions, UserSession, sessionsByUsers } = require("./session.js");
+const { validateSession, validateRole } = require("../middlewares/auth.js");
 
 async function login(request, response) {
+    // 1. LEER EL STREAM DE LA PETICIÓN POST
+    let bodyRaw = "";
+    for await (const chunk of request) {
+        bodyRaw += chunk;
+    }
 
-    let body = ""
+    if (!bodyRaw) {
+        throw new BadRequestError("El cuerpo de la petición no puede estar vacío.");
+    }
 
-    request.on("data", chunk => {
-        body += chunk.toString()
-    })
+    const body = JSON.parse(bodyRaw);
+    const { email, password } = body;
 
-    request.on("end", async () => {
-        try {            
-            if (!body) {
-                const error = new ErrorSpecification()
-                throw error
-            }
+    if (!email || !password) {
+        throw new BadRequestError("El email y la contraseña son requeridos.");
+    }
 
-            // * se valida que el body no sea "" anteriormente, porq si lo convierto a JSON.parse("") me lanza un error inmediatamente. 500
-            request.body = JSON.parse(body)
+    // ---- 1 - VALIDA QUE EL USUARIO EXISTA Y QUE LA CONTRASEÑA SEA CORRECTA ----
+    const usersExists = authenticate(email, password);
 
-            const { email, password } = request.body
-            if (!email || !password) {
-                const err = new ErrorSpecification();
-                throw err
-            }
+    if (!usersExists) {
+        throw new UnauthorizedError("Credenciales inválidas o usuario no encontrado.");
+    }
 
-            const usersExists = authenticate(email, password)
+    // ---- 2 - VALIDA QUE EL USUARIO TENGA UN ESTADO ACTIVO PARA INICIAR SESIÓN ----
+    const statusExists = getStatusById(usersExists.idStatus);
 
-            if (!usersExists) {
-                const error = new ErrorAuthentication()
-                throw error
-            }
+    if (!statusExists || statusExists.name === "PENDING" || statusExists.name === "REJECTED" || statusExists.name === "INACTIVE") {
+        throw new ForbiddenError("El usuario no esta habilitado para iniciar sesion. Debe estar habilitado por el administrador.");
+    }
 
-            const statusExists = getStatusById(usersExists.idStatus)
-            if (!statusExists || statusExists.name === "PENDING" || statusExists.name === "REJECTED" || statusExists.name === "INACTIVE") {
-                const error = new ErrorDomain()
-                error.setMessage("El usuario no esta habilitado para iniciar sesion. Debe estar habilitado por el administrador.")
-                throw error
-            }
+    // ---- 3 - VALIDA QUE EL USUARIO TENGA UN ROL ASIGNADO PARA INICIAR SESIÓN ----
+    const roleExists = getRoleById(usersExists.idRole);
 
-            const roleExists = getRoleById(usersExists.idRole)
-            if (!roleExists) {
-                const error = new ErrorDomain()
-                error.setMessage("El usuario no tiene un rol válido para iniciar sesión. Contacte al administrador.")
-                throw error
-            }
+    if (!roleExists) {
+        throw new ForbiddenError("El usuario no tiene un rol válido para iniciar sesión. Contacte al administrador.");
+    }
 
-            const user = {
-                idUser: usersExists.idUser,
-                name: usersExists.name,
-                surname: usersExists.surname,
-                role: roleExists.name,
-                temporaryPassword: Boolean(usersExists.temporaryPassword)
-            }
+    const user = {
+        idUser: usersExists.idUser,
+        name: usersExists.name,
+        surname: usersExists.surname,
+        role: roleExists.name,
+        temporaryPassword: Boolean(usersExists.temporaryPassword)
+    };
 
-            let currentSession = null
-            // * si existe el token asociado al usuario
-            const existingToken = sessionsByUsers.get(email)
-            if (existingToken) {
-                // * devolveme el objeto sesion asociado al token
-                currentSession = listSessions.get(existingToken)
-            }
+    // ---- 4 - GESTIÓN DE SESIÓN Y TOKENS ----
+    let currentSession = null;
+    const existingToken = sessionsByUsers.get(email);
 
-            if (!currentSession) {
-                currentSession = new UserSession();
-                const currentToken = await currentSession.setHash(usersExists.idUser, email)
-                currentSession.setRole(roleExists.name)
-                currentSession.setStatus('enabled');
+    if (existingToken) {
+        currentSession = listSessions.get(existingToken);
+    }
 
-                sessionsByUsers.set(email, currentToken);
-                listSessions.set(currentToken, currentSession)
+    if (!currentSession) {
+        currentSession = new UserSession();
+        const currentToken = await currentSession.setHash(usersExists.idUser, email);
+        currentSession.setRole(roleExists.name);
+        currentSession.setStatus("enabled");
 
-                console.log(currentSession);
+        sessionsByUsers.set(email, currentToken);
+        listSessions.set(currentToken, currentSession);
+    } else {
+        currentSession.setStatus("enabled");
+    }
 
-            }
+    // Adjuntamos la cabecera del token a la respuesta HTTP
+    response.setHeader("x-accessToken", `${currentSession.getHash()}`);
 
-            if (usersExists.temporaryPassword === 1) {
-                response.writeHead(200, {
-                    "Content-Type": "application/json",
-                    "x-accessToken": `${currentSession.getHash()}`
-                })
-                response.end(JSON.stringify({ message: "Contraseña temporal utilizada, redirección a cambio de contraseña", redirectToChangePassword: true, user }))
-                return
-            }
+    // Si el usuario tiene contraseña temporal, redirigimos
+    if (usersExists.temporaryPassword === 1 || usersExists.temporaryPassword === true) {
+        const resultTemporal = {
+            message: "Contraseña temporal utilizada, redirección a cambio de contraseña",
+            redirectToChangePassword: true,
+            user: user,
+            accessToken: currentSession.getHash()
+        };
+        return sendSuccess(response, resultTemporal, 200);
+    }
 
-            currentSession.setStatus("enabled")
+    // Respuesta exitosa estándar
+    const result = {
+        user: user,
+        accessToken: currentSession.getHash()
+    };
 
-            console.log(currentSession);
-
-            response.writeHead(200, {
-                "Content-Type": "application/json",
-                "x-accessToken": `${currentSession.getHash()}`
-            })
-            response.end(JSON.stringify(user))
-
-
-        } catch (error) {
-
-            const type = error.type || "ErrorInternServer"
-            let message = null
-            let code = null
-
-            switch (type) {
-                case "ErrorAuthentication":
-                    message = error.getMessage()
-                    code = error.getCode()
-                    break;
-                case "ErrorSpecification":
-                    message = error.getMessage()
-                    code = error.getCode()
-                    break;
-                case "ErrorDomain":
-                    message = error.getMessage()
-                    code = error.getCode()
-                    break;
-                case "ErrorInternServer":
-                    message = error.message
-                    code = 500
-                    break;
-            }
-
-            response.writeHead(code, { "Content-Type": "application/json" })
-            response.end(JSON.stringify(message))
-        }
-    })
-
+    sendSuccess(response, result, 200);
 }
 
 function logout(request, response) {
-
-    try {
-        const ok = validateSession(request, response)
-        if (!ok) {
-            return
-        }
-        const okRole = validateRole(request, response, ["MEMBER", "CLUB_ADMIN", "SUPER_ADMIN"])
-        if (!okRole) {
-            return
-        }
-
-        const { role, currentSession } = request.body
-
-        currentSession.setStatus("disabled")
-        console.log(currentSession);
-        sessionsByUsers.delete(currentSession.getEmail())
-        listSessions.delete(currentSession.getHash())
-        // listSessions.delete(currentSession.getHash())
-
-        response.writeHead(200, { "Content-Type": "application/json" })
-        response.end(JSON.stringify({ message: "Sesión cerrada correctamente" }))
-
-    } catch (error) {
-
-        const type = error.type || "ErrorInternServer"
-        let message = null
-        let code = null
-
-        switch (type) {
-            case "ErrorAuthentication":
-                message = error.getMessage()
-                code = error.getCode()
-                break;
-            case "ErrorSpecification":
-                message = error.getMessage()
-                code = error.getCode()
-                break;
-            case "ErrorDomain":
-                message = error.getMessage()
-                code = error.getCode()
-                break;
-            case "ErrorInternServer":
-                message = error.message
-                code = 500
-                break;
-        }
-
-        response.writeHead(code, { "Content-Type": "application/json" })
-        response.end(JSON.stringify(message))
+    const ok = validateSession(request, response);
+    if (!ok) {
+        throw new UnauthorizedError("Sesión inválida o no encontrada.");
     }
 
+    const okRole = validateRole(request, response, ["MEMBER", "CLUB_ADMIN", "SUPER_ADMIN"]);
+    if (!okRole) {
+        throw new ForbiddenError("No tienes permisos suficientes para realizar esta acción.");
+    }
 
+    const { currentSession } = request.body;
 
+    if (currentSession) {
+        currentSession.setStatus("disabled");
+        sessionsByUsers.delete(currentSession.getEmail());
+        listSessions.delete(currentSession.getHash());
+    }
+
+    sendSuccess(response, { message: "Sesión cerrada correctamente" }, 200);
 }
 
-module.exports = { login, logout }
+module.exports = { login, logout };

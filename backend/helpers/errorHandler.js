@@ -1,104 +1,88 @@
-// * HTTP 401
-class ErrorAuthentication {
-    constructor() {
-        this.message = { exception: "AUTENTICACION_REQUERIDA", detail: ["Faltan credenciales de autenticacion"] }
-        this.type = "ErrorAuthentication"
-        this.code = 401
+// Clase Base para Errores del Sistema
+class ErrorDomain extends Error {
+    constructor(message = "Error general del dominio", statusCode = 500) {
+        super(message);
+        this.message = message;
+        this.statusCode = statusCode;
+        this.type = "ErrorDomain";
     }
 
     getMessage() {
-        return this.message
+        return this.message;
     }
 
-    getType() {
-        return this.type
-    }
-
-    getCode() {
-        return this.code
-    }
-
-    setMessage(message) {
-        this.message.detail.push(message)
+    getStatusCode() {
+        return this.statusCode;
     }
 }
 
-// * HTTP 400
-class ErrorSpecification {
-    constructor() {
-        this.message = { exception: "ESPECIFICACION_INVALIDA", detail: ["La especificación proporcionada es inválida"] }
-        this.type = "ErrorSpecification"
-        this.code = 400
-    }
-
-    getMessage() {
-        return this.message
-    }
-    getType() {
-        return this.type
-    }
-    getCode() {
-        return this.code
-    }
-
-    setMessage(message) {
-        this.message.detail.push(message)
+// Subclases de Errores HTTP Específicos
+class BadRequestError extends ErrorDomain {
+    constructor(message = "Petición incorrecta o datos inválidos") {
+        super(message, 400);
+        this.type = "ErrorSpecification";
     }
 }
 
-// * HTTP 422
-class ErrorDomain {
-    constructor() {
-        this.message = {
-            exception: "REGLA_NEGOCIO_VIOLADA",
-            detail: ["La operación no cumple con las reglas del sistema"]
+class UnauthorizedError extends ErrorDomain {
+    constructor(message = "No autorizado o credenciales incorrectas") {
+        super(message, 401);
+        this.type = "ErrorAuthentication";
+    }
+}
+
+class ForbiddenError extends ErrorDomain {
+    constructor(message = "Acceso prohibido") {
+        super(message, 403);
+        this.type = "ErrorForbidden";
+    }
+}
+
+class NotFoundError extends ErrorDomain {
+    constructor(message = "Recurso o endpoint no encontrado") {
+        super(message, 404);
+        this.type = "ErrorNotFound";
+    }
+}
+
+// Funcion Centralizada para Enviar Respuestas de Error al Cliente
+function sendError(res, error) {
+    let statusCode = 500;
+    let message = "Error interno del servidor";
+
+    if (error instanceof ErrorDomain) {
+        statusCode = error.getStatusCode();
+        message = error.getMessage();
+    } else if (error instanceof Error) {
+        message = error.message;
+    }
+
+    const responsePayload = JSON.stringify({
+        status: "error",
+        error: {
+            code: statusCode,
+            message: message
         }
-        this.type = "ErrorDomain"
-        this.code = 422
+    });
 
-    }
+    res.writeHead(statusCode, {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, x-access-token",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS"
+    });
 
-    getMessage() {
-        return this.message
-    }
-
-    getType() {
-        return this.type
-    }
-
-    getCode() {
-        return this.code
-    }
-    
-    setMessage(message) {
-        this.message.detail.push(message)
-    }
+    res.end(responsePayload);
 }
 
-// * HTTP 500
-class ErrorInternServer {
-    constructor() {
-        this.message = { exception: "ERROR_INTERNO_SERVIDOR", detail: ["Ocurrió un error interno en el servidor"] }
-        this.type = "ErrorInternServer"
-        this.code = 500
-    }
-
-    getMessage() {
-        return this.message
-    }
-
-    getType() {
-        return this.type
-    }
-
-    getCode() {
-        return this.code
-    }
-
-    setMessage(message) {
-        this.message.detail.push(message)
-    }
-}
-
-
-module.exports = { ErrorAuthentication, ErrorDomain, ErrorInternServer, ErrorSpecification }
+module.exports = {
+    ErrorDomain,
+    BadRequestError,
+    UnauthorizedError,
+    ForbiddenError,
+    NotFoundError,
+    sendError,
+    ErrorAuthentication: UnauthorizedError,
+    ErrorSpecification: BadRequestError,
+    ErrorInternServer: ErrorDomain
+};

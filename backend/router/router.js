@@ -1,28 +1,27 @@
-const { createMembershipApplication } = require("../services/membership.js")
-const { login, logout } = require("../services/auth.js")
+const { login, logout } = require("../services/auth.js");
+const { createMembershipApplication } = require("../services/membership.js");
 
 function router() {
-
-    const router = new Map();
+    const routerMap = new Map();
 
     // ----- AUTHENTICATION ROUTES -----
-    router.set('/', function (request, response) {});
-    router.set('/api/auth/login', login);
-    router.set('/api/auth/logout', logout);
-
-
+    routerMap.set('/', function (request, response) {
+        response.writeHead(200, { "Content-Type": "application/json" });
+        response.end(JSON.stringify({ message: "API Backend Online" }));
+    });
+    
+    routerMap.set('/api/auth/login', login);
+    routerMap.set('/api/auth/logout', logout);
 
     // ----- MEMBERSHIP APPLICATION ROUTES -----
-    router.set('/api/membership/createMembershipApplication', createMembershipApplication);
-    // router.set('/api/membership/listMembershipApplications', listMembershipApplications);
-    // router.set('/api/membership/approveMembershipApplication', approveMembershipApplication);
-    // router.set('/api/membership/rejectMembershipApplication', rejectMembershipApplication);
+    routerMap.set('/api/membership/createMembershipApplication', createMembershipApplication);
+    // routerMap.set('/api/membership/listMembershipApplications', listMembershipApplications);
+    // routerMap.set('/api/membership/approveMembershipApplication', approveMembershipApplication);
+    // routerMap.set('/api/membership/rejectMembershipApplication', rejectMembershipApplication);
 
-
-    return router
-
+    return routerMap;
 }
 
-const InstanceRouter = router()
+const InstanceRouter = router();
 
-module.exports = { InstanceRouter: InstanceRouter }
+module.exports = { InstanceRouter: InstanceRouter };
