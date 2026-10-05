@@ -14,8 +14,7 @@ async function login(request, response) {
     })
 
     request.on("end", async () => {
-        try {
-
+        try {            
             if (!body) {
                 const error = new ErrorSpecification()
                 throw error
@@ -37,14 +36,14 @@ async function login(request, response) {
                 throw error
             }
 
-            const statusExists = getStatusById(usersExists.statusId)
+            const statusExists = getStatusById(usersExists.idStatus)
             if (!statusExists || statusExists.name === "PENDING" || statusExists.name === "REJECTED" || statusExists.name === "INACTIVE") {
                 const error = new ErrorDomain()
                 error.setMessage("El usuario no esta habilitado para iniciar sesion. Debe estar habilitado por el administrador.")
                 throw error
             }
 
-            const roleExists = getRoleById(usersExists.roleId)
+            const roleExists = getRoleById(usersExists.idRole)
             if (!roleExists) {
                 const error = new ErrorDomain()
                 error.setMessage("El usuario no tiene un rol válido para iniciar sesión. Contacte al administrador.")

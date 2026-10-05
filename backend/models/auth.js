@@ -11,6 +11,7 @@ function authenticate(emailUser, password) {
         if (!userExists) {
             return null
         }
+        console.log(userExists);
 
         const { idUser, name, surname, idRole, temporaryPassword, idStatus, email } = userExists
 
