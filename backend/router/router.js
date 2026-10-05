@@ -1,15 +1,14 @@
-const { defaultHandler } = require("../services/defaultHandler.js")
-const { login } = require("../services/auth.js")
 const { createMembershipApplication } = require("../services/membership.js")
+const { login, logout } = require("../services/auth.js")
 
 function router() {
 
     const router = new Map();
 
     // ----- AUTHENTICATION ROUTES -----
-    router.set('/', defaultHandler);
+    router.set('/', function (request, response) {});
     router.set('/api/auth/login', login);
-    // router.set('/api/auth/logout', logoutHandler);
+    router.set('/api/auth/logout', logout);
 
 
 

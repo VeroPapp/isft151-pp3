@@ -1,8 +1,9 @@
 const { ErrorAuthentication, ErrorDomain, ErrorInternServer, ErrorSpecification } = require("../helpers/errorHandler.js")
-const { authenticate, getUserByEmail } = require("../models/auth.js")
+const { authenticate } = require("../models/auth.js")
 const { getStatusById } = require("../models/status.js")
 const { getRoleById } = require("../models/roles.js")
-const { listSessions, UserSession } = require("./session.js")
+const { listSessions, UserSession, sessionsByUsers } = require("./session.js")
+const { validateSession, validateRole } = require("../middlewares/auth.js")
 
 async function login(request, response) {
 
@@ -13,7 +14,6 @@ async function login(request, response) {
     })
 
     request.on("end", async () => {
-
         try {
 
             if (!body) {
@@ -25,13 +25,11 @@ async function login(request, response) {
             request.body = JSON.parse(body)
 
             const { email, password } = request.body
-
             if (!email || !password) {
                 const err = new ErrorSpecification();
                 throw err
             }
 
-            // ---- 1 - VALIDA QUE EL USUARIO EXISTA Y QUE LA CONTRASEÑA SEA CORRECTA ----
             const usersExists = authenticate(email, password)
 
             if (!usersExists) {
@@ -39,34 +37,19 @@ async function login(request, response) {
                 throw error
             }
 
-
-            // ---- 2 - VALIDA QUE EL USUARIO TENGA UN ESTADO ACTIVO PARA INICIAR SESION ----
-            const statusExists = getStatusById(usersExists.idStatus)
-
+            const statusExists = getStatusById(usersExists.statusId)
             if (!statusExists || statusExists.name === "PENDING" || statusExists.name === "REJECTED" || statusExists.name === "INACTIVE") {
                 const error = new ErrorDomain()
-                error.setMessage("El usuario no tiene un estado válido para iniciar sesión. Es necesario que este habilitado para poder iniciar sesión.")
+                error.setMessage("El usuario no esta habilitado para iniciar sesion. Debe estar habilitado por el administrador.")
                 throw error
             }
 
-
-            // ---- 3- VALIDA QUE EL USUARIO TENGA UN ROL ASIGNADO PARA INICIAR SESION ----
-            const roleExists = getRoleById(usersExists.idRole)
-
+            const roleExists = getRoleById(usersExists.roleId)
             if (!roleExists) {
                 const error = new ErrorDomain()
-                error.setMessage("El usuario no tiene un rol válido para iniciar sesión. Es necesario que este habilitado para poder iniciar sesión.")
+                error.setMessage("El usuario no tiene un rol válido para iniciar sesión. Contacte al administrador.")
                 throw error
             }
-
-
-            //no deberia tirar error, deberia dejarlo loguear pero redireccionar a la pantalla de cambiar contraseña
-            //if (usersExists.temporaryPassword === 1) {
-            //    const error = new ErrorDomain()
-            //    error.setMessage("El usuario debe cambiar la contraseña temporal antes de iniciar sesión.")
-            //    throw error
-            //}
-
 
             const user = {
                 idUser: usersExists.idUser,
@@ -76,26 +59,45 @@ async function login(request, response) {
                 temporaryPassword: Boolean(usersExists.temporaryPassword)
             }
 
-            // ---- CREA UNA SESION PARA EL USUARIO SI NO EXISTE, O LA HABILITA SI YA EXISTE ----
-            let currentSession = listSessions.get(email)
+            let currentSession = null
+            // * si existe el token asociado al usuario
+            const existingToken = sessionsByUsers.get(email)
+            if (existingToken) {
+                // * devolveme el objeto sesion asociado al token
+                currentSession = listSessions.get(existingToken)
+            }
 
             if (!currentSession) {
                 currentSession = new UserSession();
-                await currentSession.setHash(usersExists.idUser, email)
+                const currentToken = await currentSession.setHash(usersExists.idUser, email)
+                currentSession.setRole(roleExists.name)
                 currentSession.setStatus('enabled');
 
-                listSessions.set(email, currentSession);
+                sessionsByUsers.set(email, currentToken);
+                listSessions.set(currentToken, currentSession)
+
+                console.log(currentSession);
+
+            }
+
+            if (usersExists.temporaryPassword === 1) {
+                response.writeHead(200, {
+                    "Content-Type": "application/json",
+                    "x-accessToken": `${currentSession.getHash()}`
+                })
+                response.end(JSON.stringify({ message: "Contraseña temporal utilizada, redirección a cambio de contraseña", redirectToChangePassword: true, user }))
+                return
             }
 
             currentSession.setStatus("enabled")
-            console.log(`Sesión iniciada para el usuario: ${email}. Hash de sesión: ${currentSession.getHash()}`)
+
+            console.log(currentSession);
 
             response.writeHead(200, {
                 "Content-Type": "application/json",
                 "x-accessToken": `${currentSession.getHash()}`
             })
-
-            response.end(JSON.stringify(user));
+            response.end(JSON.stringify(user))
 
 
         } catch (error) {
@@ -130,5 +132,60 @@ async function login(request, response) {
 
 }
 
+function logout(request, response) {
 
-module.exports = { login }
+    try {
+        const ok = validateSession(request, response)
+        if (!ok) {
+            return
+        }
+        const okRole = validateRole(request, response, ["MEMBER", "CLUB_ADMIN", "SUPER_ADMIN"])
+        if (!okRole) {
+            return
+        }
+
+        const { role, currentSession } = request.body
+
+        currentSession.setStatus("disabled")
+        console.log(currentSession);
+        sessionsByUsers.delete(currentSession.getEmail())
+        listSessions.delete(currentSession.getHash())
+        // listSessions.delete(currentSession.getHash())
+
+        response.writeHead(200, { "Content-Type": "application/json" })
+        response.end(JSON.stringify({ message: "Sesión cerrada correctamente" }))
+
+    } catch (error) {
+
+        const type = error.type || "ErrorInternServer"
+        let message = null
+        let code = null
+
+        switch (type) {
+            case "ErrorAuthentication":
+                message = error.getMessage()
+                code = error.getCode()
+                break;
+            case "ErrorSpecification":
+                message = error.getMessage()
+                code = error.getCode()
+                break;
+            case "ErrorDomain":
+                message = error.getMessage()
+                code = error.getCode()
+                break;
+            case "ErrorInternServer":
+                message = error.message
+                code = 500
+                break;
+        }
+
+        response.writeHead(code, { "Content-Type": "application/json" })
+        response.end(JSON.stringify(message))
+    }
+
+
+
+}
+
+module.exports = { login, logout }

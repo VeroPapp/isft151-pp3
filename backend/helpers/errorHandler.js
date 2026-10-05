@@ -17,6 +17,10 @@ class ErrorAuthentication {
     getCode() {
         return this.code
     }
+
+    setMessage(message) {
+        this.message.detail.push(message)
+    }
 }
 
 // * HTTP 400
@@ -35,6 +39,10 @@ class ErrorSpecification {
     }
     getCode() {
         return this.code
+    }
+
+    setMessage(message) {
+        this.message.detail.push(message)
     }
 }
 
@@ -85,6 +93,10 @@ class ErrorInternServer {
 
     getCode() {
         return this.code
+    }
+
+    setMessage(message) {
+        this.message.detail.push(message)
     }
 }
 
