@@ -119,22 +119,21 @@
                     datos = { exception: "InvalidJSON", detail: ["La respuesta no es un JSON válido."] };
                 }
 
-                if (respuesta.ok) {
+               if (respuesta.ok) {
                     return {
-                        datos,
+                        datos: datos.data || datos,
                         _accessToken: respuesta.headers.get("x-accessToken")
                     };
                 }
 
-                let excepcion = datos.exception || "ErrorGenerico";
-                let detalle = Array.isArray(datos.detail) ? datos.detail.join(", ") : (datos.detail || "Sin detalles");
-
+                let excepcion = datos.error?.type || datos.exception || `ErrorHTTP_${respuesta.status}`;
+                let detalle = datos.error?.message || (Array.isArray(datos.detail) ? datos.detail.join(", ") : datos.detail) || "Sin detalles";
                 if (respuesta.status === 400) throw new SpecificationError(excepcion, detalle);
-                if (respuesta.status === 401) throw new UnauthorizedError(excepcion, detalle);
+                if (respuesta.status === 401 || respuesta.status === 403) throw new UnauthorizedError(excepcion, detalle);
+
                 if (respuesta.status === 422) throw new DomainError(excepcion, detalle);
                 
                 throw new ProgramError(excepcion, detalle);
-
             } catch (error) {
                 if (error.status) throw error;
                 throw new ProgramError("NetworkError", error.message);

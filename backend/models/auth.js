@@ -1,30 +1,28 @@
-const { objectDB } = require("../database/connectDB.js")
+const { objectDB } = require("../database/connectDB.js");
+const { calcularHashSHA256 } = require("../helpers/hash.js");
 
 function authenticate(emailUser, password) {
-
-    const sql = "SELECT * FROM users WHERE email = ? AND password = ?"
+    const sql = "SELECT * FROM users WHERE email = ? AND password = ?";
     try {
-        // * el OBJETO que contiene la conexion a la DB recibe el texto SQL y comprueba que la sintaxis esta bien escrita. prepare() devuelve un objeto con metodos que inyecta datos a las query SQL y las ejecuta. Devuelve algo.
-        const stmt = objectDB.prepare(sql)
-        const userExists = stmt.get(emailUser, password)
+        const stmt = objectDB.prepare(sql);
+        
+        // Calculamos el hash de la contraseña ingresada
+        const hashedPassword = calcularHashSHA256(password);
+
+        // Consultamos la DB probando con la contraseña hasheada, o en texto plano si hay usuarios legados
+        const userExists = stmt.get(emailUser, hashedPassword) || stmt.get(emailUser, password);
 
         if (!userExists) {
-            return null
+            return null;
         }
-        console.log(userExists);
 
-        const { idUser, name, surname, idRole, temporaryPassword, idStatus, email } = userExists
+        const { idUser, name, surname, idRole, temporaryPassword, idStatus, email } = userExists;
 
-        return { idUser, name, surname, idRole, temporaryPassword, idStatus, email }
+        return { idUser, name, surname, idRole, temporaryPassword, idStatus, email };
 
     } catch (error) {
-
-        throw error
+        throw error;
     }
-
 }
 
-
-
-
-module.exports = { authenticate }
+module.exports = { authenticate };
