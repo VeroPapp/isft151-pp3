@@ -1,14 +1,12 @@
 const { listSessions, UserSession } = require("../services/session.js")
-const { ErrorAuthentication, ErrorDomain, ErrorInternServer, ErrorSpecification } = require("../helpers/errorHandler.js")
+const { InternServerError, BadRequestError, UnauthorizedError, DomainError, sendError } = require("../helpers/errorHandler.js");
 
 function validateSession(request, response) {
     const currentToken = request.headers["x-access-token"]
     const currentSessionObject = listSessions.get(currentToken)
 
     if (!currentSessionObject || currentSessionObject.getStatus() === "disabled") {
-        const error = new ErrorAuthentication()
-        error.setMessage("No se encuentra su sesion o esta inactiva, debe loguearse de vuelta")
-        throw error
+        return false
     }
 
     const role = currentSessionObject.getRole()
@@ -16,18 +14,15 @@ function validateSession(request, response) {
 
     return true
 
-
 }
 
 
 function validateRole(request, response, listRoles) {
 
-    const { role } = request.body || {}
+    const { role } = request.body
 
     if (!listRoles.includes(role)) {
-        const error = new ErrorAuthentication()
-        error.setMessage("No autorizado para ejecutar ese endpoint")
-        throw error
+        return false
     }
 
     return true

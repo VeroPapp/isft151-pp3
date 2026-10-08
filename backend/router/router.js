@@ -6,8 +6,10 @@ function router() {
 
     // ----- AUTHENTICATION ROUTES -----
     routerMap.set('/', function (request, response) {
+        
         response.writeHead(200, { "Content-Type": "application/json" });
         response.end(JSON.stringify({ message: "API Backend Online" }));
+        
     });
     
     routerMap.set('/api/auth/login', login);

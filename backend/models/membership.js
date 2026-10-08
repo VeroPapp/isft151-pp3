@@ -1,5 +1,5 @@
 const { objectDB } = require("../database/connectDB.js")
-const { ErrorDomain } = require("../helpers/errorHandler.js")
+const { DomainError } = require("../helpers/errorHandler.js")
 
 
 function createMembershipApplicationDB(name, surname, dni, birthdate, email, phone) {
@@ -15,7 +15,7 @@ function createMembershipApplicationDB(name, surname, dni, birthdate, email, pho
     const userExists = stmtCheck.get(dni, email)
 
     if (userExists) {
-        const error = new ErrorDomain()
+        const error = new DomainError("El numero de DNI o email ya está registrado en el sistema.")
         throw error
     }
 
@@ -47,9 +47,9 @@ function createMembershipApplicationDB(name, surname, dni, birthdate, email, pho
         birthdate,
         email,
         phone,
-        dni, // La contraseña temporal es el mismo DNI
-        1, // La contraseña temporal está activa
-        1 // El estado PENDING tiene idStatus = 1
+        dni, //* La contraseña temporal es el mismo DNI
+        1, //* La contraseña temporal está activa
+        1 //* El estado PENDING tiene idStatus = 1
     )
 
     return result.lastInsertRowid

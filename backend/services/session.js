@@ -13,9 +13,9 @@ class UserSession {
         this.userId = null;
     }
 
-    async setHash(idUser, email) {
+    setHash(idUser, email) {
         let cadena = `${idUser}:${email}`;
-        const result = await calcularHashSHA256(cadena);
+        const result = calcularHashSHA256(cadena);
         this.hash = result;
         this.userEmail = email;
         this.userId = idUser;

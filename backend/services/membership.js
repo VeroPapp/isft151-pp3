@@ -1,6 +1,7 @@
-const { ErrorAuthentication, ErrorDomain, ErrorInternServer, ErrorSpecification } = require("../helpers/errorHandler.js")
-const { authorize } = require("../models/auth.js")
-const {createMembershipApplicationDB, assignMemberRolePendingDB} = require("../models/membership.js");
+const { InternServerError, BadRequestError, UnauthorizedError, DomainError, sendError } = require("../helpers/errorHandler.js")
+const { authenticate } = require("../models/auth.js")
+const { createMembershipApplicationDB } = require("../models/membership.js");
+const { sendSuccess } = require("../helpers/responseHandler.js")
 
 async function createMembershipApplication(request, response) {
 
@@ -10,74 +11,43 @@ async function createMembershipApplication(request, response) {
         body += chunk.toString()
     })
 
-    request.on("end", async () => {
+    request.on("end", () => {
         try {
             // si el body esta vacio, lanza un error de especificación
             if (!body) {
-                const error = new ErrorSpecification()
+                const error = new BadRequestError()
                 throw error
             }
 
-            request.body = JSON.parse(body)
+            const data = JSON.parse(body)
 
             // Extrae los datos del body
-            const {name, surname, dni, birthdate, email, phone} = request.body
+            const { name, surname, dni, birthdate, email, phone } = data
 
             // Validación de datos de entrada
             if (!name || !surname || !dni || !birthdate || !email || !phone) {
-                const error = new ErrorSpecification()
+                const error = new BadRequestError()
                 throw error
             }
 
-            const userId = await createMembershipApplicationDB(name, surname, dni, birthdate, email, phone)
+            const userId = createMembershipApplicationDB(name, surname, dni, birthdate, email, phone)
 
-            response.writeHead(200, {
-                "Content-Type": "application/json"
-            })
-
-            response.end(JSON.stringify({
-                message: "Solicitud enviada correctamente. Pronto nos comunicaremos vía mail."
-            }))
+            const message = { message: "Solicitud enviada correctamente. Pronto nos comunicaremos vía mail." }
+            sendSuccess(response, message, 201)
 
         } catch (error) {
 
-            const type = error.type || "ErrorInternServer"
-            let message = null
-            let code = null
-
-            switch (type) {
-
-                case "ErrorSpecification":
-                    message = error.getMessage()
-                    code = error.getCode()
-                    break
-
-                case "ErrorDomain":
-                    message = error.getMessage()
-                    code = error.getCode()
-                    break
-
-                case "ErrorInternServer":
-                    message = error.message
-                    code = 500
-                    break
-            }
-
-            response.writeHead(code, {
-                "Content-Type": "application/json"
-            })
-
-            response.end(JSON.stringify(message))
+            sendError(response, error)
         }
     })
 }
 
 
-function listMembershipApplications(request, response) {}
+function listMembershipApplications(request, response) { }
 
-function approveMembershipApplication(request, response) {}
+function approveMembershipApplication(request, response) { }
 
-function rejectMembershipApplication(request, response) {}
+function rejectMembershipApplication(request, response) { }
 
 
 

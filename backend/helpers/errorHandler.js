@@ -1,10 +1,9 @@
-// Clase Base para Errores del Sistema
-class ErrorDomain extends Error {
-    constructor(message = "Error general del dominio", statusCode = 500) {
-        super(message);
+// * Error interno del servidor
+class InternServerError {
+    constructor(message = "Error interno del servidor") {
+        this.name = "ErrorInternServer";
         this.message = message;
-        this.statusCode = statusCode;
-        this.type = "ErrorDomain";
+        this.statusCode = 500;
     }
 
     getMessage() {
@@ -14,75 +13,89 @@ class ErrorDomain extends Error {
     getStatusCode() {
         return this.statusCode;
     }
-}
 
-// Subclases de Errores HTTP Específicos
-class BadRequestError extends ErrorDomain {
-    constructor(message = "Petición incorrecta o datos inválidos") {
-        super(message, 400);
-        this.type = "ErrorSpecification";
+    getName() {
+        return this.name;
     }
 }
 
-class UnauthorizedError extends ErrorDomain {
-    constructor(message = "No autorizado o credenciales incorrectas") {
-        super(message, 401);
-        this.type = "ErrorAuthentication";
+// * Error de peticion invalida o especificacion
+class BadRequestError {
+    constructor(message = "Petición incorrecta") {
+        this.name = "BadRequestError";
+        this.message = message;
+        this.statusCode = 400;
+    }
+
+    getMessage() {
+        return this.message;
+    }
+
+    getStatusCode() {
+        return this.statusCode;
+    }
+
+    getName() {
+        return this.name;
     }
 }
 
-class ForbiddenError extends ErrorDomain {
-    constructor(message = "Acceso prohibido") {
-        super(message, 403);
-        this.type = "ErrorForbidden";
+// * Error no autenticado o sin permisos 
+class UnauthorizedError {
+    constructor(message = "No autenticado o sin permisos") {
+        this.name = "UnauthorizedError";
+        this.message = message;
+        this.statusCode = 401;
+    }
+
+    getMessage() {
+        return this.message;
+    }
+
+    getStatusCode() {
+        return this.statusCode;
+    }
+
+    getName() {
+        return this.name;
     }
 }
 
-class NotFoundError extends ErrorDomain {
-    constructor(message = "Recurso o endpoint no encontrado") {
-        super(message, 404);
-        this.type = "ErrorNotFound";
+//* Error Dominio
+class DomainError {
+    constructor(message = "La operación no cumple con las reglas del negocio") {
+        this.name = "DomainValidationError";
+        this.message = message;
+        this.statusCode = 422;
     }
+
+    getMessage() { return this.message; }
+    getStatusCode() { return this.statusCode; }
+    getName() { return this.name; }
+
 }
 
-// Funcion Centralizada para Enviar Respuestas de Error al Cliente
-function sendError(res, error) {
-    let statusCode = 500;
-    let message = "Error interno del servidor";
 
-    if (error instanceof ErrorDomain) {
-        statusCode = error.getStatusCode();
-        message = error.getMessage();
-    } else if (error instanceof Error) {
-        message = error.message;
-    }
 
-    const responsePayload = JSON.stringify({
+function sendError(response, error) {
+    const statusCode = error.getStatusCode()
+    const message = error.getMessage()
+
+    response.writeHead(statusCode, { "Content-Type": "application/json" });
+
+    response.end(JSON.stringify({
         status: "error",
         error: {
             code: statusCode,
-            message: message
+            message
         }
-    });
-
-    res.writeHead(statusCode, {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization, x-access-token",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS"
-    });
-
-    res.end(responsePayload);
+    }));
 }
 
 module.exports = {
-    ErrorDomain,
+    InternServerError,
     BadRequestError,
     UnauthorizedError,
-    ForbiddenError,
-    NotFoundError,
-    sendError,
-    ErrorAuthentication: UnauthorizedError,
-    ErrorSpecification: BadRequestError,
-    ErrorInternServer: ErrorDomain
+    DomainError,
+    sendError
 };
