@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Comunidad Activa - Panel del Socio</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f8f9fa; }
+        fieldset { margin-bottom: 20px; padding: 15px; border-radius: 5px; background: white; border: 1px solid #ccc; }
+        legend { font-weight: bold; font-size: 1.1em; padding: 0 5px; }
+        label { display: inline-block; width: 140px; font-weight: bold; margin-bottom: 5px; }
+        button { padding: 6px 12px; cursor: pointer; border-radius: 3px; border: 1px solid #ccc; }
+        .btn-danger { background-color: #dc3545; color: white; border: none; }
+        .btn-warning { background-color: #ffc107; color: black; border: none; }
+        #resultado { margin-bottom: 15px; padding: 10px; font-weight: bold; border-radius: 4px; display: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Comunidad Activa - Panel del Socio</h1>
+        <button id="btnLogout" class="btn-danger">Cerrar Sesión</button>
+    </div>
+
+    <div id="resultado"></div>
+
+    <!-- MIS DATOS PERSONALES -->
+    <fieldset>
+        <legend>Mis Datos Personales</legend>
+        <div id="perfilContenido">Cargando información del perfil...</div>
+    </fieldset>
+
+    <!-- MIS ACTIVIDADES (INSCRIPTO) -->
+    <fieldset>
+        <legend>Mis Actividades Inscriptas</legend>
+        <div id="misActividadesContenido">Cargando mis actividades...</div>
+    </fieldset>
+    <script>
+        const BASE_URL = "http://localhost:3000";
+        let accessToken = localStorage.getItem("accessToken");
+        //redirecciona la pantalla principal si no hay inicio de sesion 
+        if (!accessToken) {
+            window.localStorage.getItem("accessToken");
+        }
+        // CLASES DE ERROR ESTANDAR (HTTP 400, 401, 422, 500) (ver si se puede hacer en un archivo aparte)
+        class SpecificationError extends Error {
+            constructor(message, detail) {
+                super(message);
+                this.name = "SpecificationError (HTTP 400)";
+                this.detail = detail;
+                this.status = 400;
+            }
+        }
+
+        class UnauthorizedError extends Error {
+            constructor(message, detail) {
+                super(message);
+                this.name = "UnauthorizedError (HTTP 401)";
+                this.detail = detail;
+                this.status = 401;
+            }
+        }
+
+        class DomainError extends Error {
+            constructor(message, detail) {
+                super(message);
+                this.name = "DomainError (HTTP 422)";
+                this.detail = detail;
+                this.status = 422;
+            }
+        }
+
+        class ProgramError extends Error {
+            constructor(message, detail) {
+                super(message);
+                this.name = "ProgramError (HTTP 500)";
+                this.detail = detail;
+                this.status = 500;
+            }
+        }
+       //---------------------------------------------------------------------------//
+      
+        
+        
+        
+       
+    </script>
+</body>
+</html>
