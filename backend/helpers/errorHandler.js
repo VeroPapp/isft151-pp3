@@ -76,12 +76,22 @@ class DomainError {
 }
 
 
-
 function sendError(response, error) {
-    const statusCode = error.getStatusCode()
-    const message = error.getMessage()
+    const statusCode =
+        error && typeof error.getStatusCode === "function"
+            ? error.getStatusCode()
+            : 500;
 
-    response.writeHead(statusCode, { "Content-Type": "application/json" });
+    const message =
+        error && typeof error.getMessage === "function"
+            ? error.getMessage()
+            : error && error.message
+                ? error.message
+                : "Error interno del servidor";
+
+    response.writeHead(statusCode, {
+        "Content-Type": "application/json"
+    });
 
     response.end(JSON.stringify({
         status: "error",

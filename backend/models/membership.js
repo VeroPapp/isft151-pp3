@@ -1,5 +1,6 @@
 const { objectDB } = require("../database/connectDB.js")
 const { DomainError } = require("../helpers/errorHandler.js")
+const { calcularHashSHA256 } = require("../helpers/hash.js")
 
 
 function createMembershipApplicationDB(name, surname, dni, birthdate, email, phone) {
@@ -18,6 +19,8 @@ function createMembershipApplicationDB(name, surname, dni, birthdate, email, pho
         const error = new DomainError("El numero de DNI o email ya está registrado en el sistema.")
         throw error
     }
+
+    const passwordHash = calcularHashSHA256(dni)
 
     // Crear usuario con estado PENDING,
     // sin rol y con contraseña temporal
@@ -47,7 +50,7 @@ function createMembershipApplicationDB(name, surname, dni, birthdate, email, pho
         birthdate,
         email,
         phone,
-        dni, //* La contraseña temporal es el mismo DNI
+        passwordHash, //* La contraseña temporal es el mismo DNI
         1, //* La contraseña temporal está activa
         1 //* El estado PENDING tiene idStatus = 1
     )
