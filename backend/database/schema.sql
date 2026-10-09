@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS userStatus (
 
 -- 2. Insertamos los estados permitidos
 INSERT OR IGNORE INTO userStatus (name) VALUES
-('PENDING'),
+('PENDINGFORAPPROBATION'),
+('PENDINGFORPASSWORDCHANGE'),
 ('ACTIVE'),
 ('REJECTED'),
 ('INACTIVE');
@@ -26,7 +27,7 @@ INSERT OR IGNORE INTO roles (name) VALUES
 CREATE TABLE IF NOT EXISTS users (
     idUser INTEGER PRIMARY KEY AUTOINCREMENT,
     idRole INTEGER NULL,
-    idStatus INTEGER NOT NULL DEFAULT 1, -- * Por defecto el ID 1 es 'PENDING'
+    idStatus INTEGER NOT NULL DEFAULT 1, -- * Por defecto el ID 1 es 'PENDINGFORAPPROBATION'
     name TEXT NOT NULL,
     surname TEXT NOT NULL,
     dni TEXT NOT NULL UNIQUE,
@@ -34,7 +35,6 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT NOT NULL UNIQUE,
     phone TEXT NOT NULL,
     password TEXT NULL,
-    temporaryPassword INTEGER NOT NULL DEFAULT 0,
     creationDate TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (idRole) REFERENCES roles(idRole) ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -42,13 +42,13 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- TIENE QUE CAMBIAR LA CONTRASEÑA
-INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, email, phone, password, temporaryPassword)
-VALUES (1, 2, 'Carlos', 'Tevez', '123', '1984-02-05', 'carlitos@email.com', '1123456789', '123', 1);
+INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, email, phone, password )
+VALUES (1, 2, 'Carlos', 'Tevez', '123', '1984-02-05', 'carlitos@email.com', '1123456789', '123');
 
 -- NO TIENE QUE CAMBIAR LA CONTRASEÑA
-INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, email, phone, password, temporaryPassword)
-VALUES (1, 2, 'Vero', 'Papp', '1234', '1945-07-05', 'verito@email.com', '11456789', '1234', 0);
+INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, email, phone, password )
+VALUES (1, 3, 'Vero', 'Papp', '1234', '1945-07-05', 'verito@email.com', '11456789', '1234');
 
 -- NO ESTA ACTIVO
-INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, email, phone, password, temporaryPassword)
-VALUES (1, 4, 'Seba', 'asdd', '12345', '1999-09-09', 'seba@email.com', '1125689', '12345', 0);
+INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, email, phone, password )
+VALUES (1, 4, 'Seba', 'asdd', '12345', '1999-09-09', 'seba@email.com', '1125689', '12345');
