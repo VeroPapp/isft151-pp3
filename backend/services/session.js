@@ -1,9 +1,5 @@
 const { calcularHashSHA256 } = require("../helpers/hash.js");
 
-// Mapeos de sesión
-const sessionsByUsers = new Map();  // clave(email) -> valor(token)
-const listSessions = new Map();     // clave(token) -> valor(objeto sesión)
-
 class UserSession {
     constructor() {
         this.status = 'disabled';
@@ -19,32 +15,12 @@ class UserSession {
         this.hash = result;
         this.userEmail = email;
         this.userId = idUser;
-        return this.hash;
     }
 
     getHash() {
         return this.hash;
     }
 
-    setRole(role) {
-        this.role = role;
-    }
-
-    getRole() {
-        return this.role;
-    }
-
-    setStatus(status) {
-        this.status = status;
-    }
-
-    getStatus() {
-        return this.status;
-    }
-
-    getEmail() {
-        return this.userEmail;
-    }
 }
 
-module.exports = { listSessions, UserSession, sessionsByUsers };
+module.exports = { UserSession };

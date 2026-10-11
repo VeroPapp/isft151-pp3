@@ -1,105 +1,135 @@
 // * Error interno del servidor
 class InternServerError {
     constructor(message = "Error interno del servidor") {
-        this.name = "ErrorInternServer";
+        this.code = 500;
         this.message = message;
-        this.statusCode = 500;
+        this.type = "ErrorInternServer";
     }
 
     getMessage() {
         return this.message;
     }
 
-    getStatusCode() {
-        return this.statusCode;
+    getType() {
+        return this.type;
     }
 
-    getName() {
-        return this.name;
+    getCode() {
+        return this.code;
     }
 }
 
 // * Error de peticion invalida o especificacion
 class BadRequestError {
     constructor(message = "Petición incorrecta") {
-        this.name = "BadRequestError";
+        this.code = 400;
         this.message = message;
-        this.statusCode = 400;
+        this.type = "BadRequestError";
     }
 
     getMessage() {
         return this.message;
     }
 
-    getStatusCode() {
-        return this.statusCode;
+    getType() {
+        return this.type;
     }
 
-    getName() {
-        return this.name;
+    getCode() {
+        return this.code;
     }
 }
 
 // * Error no autenticado o sin permisos 
 class UnauthorizedError {
     constructor(message = "No autenticado o sin permisos") {
-        this.name = "UnauthorizedError";
+        this.code = 401;
         this.message = message;
-        this.statusCode = 401;
+        this.type = "UnauthorizedError";
     }
 
     getMessage() {
         return this.message;
     }
 
-    getStatusCode() {
-        return this.statusCode;
+    getType() {
+        return this.type;
     }
 
-    getName() {
-        return this.name;
+    getCode() {
+        return this.code;
     }
 }
 
 //* Error Dominio
 class DomainError {
     constructor(message = "La operación no cumple con las reglas del negocio") {
-        this.name = "DomainValidationError";
+        this.code = 422;
         this.message = message;
-        this.statusCode = 422;
+        this.type = "DomainValidationError";
     }
 
     getMessage() { return this.message; }
-    getStatusCode() { return this.statusCode; }
-    getName() { return this.name; }
+    getType() { return this.type; }
+    getCode() { return this.code; }
 
 }
 
 
 function sendError(response, error) {
-    const statusCode =
-        error && typeof error.getStatusCode === "function"
-            ? error.getStatusCode()
-            : 500;
+    let codeStatus = null;
+    let message = null
+    let type = null
 
-    const message =
-        error && typeof error.getMessage === "function"
-            ? error.getMessage()
-            : error && error.message
-                ? error.message
-                : "Error interno del servidor";
+    if (error && error.getType()) {
 
-    response.writeHead(statusCode, {
-        "Content-Type": "application/json"
-    });
+        switch (error.getType()) {
+            case "UnauthorizedError":
+                codeStatus = error.getCode();
+                message = error.getMessage();
+                type = error.getType()
+                break;
 
-    response.end(JSON.stringify({
-        status: "error",
-        error: {
-            code: statusCode,
-            message
+            case "BadRequestError":
+                codeStatus = error.getCode();
+                message = error.getMessage();
+                type = error.getType()
+                break;
+
+            case "DomainValidationError":
+                codeStatus = error.getCode();
+                message = error.getMessage();
+                type = error.getType()
+                break;
+
+            case "ErrorInternServer":
+                codeStatus = error.getCode();
+                message = error.getMessage();
+                type = error.getType()
+                break;
+
+            default:
+                codeStatus = 500
+                message = "Error interno del servidor";
+                type = error.getType()
+                break;
         }
-    }));
+
+    } else {
+        codeStatus = 500
+        message = error.message
+
+    }
+
+    const data = {
+        error: {
+            type: type,
+            message: message
+        }
+    }
+
+    response.writeHead(codeStatus, { "Content-Type": "application/json" });
+    response.end(JSON.stringify(data));
 }
 
 module.exports = {

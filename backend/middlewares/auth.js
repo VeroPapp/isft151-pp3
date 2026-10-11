@@ -1,33 +1,49 @@
 const { listSessions, UserSession } = require("../services/session.js")
 const { InternServerError, BadRequestError, UnauthorizedError, DomainError, sendError } = require("../helpers/errorHandler.js");
+const { getUserBySessionKey } = require("../models/user.js")
+const { getRoleById } = require("../models/roles.js")
+const { getStatusById } = require("../models/status.js")
 
-function validateSession(request, response) {
-    const currentToken = request.headers["x-access-token"]
-    const currentSessionObject = listSessions.get(currentToken)
+function validateSession(sessionKey) {
 
-    if (!currentSessionObject || currentSessionObject.getStatus() === "disabled") {
-        return false
+    try {
+        const sessionExists = getUserBySessionKey(sessionKey)
+
+        if (!sessionExists) {
+            return false
+        }
+
+        return { IDrole: sessionExists.IDrole, IDuser: sessionExists.IDuser, IDstatus: sessionExists.IDstatus }
+
+    } catch (error) {
+        throw error
     }
 
-    const role = currentSessionObject.getRole()
-    request.body = { role: role, currentSession: currentSessionObject }
-
-    return true
 
 }
 
 
-function validateRole(request, response, listRoles) {
+function authorize(IDstatus, IDrole, allowedRoles) {
 
-    const { role } = request.body
+    try {
 
-    if (!listRoles.includes(role)) {
-        return false
+        const statusExists = getStatusById(IDstatus)
+        if (!statusExists || statusExists.nameStatus === "REJECTED" || statusExists.nameStatus === "INACTIVE" || statusExists.nameStatus === "PENDINGFORAPPROBATION") {
+            return false
+        }
+
+        const roleExists = getRoleById(IDrole)
+        if (!roleExists || !allowedRoles.includes(roleExists.nameRole)) {
+            return false
+        }
+
+        return { nameRole: roleExists.nameRole }
+
+    } catch (error) {
+        throw error
     }
-
-    return true
 
 }
 
 
-module.exports = { validateSession, validateRole }
+module.exports = { validateSession, authorize }
