@@ -3,11 +3,10 @@ const { InternServerError, BadRequestError, UnauthorizedError, DomainError, send
 const { authenticate } = require("../models/auth.js");
 const { getStatusById } = require("../models/status.js");
 const { getRoleById } = require("../models/roles.js");
-const { listSessions, UserSession, sessionsByUsers } = require("./session.js");
-const { validateSession, validateRole } = require("../middlewares/auth.js");
+const { updateSessionKeyByID } = require("../models/user.js");
+const { UserSession } = require("../services/session.js");
 
 function login(request, response) {
-
     let bodyRaw = "";
 
     request.on('data', chunk => {
@@ -15,121 +14,90 @@ function login(request, response) {
     });
 
     request.on("end", function () {
-
         try {
-
             if (!bodyRaw) {
                 throw new BadRequestError("El cuerpo de la petición no puede estar vacío.");
             }
 
-            const body = JSON.parse(bodyRaw);
-            const { email, password } = body;
+            const data = JSON.parse(bodyRaw);
+            const { email, password } = data;
 
             if (!email || !password || !password.trim()) {
                 throw new BadRequestError("El email y la contraseña son requeridos.");
             }
-
-            // ---- 1 - VALIDA QUE EL USUARIO EXISTA Y QUE LA CONTRASEÑA SEA CORRECTA ----
+            // * 1. Autenticación si es quien dice ser.
             const usersExists = authenticate(email, password);
-
             if (!usersExists) {
                 throw new UnauthorizedError("Credenciales inválidas o usuario no encontrado.");
             }
 
-            // ---- 2 - VALIDA QUE EL USUARIO TENGA UN ESTADO ACTIVO PARA INICIAR SESIÓN ----
-            const statusExists = getStatusById(usersExists.idStatus);
-
-            if (!statusExists || statusExists.name === "PENDING" || statusExists.name === "REJECTED" || statusExists.name === "INACTIVE") {
-                throw new UnauthorizedError("El usuario no esta habilitado para iniciar sesion. Debe estar habilitado por el administrador.");
-            }
-
-            // ---- 3 - VALIDA QUE EL USUARIO TENGA UN ROL ASIGNADO PARA INICIAR SESIÓN ----
+            // * 2. Obtener el nombre del rol
             const roleExists = getRoleById(usersExists.idRole);
-
             if (!roleExists) {
-                throw new UnauthorizedError("El usuario no tiene un rol válido para iniciar sesión. Contacte al administrador.");
+                throw new UnauthorizedError("El usuario no tiene un rol válido para iniciar sesión.");
             }
 
+            // * 3. Validación del Estado del Usuario
+            const statusExists = getStatusById(usersExists.idStatus);
+            if (!statusExists || statusExists.nameStatus === "PENDINGFORAPPROBATION" || statusExists.nameStatus === "REJECTED" || statusExists.nameStatus === "INACTIVE" || statusExists.nameStatus === "NONE") {
+                throw new UnauthorizedError("El usuario no está habilitado para iniciar sesión (Pendiente, rechazado o inactivo).");
+            }
+
+            // * Mapeo básico del usuario para la respuesta
             const user = {
                 idUser: usersExists.idUser,
                 name: usersExists.name,
                 surname: usersExists.surname,
-                role: roleExists.name,
-                temporaryPassword: Boolean(usersExists.temporaryPassword)
+                role: roleExists.nameRole,
             };
 
-            // ---- 4 - GESTIÓN DE SESIÓN Y TOKENS ----
-            let currentSession = null;
-            const existingToken = sessionsByUsers.get(email);
-
-            if (existingToken) {
-                currentSession = listSessions.get(existingToken);
+            // * Si no tiene sesión ("NONE"), generamos una nueva y actualizamos la base de datos
+            let currentToken = usersExists.sessionKey;
+            if (usersExists.sessionKey === "NONE") {
+                const currentSession = new UserSession();
+                currentSession.setHash(usersExists.idUser, email);
+                currentToken = currentSession.getHash()
+                updateSessionKeyByID(currentToken, usersExists.idUser);
             }
 
-            if (!currentSession) {
-                currentSession = new UserSession();
-                const currentToken = currentSession.setHash(usersExists.idUser, email);
-                currentSession.setRole(roleExists.name);
-                currentSession.setStatus("enabled");
+            // * Inyectamos SIEMPRE el token en la cabecera
+            response.setHeader("x-access-token", `${currentToken}`);
 
-                sessionsByUsers.set(email, currentToken);
-                listSessions.set(currentToken, currentSession);
-            } else {
-                currentSession.setStatus("enabled");
-            }
-
-            response.setHeader("x-access-token", `${currentSession.getHash()}`);
-
-            // Si el usuario tiene contraseña temporal, redirigimos
-            if (usersExists.temporaryPassword === 1 || usersExists.temporaryPassword === true) {
-                const resultTemporal = {
+            // * 4. Control del flujo para cambiar obligatoriamente la contraseña
+            if (statusExists.nameStatus === "PENDINGFORPASSWORDCHANGE") {
+                const result = {
                     message: "Contraseña temporal utilizada, redirección a cambio de contraseña",
                     redirectToChangePassword: true,
                     user: user
                 };
-                sendSuccess(response, resultTemporal, 200);
+                sendSuccess(response, result, 200);
                 return
             }
 
-            // Respuesta exitosa estándar
+            // * Si es ACTIVE, mandamos el objeto completo estructurado
             const result = {
+                message: "Login exitoso",
                 user: user
             };
 
             sendSuccess(response, result, 200);
 
         } catch (error) {
-
-            sendError(response, error)
-
+            sendError(response, error);
         }
-
-
-    })
-
+    });
 }
 
 function logout(request, response) {
 
     try {
 
-        const ok = validateSession(request, response);
-        if (!ok) {
-            const error = new UnauthorizedError("No se encuentra su sesion o esta inactiva, debe loguearse de vuelta")
+        const { IDuser, IDrole, IDstatus } = request.body
+        const updateSession = updateSessionKeyByID('NONE', IDuser)
+        if (!updateSession) {
+            const error = new UnauthorizedError("El usuario no existe o no se pudo cerrar la sesión.")
             throw error
         }
-
-        const okRole = validateRole(request, response, ["MEMBER", "CLUB_ADMIN", "SUPER_ADMIN"]);
-        if (!okRole) {
-            throw new UnauthorizedError("No tienes permisos suficientes para realizar esta acción.");
-        }
-
-        const { currentSession } = request.body;
-
-
-        currentSession.setStatus("disabled");
-        sessionsByUsers.delete(currentSession.getEmail());
-        listSessions.delete(currentSession.getHash());
 
         sendSuccess(response, { message: "Sesión cerrada correctamente" }, 200);
 

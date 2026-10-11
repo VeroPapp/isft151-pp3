@@ -12,7 +12,7 @@ function getStatusById(id){
 
         const { idStatus, name } = statusExists
 
-        return { id: idStatus, name }
+        return { IDStatus: idStatus, nameStatus: name }
     } catch (error) {
         throw error
     }

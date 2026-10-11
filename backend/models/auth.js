@@ -15,9 +15,9 @@ function authenticate(emailUser, password) {
             return null;
         }
 
-        const { idUser, name, surname, idRole, temporaryPassword, idStatus, email } = userExists;
+        const { idUser, name, surname, idRole, temporaryPassword, idStatus, email, sessionKey } = userExists;
 
-        return { idUser, name, surname, idRole, temporaryPassword, idStatus, email };
+        return { idUser, name, surname, idRole, temporaryPassword, idStatus, email, sessionKey };
 
     } catch (error) {
         throw error;

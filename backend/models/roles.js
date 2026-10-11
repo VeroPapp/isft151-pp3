@@ -12,7 +12,7 @@ function getRoleById(id){
 
         const { idRole, name } = roleExists
 
-        return { id: idRole, name }
+        return { idRole: idRole, nameRole: name }
     } catch (error) {
         throw error
     }
