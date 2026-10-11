@@ -27,7 +27,7 @@ INSERT OR IGNORE INTO roles (name) VALUES
 -- 4. Tabla de usuarios referenciando id_role e id_status
 CREATE TABLE IF NOT EXISTS users (
     idUser INTEGER PRIMARY KEY AUTOINCREMENT,
-    idRole INTEGER  NOT NULL DEFAULT 1,  -- Por defecto el ID 1 es 'NONE' y ya no es NULL
+    idRole INTEGER  NOT NULL DEFAULT 1,  -- * Por defecto el ID 1 es 'NONE'
     idStatus INTEGER NOT NULL DEFAULT 1, -- * Por defecto el ID 1 es 'PENDINGFORAPPROBATION'
     name TEXT NOT NULL,
     surname TEXT NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT NOT NULL UNIQUE,
     phone TEXT NOT NULL,
     password TEXT NULL,
-    sessionKey TEXT NULL,   -- Campo sessionKey para el token de sesión
+    sessionKey TEXT NULL DEFAULT 'NONE',   -- Campo sessionKey para el token de sesión, POR DEFECTO NONE
     creationDate TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (idRole) REFERENCES roles(idRole) ON DELETE RESTRICT ON UPDATE CASCADE,
