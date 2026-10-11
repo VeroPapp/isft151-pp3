@@ -1,5 +1,4 @@
 const { InternServerError, BadRequestError, UnauthorizedError, DomainError, sendError } = require("../helpers/errorHandler.js")
-const { authenticate } = require("../models/auth.js")
 const { createMembershipApplicationDB } = require("../models/membership.js");
 const { sendSuccess } = require("../helpers/responseHandler.js")
 
@@ -11,11 +10,12 @@ async function createMembershipApplication(request, response) {
         body += chunk.toString()
     })
 
-    request.on("end", () => {
+    request.on("end", async () => {
         try {
+
             // si el body esta vacio, lanza un error de especificación
             if (!body) {
-                const error = new BadRequestError()
+                const error = new BadRequestError("El cuerpo de la petición no puede estar vacío.")
                 throw error
             }
 
@@ -26,13 +26,19 @@ async function createMembershipApplication(request, response) {
 
             // Validación de datos de entrada
             if (!name || !surname || !dni || !birthdate || !email || !phone) {
-                const error = new BadRequestError()
+                const error = new BadRequestError("Faltan campos obligatorios para realizar la solicitud de membresia")
                 throw error
             }
 
             const userId = createMembershipApplicationDB(name, surname, dni, birthdate, email, phone)
 
+            if (!userId) {
+                const error = new DomainError("El numero de DNI o email ya está registrado en el sistema.")
+                throw error
+            }
+
             const message = { message: "Solicitud enviada correctamente. Pronto nos comunicaremos vía mail." }
+
             sendSuccess(response, message, 201)
 
         } catch (error) {

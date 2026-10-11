@@ -5,57 +5,63 @@ const { calcularHashSHA256 } = require("../helpers/hash.js")
 
 function createMembershipApplicationDB(name, surname, dni, birthdate, email, phone) {
 
-    // Verificar si ya existe un usuario con ese DNI o email
-    const sqlCheck = `
-        SELECT idUser
-        FROM users
-        WHERE dni = ? OR email = ?
-    `
+    try {
 
-    const stmtCheck = objectDB.prepare(sqlCheck)
-    const userExists = stmtCheck.get(dni, email)
+        // Verificar si ya existe un usuario con ese DNI o email
+        const sqlCheck = `
+            SELECT idUser
+            FROM users
+            WHERE dni = ? OR email = ?
+        `
 
-    if (userExists) {
-        const error = new DomainError("El numero de DNI o email ya está registrado en el sistema.")
-        throw error
-    }
+        const stmtCheck = objectDB.prepare(sqlCheck)
+        const userExists = stmtCheck.get(dni, email)
 
-    const passwordHash = calcularHashSHA256(dni)
+        if (userExists) {
+            return false
+        }
 
-    // Crear usuario con estado PENDING,
-    // sin rol y con contraseña temporal
-    const sqlInsert = `
-        INSERT INTO users
-        (
+        const passwordHash = calcularHashSHA256(dni)
+
+        // Crear usuario con estado PENDING,
+        // sin rol y con contraseña temporal
+        const sqlInsert = `
+            INSERT INTO users
+            (
+                name,
+                surname,
+                dni,
+                birthdate,
+                email,
+                phone,
+                password,
+                sessionKey,
+                idStatus,
+                idRole
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `
+
+        const stmtInsert = objectDB.prepare(sqlInsert)
+
+        const result = stmtInsert.run(
             name,
             surname,
             dni,
             birthdate,
             email,
             phone,
-            password,
-            temporaryPassword,
-            idStatus,
-            idRole
+            passwordHash, //* La contraseña temporal es el mismo DNI
+            'NONE', // * la sessionKey al inicio es 'NONE'
+            1, //* El estado PENDINGFORAPPROBATION tiene idStatus = 1
+            1 //* el estado del role es NONE, hasta que el admin lo apruebe y cambie a MEMBER
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
-    `
 
-    const stmtInsert = objectDB.prepare(sqlInsert)
+        return result.lastInsertRowid
 
-    const result = stmtInsert.run(
-        name,
-        surname,
-        dni,
-        birthdate,
-        email,
-        phone,
-        passwordHash, //* La contraseña temporal es el mismo DNI
-        1, //* La contraseña temporal está activa
-        1 //* El estado PENDING tiene idStatus = 1
-    )
-
-    return result.lastInsertRowid
+    } catch (error) {
+        throw error
+    }
 }
 
 
