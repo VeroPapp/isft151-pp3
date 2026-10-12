@@ -40,6 +40,8 @@ async function requestDispatcher(request, response) {
 
         // * Caso 2: Endpoint Privado
         const sessionKey = request.headers["x-access-token"]
+        console.log("sessionKey ",sessionKey);
+        
         if (!sessionKey) {
             const error = new UnauthorizedError("Requiere de un token de session para seguir operando con dicha peticion, acceso privado.")
             throw error

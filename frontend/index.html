@@ -1,17 +1,48 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Panel de pruebas</title>
     <style>
-        body { font-family: sans-serif; margin: 20px; }
-        fieldset { margin-bottom: 15px; padding: 15px; border-radius: 5px; }
-        label { display: inline-block; width: 140px; margin-bottom: 5px; }
-        input { margin-bottom: 5px; padding: 5px; width: 200px; }
-        button { padding: 8px 12px; margin-top: 5px; cursor: pointer; }
-        #resultado { margin-top: 15px; padding: 10px; font-weight: bold; border-radius: 4px; }
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+        }
+
+        fieldset {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        label {
+            display: inline-block;
+            width: 140px;
+            margin-bottom: 5px;
+        }
+
+        input {
+            margin-bottom: 5px;
+            padding: 5px;
+            width: 200px;
+        }
+
+        button {
+            padding: 8px 12px;
+            margin-top: 5px;
+            cursor: pointer;
+        }
+
+        #resultado {
+            margin-top: 15px;
+            padding: 10px;
+            font-weight: bold;
+            border-radius: 4px;
+        }
     </style>
 </head>
+
 <body>
     <h1>Comunidad Activa - Panel de Pruebas</h1>
 
@@ -46,14 +77,14 @@
     <h2>Prueba de Servicios Protegidos</h2>
     <button id="btnProfile">Consultar Perfil (/api/memberProfile/getMemberProfile)</button>
     <button id="btnActivities">Listar Actividades (/api/activity/listActivities)</button>
-    
+
     <div id="resultado"></div>
+
 
     <script>
         const BASE_URL = "http://localhost:3000";
         let accessToken = null;
 
-        // CLASES DE ERROR MAPPING CON ESPECIFICACIÓN V2
         class SpecificationError extends Error {
             constructor(message, detail) {
                 super(message);
@@ -90,57 +121,67 @@
             }
         }
 
-        // FUNCIÓN CENTRALIZADA DE PETICIONES HTTP (EXCLUSIVO POST SEGÚN DOC V2)
         async function RPCWebAPIFetch(endpoint, content = {}) {
-            let pathLimpio = endpoint.startsWith("/") ? endpoint : "/" + endpoint;
-            let urlDestino = BASE_URL + pathLimpio;
+            const pathLimpio = endpoint.startsWith("/") ? endpoint : "/" + endpoint;
+            const urlDestino = BASE_URL + pathLimpio;
 
-            let cabecerasHTTP = {
+            const cabecerasHTTP = {
                 "Content-Type": "application/json"
             };
 
             if (accessToken) {
-                cabecerasHTTP["Authorization"] = "Bearer " + accessToken;
+                cabecerasHTTP["x-access-token"] = accessToken;
             }
 
-            let opciones = {
-                method: "POST", // La especificación exige POST para todos los endpoints
+            const opciones = {
+                method: "POST",
                 headers: cabecerasHTTP,
                 body: JSON.stringify(content)
             };
 
             try {
-                let respuesta = await fetch(urlDestino, opciones);
-                let datos;
+                const respuesta = await fetch(urlDestino, opciones);
+                let payload;
 
                 try {
-                    datos = await respuesta.json();
+                    payload = await respuesta.json();
                 } catch (e) {
-                    datos = { exception: "InvalidJSON", detail: ["La respuesta no es un JSON válido."] };
-                }
-
-               if (respuesta.ok) {
-                    return {
-                        datos: datos.data || datos,
-                        _accessToken: respuesta.headers.get("x-accessToken")
+                    payload = {
+                        error: {
+                            type: "InvalidJSON",
+                            message: "La respuesta no es JSON válido"
+                        }
                     };
                 }
 
-                let excepcion = datos.error?.type || datos.exception || `ErrorHTTP_${respuesta.status}`;
-                let detalle = datos.error?.message || (Array.isArray(datos.detail) ? datos.detail.join(", ") : datos.detail) || "Sin detalles";
+                if (respuesta.ok) {
+                    const tokenHeader = respuesta.headers.get("x-access-token");
+                    if (tokenHeader) {
+                        accessToken = tokenHeader;
+                        localStorage.setItem("accessToken", accessToken);
+                    }
+
+                    return {
+                        data: payload.data || payload,
+                        _accessToken: tokenHeader || accessToken
+                    };
+                }
+
+                const excepcion = payload.error?.type || "ErrorHTTP";
+                const detalle = payload.error?.message || "Sin detalles";
+
                 if (respuesta.status === 400) throw new SpecificationError(excepcion, detalle);
                 if (respuesta.status === 401 || respuesta.status === 403) throw new UnauthorizedError(excepcion, detalle);
-
                 if (respuesta.status === 422) throw new DomainError(excepcion, detalle);
-                
+
                 throw new ProgramError(excepcion, detalle);
+
             } catch (error) {
                 if (error.status) throw error;
                 throw new ProgramError("NetworkError", error.message);
             }
         }
 
-        // LÓGICA DE INTERFAZ Y MANEJADORES
         function mostrarResultado(mensaje, esError = false) {
             const resDiv = document.getElementById("resultado");
             resDiv.style.backgroundColor = esError ? "#ffe6e6" : "#e6ffe6";
@@ -159,8 +200,8 @@
             };
 
             try {
-                const data = await RPCWebAPIFetch("/api/membership/createMembershipApplication", payload);
-                mostrarResultado("Respuesta: " + data.datos.message);
+                const response = await RPCWebAPIFetch("/createMembershipApplication", payload);
+                mostrarResultado("Respuesta: " + (response.data.message || "Solicitud enviada"));
             } catch (error) {
                 mostrarResultado(`Fallo [${error.name}]: ${error.message} - Detalle: ${error.detail}`, true);
             }
@@ -171,19 +212,18 @@
             const password = document.getElementById("txtPass").value;
 
             try {
-                const data = await RPCWebAPIFetch("/api/auth/login", { email, password });
-                
-                // Si la API devuelve el token en la respuesta
-                accessToken = data._accessToken;
+                const response = await RPCWebAPIFetch("/login", { email, password });
 
-                document.getElementById("sessionStatus").innerText = `Sesión Activa (${data.role || 'Usuario'})`;
+                const user = response.data.user || response.data;
+                accessToken = response._accessToken || accessToken;
+                document.getElementById("sessionStatus").innerText = `Sesión Activa (${user.role || 'Usuario'})`;
                 document.getElementById("sessionStatus").style.color = "green";
                 document.getElementById("btnLogin").disabled = true;
                 document.getElementById("btnLogout").disabled = false;
-                
-                mostrarResultado(`¡Bienvenido ${data.datos.name || ''}! Rol: ${data.datos.role || 'N/A'}`);
-                
-                if (data.datos.temporaryPassword) {
+
+                mostrarResultado(`¡Bienvenido ${user.name || ''}! Rol: ${user.role || 'N/A'}`);
+
+                if (response.data.redirectToChangePassword) {
                     window.location.href = "change-password.html";
                     return;
                 }
@@ -195,34 +235,47 @@
 
         async function onBtnLogoutClick() {
             try {
-                await RPCWebAPIFetch("/api/auth/logout", {});
+                const response = await RPCWebAPIFetch("/logout", {});
+                mostrarResultado(response.data.message || "Sesión cerrada correctamente");
             } catch (e) {
-                // Se limpia el estado frontend independientemente
+                mostrarResultado(`Fallo en Logout [${e.name}]: ${e.message}`, true);
             }
-            
+
             accessToken = null;
+            localStorage.removeItem("accessToken");
+
             document.getElementById("sessionStatus").innerText = "Sesión Cerrada";
             document.getElementById("sessionStatus").style.color = "red";
             document.getElementById("btnLogin").disabled = false;
             document.getElementById("btnLogout").disabled = true;
-            mostrarResultado("Sesión finalizada en el cliente.");
         }
 
         function main() {
+            const tokenGuardado = localStorage.getItem("accessToken");
+            if (tokenGuardado) {
+                accessToken = tokenGuardado;
+                document.getElementById("sessionStatus").innerText = "Sesión Activa";
+                document.getElementById("sessionStatus").style.color = "green";
+                document.getElementById("btnLogin").disabled = true;
+                document.getElementById("btnLogout").disabled = false;
+            }
+
             document.getElementById("btnRegister").onclick = onBtnRegisterClick;
             document.getElementById("btnLogin").onclick = onBtnLoginClick;
             document.getElementById("btnLogout").onclick = onBtnLogoutClick;
 
-            document.getElementById("btnProfile").onclick = () => RPCWebAPIFetch("/api/memberProfile/getMemberProfile")
-                .then(d => mostrarResultado(JSON.stringify(d)))
-                .catch(e => mostrarResultado(`[${e.name}]: ${e.detail}`, true));
+            document.getElementById("btnProfile").onclick = () => {
+                mostrarResultado("Todavía no existe este endpoint en el backend actual.", true);
+            };
 
-            document.getElementById("btnActivities").onclick = () => RPCWebAPIFetch("/api/activity/listActivities", { status: "ACTIVE" })
-                .then(d => mostrarResultado(JSON.stringify(d)))
-                .catch(e => mostrarResultado(`[${e.name}]: ${e.detail}`, true));
+            document.getElementById("btnActivities").onclick = () => {
+                mostrarResultado("Todavía no existe este endpoint en el backend actual.", true);
+            };
         }
 
         window.onload = main;
     </script>
+
 </body>
+
 </html>

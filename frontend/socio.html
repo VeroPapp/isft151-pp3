@@ -1,22 +1,83 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Comunidad Activa - Panel del Socio</title>
     <style>
-        body { font-family: sans-serif; margin: 20px; background-color: #f8f9fa; }
-        fieldset { margin-bottom: 20px; padding: 15px; border-radius: 5px; background: white; border: 1px solid #ccc; }
-        legend { font-weight: bold; font-size: 1.1em; padding: 0 5px; }
-        label { display: inline-block; width: 140px; font-weight: bold; margin-bottom: 5px; }
-        button { padding: 6px 12px; cursor: pointer; border-radius: 3px; border: 1px solid #ccc; }
-        .btn-danger { background-color: #dc3545; color: white; border: none; }
-        .btn-warning { background-color: #ffc107; color: black; border: none; }
-        #resultado { margin-bottom: 15px; padding: 10px; font-weight: bold; border-radius: 4px; display: none; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+
+        fieldset {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background: white;
+            border: 1px solid #ccc;
+        }
+
+        legend {
+            font-weight: bold;
+            font-size: 1.1em;
+            padding: 0 5px;
+        }
+
+        label {
+            display: inline-block;
+            width: 140px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        button {
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: black;
+            border: none;
+        }
+
+        #resultado {
+            margin-bottom: 15px;
+            padding: 10px;
+            font-weight: bold;
+            border-radius: 4px;
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
     </style>
 </head>
+
 <body>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h1>Comunidad Activa - Panel del Socio</h1>
@@ -36,14 +97,16 @@
         <legend>Mis Actividades Inscriptas</legend>
         <div id="misActividadesContenido">Cargando mis actividades...</div>
     </fieldset>
+
+
     <script>
         const BASE_URL = "http://localhost:3000";
         let accessToken = localStorage.getItem("accessToken");
-        //redirecciona la pantalla principal si no hay inicio de sesion 
+
         if (!accessToken) {
-            window.localStorage.getItem("accessToken");
+            window.location.href = "index.html";
         }
-        // CLASES DE ERROR ESTANDAR (HTTP 400, 401, 422, 500) (ver si se puede hacer en un archivo aparte)
+
         class SpecificationError extends Error {
             constructor(message, detail) {
                 super(message);
@@ -79,12 +142,73 @@
                 this.status = 500;
             }
         }
-       //---------------------------------------------------------------------------//
-      
-        
-        
-        
-       
+
+        function mostrarResultado(mensaje, esError = false) {
+            const resultado = document.getElementById("resultado");
+            resultado.style.display = "block";
+            resultado.style.backgroundColor = esError ? "#ffe6e6" : "#e6ffe6";
+            resultado.style.color = esError ? "#cc0000" : "#006600";
+            resultado.innerText = mensaje;
+        }
+
+        async function RPCWebAPIFetch(endpoint, content = {}) {
+            const pathLimpio = endpoint.startsWith("/") ? endpoint : "/" + endpoint;
+            const urlDestino = BASE_URL + pathLimpio;
+
+            const cabecerasHTTP = {
+                "Content-Type": "application/json",
+                "x-access-token": accessToken
+            };
+
+            const opciones = {
+                method: "POST",
+                headers: cabecerasHTTP,
+                body: JSON.stringify(content)
+            };
+
+            try {
+                const respuesta = await fetch(urlDestino, opciones);
+                const payload = await respuesta.json();
+
+                if (!respuesta.ok) {
+                    throw new UnauthorizedError(payload.error?.message || "No autorizado", payload.error?.type || "Unauthorized");
+                }
+
+                return payload;
+            } catch (error) {
+                if (error.status) throw error;
+                throw new ProgramError("NetworkError", error.message);
+            }
+        }
+
+        async function logout() {
+            try {
+                const payload = await RPCWebAPIFetch("/logout", {});
+                mostrarResultado(payload.data.message || "Sesión cerrada");
+                localStorage.removeItem("accessToken");
+                window.location.href = "index.html";
+            } catch (error) {
+                mostrarResultado(`Fallo [${error.name}]: ${error.message}`, true);
+            }
+        }
+
+        document.getElementById("btnLogout").addEventListener("click", logout);
+
+        async function cargarPerfil() {
+            // todavía no existe este endpoint real en backend
+            mostrarResultado("Todavía no existe /perfil en el backend actual.", true);
+        }
+
+        async function cargarActividades() {
+            // todavía no existe este endpoint real en backend
+            mostrarResultado("Todavía no existe /actividades en el backend actual.", true);
+        }
+
+        cargarPerfil();
+        cargarActividades();
     </script>
+
+
 </body>
+
 </html>

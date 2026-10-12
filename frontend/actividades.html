@@ -1,11 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comunidad Activa - Panel de Actividades</title>
 </head>
+
 <body>
-    
+
 </body>
+
+
+<script>
+    const token = localStorage.getItem("accessToken");
+
+    if (!token) {
+        window.location.href = "index.html";
+        return;
+    }
+
+    fetch("http://localhost:3000/listActivities", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "x-access-token": token
+        },
+        body: JSON.stringify({})
+    })
+        .then(res => res.json())
+        .then(payload => {
+            document.body.innerHTML = "<pre>" + JSON.stringify(payload, null, 2) + "</pre>";
+        })
+        .catch(error => {
+            document.body.innerHTML = "<h3>Error</h3><p>" + error.message + "</p>";
+        });
+</script>
+
+
+
 </html>
