@@ -154,18 +154,27 @@
                     };
                 }
 
-                if (respuesta.ok) {
-                    const tokenHeader = respuesta.headers.get("x-access-token");
-                    if (tokenHeader) {
-                        accessToken = tokenHeader;
+              /* MODIFICADO 12-10*/
+              if (respuesta.ok) {
+                    // 1. Intentamos buscar el token en el Header
+                    let tokenEncontrado = respuesta.headers.get("x-access-token");
+
+                    // 2. Si no está en el header, lo buscamos dentro del JSON
+                    if (!tokenEncontrado) {
+                        tokenEncontrado = payload.token || payload.data?.token || payload.data?.sessionKey;
+                    }
+
+                    if (tokenEncontrado) {
+                        accessToken = tokenEncontrado;
                         localStorage.setItem("accessToken", accessToken);
                     }
 
                     return {
                         data: payload.data || payload,
-                        _accessToken: tokenHeader || accessToken
+                        _accessToken: tokenEncontrado || accessToken
                     };
                 }
+              /*MODIFICADO*/
 
                 const excepcion = payload.error?.type || "ErrorHTTP";
                 const detalle = payload.error?.message || "Sin detalles";
