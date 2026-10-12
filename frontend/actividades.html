@@ -5,21 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comunidad Activa - Panel de Actividades</title>
+    <link rel="stylesheet" href="./css/styles.css">
 </head>
-
 <body>
+    <h1>Listado de Actividades</h1>
+    <a href="socio.html">Volver al Panel del Socio</a>
+    
+    <div id="resultado">Cargando actividades...</div>
 
-</body>
+    <script type="module">
+        import { SpecificationError, UnauthorizedError, DomainError, ProgramError } from './js/errors.js';
 
+        const BASE_URL = "http://localhost:3000";
+        
+        let accessToken = localStorage.getItem("accessToken");
 
-<script>
-    const token = localStorage.getItem("accessToken");
-
-    if (!token) {
-        window.location.href = "index.html";
-        return;
-    }
-
+        // Si no hay token, redirige al login inmediatamente
+       // if (!accessToken) {
+         //   window.location.href = "index.html";
+       // }
     fetch("http://localhost:3000/listActivities", {
         method: "POST",
         headers: {

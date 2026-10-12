@@ -4,43 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Panel de pruebas</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            margin: 20px;
-        }
-
-        fieldset {
-            margin-bottom: 15px;
-            padding: 15px;
-            border-radius: 5px;
-        }
-
-        label {
-            display: inline-block;
-            width: 140px;
-            margin-bottom: 5px;
-        }
-
-        input {
-            margin-bottom: 5px;
-            padding: 5px;
-            width: 200px;
-        }
-
-        button {
-            padding: 8px 12px;
-            margin-top: 5px;
-            cursor: pointer;
-        }
-
-        #resultado {
-            margin-top: 15px;
-            padding: 10px;
-            font-weight: bold;
-            border-radius: 4px;
-        }
-    </style>
+    <link rel="stylesheet" href="./css/styles.css">
+   
 </head>
 
 <body>
@@ -81,45 +46,13 @@
     <div id="resultado"></div>
 
 
-    <script>
+    <script type="module">
+        // 1. Importamos las clases desde la carpeta js/
+        import { SpecificationError, UnauthorizedError, DomainError, ProgramError } from './js/errors.js';
+
         const BASE_URL = "http://localhost:3000";
-        let accessToken = null;
-
-        class SpecificationError extends Error {
-            constructor(message, detail) {
-                super(message);
-                this.name = "SpecificationError (HTTP 400)";
-                this.detail = detail;
-                this.status = 400;
-            }
-        }
-
-        class UnauthorizedError extends Error {
-            constructor(message, detail) {
-                super(message);
-                this.name = "UnauthorizedError (HTTP 401)";
-                this.detail = detail;
-                this.status = 401;
-            }
-        }
-
-        class DomainError extends Error {
-            constructor(message, detail) {
-                super(message);
-                this.name = "DomainError (HTTP 422)";
-                this.detail = detail;
-                this.status = 422;
-            }
-        }
-
-        class ProgramError extends Error {
-            constructor(message, detail) {
-                super(message);
-                this.name = "ProgramError (HTTP 500)";
-                this.detail = detail;
-                this.status = 500;
-            }
-        }
+        let accessToken = localStorage.getItem("accessToken");
+        
 
         async function RPCWebAPIFetch(endpoint, content = {}) {
             const pathLimpio = endpoint.startsWith("/") ? endpoint : "/" + endpoint;
@@ -244,10 +177,11 @@
 
         async function onBtnLogoutClick() {
             try {
-                const response = await RPCWebAPIFetch("/logout", {});
-                mostrarResultado(response.data.message || "Sesión cerrada correctamente");
+                // Intentamos notificar al backend que cierre sesión
+                await RPCWebAPIFetch("/logout", {});
             } catch (e) {
-                mostrarResultado(`Fallo en Logout [${e.name}]: ${e.message}`, true);
+                // Si el backend tira 401 o falla, lo mostramos en consola pero no frenamos la limpieza local
+                console.warn("El backend rechazó el logout o ya expiró la sesión:", e.message);
             }
 
             accessToken = null;
@@ -257,6 +191,8 @@
             document.getElementById("sessionStatus").style.color = "red";
             document.getElementById("btnLogin").disabled = false;
             document.getElementById("btnLogout").disabled = true;
+
+            mostrarResultado("Usuario cerró sesión", false);
         }
 
         function main() {
