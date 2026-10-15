@@ -81,45 +81,40 @@ function sendError(response, error) {
     let message = null
     let type = null
 
-    if (error && error.getType()) {
 
-        switch (error.getType()) {
-            case "UnauthorizedError":
-                codeStatus = error.getCode();
-                message = error.getMessage();
-                type = error.getType()
-                break;
+    switch (error.type) {
+        case "UnauthorizedError":
+            codeStatus = error.getCode();
+            message = error.getMessage();
+            type = error.getType()
+            break;
 
-            case "BadRequestError":
-                codeStatus = error.getCode();
-                message = error.getMessage();
-                type = error.getType()
-                break;
+        case "BadRequestError":
+            codeStatus = error.getCode();
+            message = error.getMessage();
+            type = error.getType()
+            break;
 
-            case "DomainValidationError":
-                codeStatus = error.getCode();
-                message = error.getMessage();
-                type = error.getType()
-                break;
+        case "DomainValidationError":
+            codeStatus = error.getCode();
+            message = error.getMessage();
+            type = error.getType()
+            break;
 
-            case "ErrorInternServer":
-                codeStatus = error.getCode();
-                message = error.getMessage();
-                type = error.getType()
-                break;
+        case "ErrorInternServer":
+            codeStatus = error.getCode();
+            message = error.getMessage();
+            type = error.getType()
+            break;
 
-            default:
-                codeStatus = 500
-                message = "Error interno del servidor";
-                type = error.getType()
-                break;
-        }
-
-    } else {
-        codeStatus = 500
-        message = error.message
-
+        default:
+            codeStatus = 500
+            message = "Error interno del servidor";
+            type = error.type
+            break;
     }
+
+
 
     const data = {
         error: {

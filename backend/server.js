@@ -12,6 +12,8 @@ async function requestDispatcher(request, response) {
     response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
     response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, x-access-token");
+    // *le indica al navegador que el cliente puede leer estos headers de la respuesta
+    response.setHeader("Access-Control-Expose-Headers", "x-access-token");
 
     // Responder preflight OPTIONS
     if (request.method === "OPTIONS") {
@@ -66,7 +68,7 @@ async function requestDispatcher(request, response) {
         }
 
         // * para cualquier endpoint privado (ver perfil, listar actividades, ...) se agrega una pequeña validacion al inicio. Si (request.body.IDstatus === "PENDINGFORPASSWORDCHANGE") lanza un error exigiendo un cambio de contraseña antes de seguir operando.
-        request.body = { IDuser: IDUser, IDrole: IDrole, IDstatus: IDstatus }
+        request.session = { IDuser: IDUser, IDrole: IDrole, IDstatus: IDstatus }
 
         return await handler.method(request, response)
 

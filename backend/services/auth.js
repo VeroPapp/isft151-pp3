@@ -25,7 +25,7 @@ function login(request, response) {
             if (!email || !password || !password.trim()) {
                 throw new BadRequestError("El email y la contraseña son requeridos.");
             }
-            // * 1. Autenticación si es quien dice ser.
+            // * 1. Autenticación.
             const usersExists = authenticate(email, password);
             if (!usersExists) {
                 throw new UnauthorizedError("Credenciales inválidas o usuario no encontrado.");
@@ -92,7 +92,7 @@ function logout(request, response) {
 
     try {
 
-        const { IDuser, IDrole, IDstatus } = request.body
+        const { IDuser, IDrole, IDstatus } = request.session
         const updateSession = updateSessionKeyByID('NONE', IDuser)
         if (!updateSession) {
             const error = new UnauthorizedError("El usuario no existe o no se pudo cerrar la sesión.")
@@ -107,4 +107,23 @@ function logout(request, response) {
     }
 }
 
-module.exports = { login, logout };
+function changePassword(request, response) {
+
+    try {
+
+        const { IDuser, IDrole, IDstatus } = request.session
+        const updateSession = updateSessionKeyByID('NONE', IDuser)
+        if (!updateSession) {
+            const error = new UnauthorizedError("El usuario no existe o no se pudo cerrar la sesión.")
+            throw error
+        }
+
+        sendSuccess(response, { message: "Sesión cerrada correctamente" }, 200);
+
+    } catch (error) {
+
+        sendError(response, error)
+    }
+}
+
+module.exports = { login, logout, changePassword };

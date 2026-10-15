@@ -124,7 +124,8 @@
         async function RPCWebAPIFetch(endpoint, content = {}) {
             const pathLimpio = endpoint.startsWith("/") ? endpoint : "/" + endpoint;
             const urlDestino = BASE_URL + pathLimpio;
-
+            console.log(urlDestino);
+            
             const cabecerasHTTP = {
                 "Content-Type": "application/json"
             };
