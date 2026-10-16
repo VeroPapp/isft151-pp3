@@ -1,4 +1,4 @@
-const { login, logout } = require("../services/auth.js");
+const { login, logout, changePassword } = require("../services/auth.js");
 const { createMembershipApplication } = require("../services/membership.js");
 
 function router() {
@@ -16,6 +16,7 @@ function router() {
 
     routerMap.set('/login', { method: login, status: "public" });
     routerMap.set('/logout', { method: logout, status: "private", roles: ["MEMBER", "CLUB_ADMIN", "SUPER_ADMIN"] });
+    routerMap.set('/changePassword', { method: changePassword, status: "private", roles: ["MEMBER", "CLUB_ADMIN", "SUPER_ADMIN"] });
 
     // ----- MEMBERSHIP APPLICATION ROUTES -----
     routerMap.set('/createMembershipApplication', { method: createMembershipApplication, status: "public" });
