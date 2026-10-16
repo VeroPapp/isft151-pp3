@@ -126,6 +126,7 @@
                                 '<td>' + app.email + '</td>' +
                                 '<td>' + app.phone + '</td>' +
                                 '<td><button onclick="aprobarSolicitud(\'' + app.idUser + '\')" class="btn-warning">Aprobar</button></td>' +
+                                '<td><button onclick="rechazarSolicitud(\'' + app.idUser + '\')" class="btn-danger">Rechazar</button></td>' +
                             '</tr>';
                 });
                 
@@ -148,6 +149,34 @@
                 cargarSolicitudes(); // Recargamos la tabla
             } catch (error) {
                 mostrarResultado("Error al aprobar: " + error.message, true);
+            }
+        };
+
+         window.aprobarSolicitud = async function(idUser) {
+            if (!confirm("¿Estás seguro de aprobar esta solicitud?")) {
+                return;
+            }
+
+            try {
+                const response = await RPCWebAPIFetch("/approveMembershipApplication", { idUser: idUser });
+                mostrarResultado(response.data.message || "Solicitud aprobada con éxito", false);
+                cargarSolicitudes(); // Recargamos la tabla
+            } catch (error) {
+                mostrarResultado("Error al aprobar: " + error.message, true);
+            }
+        };
+
+         window.rechazarSolicitud = async function(idUser) {
+            if (!confirm("¿Estás seguro de rechazar esta solicitud?")) {
+                return;
+            }
+
+            try {
+                const response = await RPCWebAPIFetch("/rejectMembershipApplication", { idUser: idUser });
+                mostrarResultado(response.data.message || "Solicitud rechazada con éxito", false);
+                cargarSolicitudes(); // Recargamos la tabla
+            } catch (error) {
+                mostrarResultado("Error al rechazar: " + error.message, true);
             }
         };
 
