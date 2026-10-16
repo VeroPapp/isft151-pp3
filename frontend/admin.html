@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Comunidad Activa - Panel del Administrador</title>
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+
+<body>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Panel de Administración - Solicitudes Pendientes</h1>
+        <button id="btnLogout" class="btn-danger">Cerrar Sesión</button>
+    </div>
+
+    <div id="resultado"></div>
+
+    <fieldset>
+        <legend>Solicitudes de Membresía Pendientes de Aprobación</legend>
+        <div id="solicitudesContenido">Cargando solicitudes...</div>
+    </fieldset>
+
+    <script type="module">
+        import { SpecificationError, UnauthorizedError, DomainError, ProgramError } from './js/errors.js';
+
+        const BASE_URL = "http://localhost:3000";
+        let accessToken = localStorage.getItem("accessToken");
+
+        if (!accessToken) {// Si no hay token, se redirige al index.html
+            window.location.href = "index.html";
+        }
+
+        function mostrarResultado(mensaje, esError) {
+            const resultado = document.getElementById("resultado");
+            resultado.style.display = "block";
+            resultado.style.backgroundColor = esError ? "#ffe6e6" : "#e6ffe6";
+            resultado.style.color = esError ? "#cc0000" : "#006600";
+            resultado.innerText = mensaje;
+        }
+
+        async function RPCWebAPIFetch(endpoint, content) {
+            if (!content) {
+                content = {};
+            }
+            const pathLimpio = endpoint.startsWith("/") ? endpoint : "/" + endpoint;
+            const urlDestino = BASE_URL + pathLimpio;
+
+            const cabecerasHTTP = {
+                "Content-Type": "application/json"
+            };
+
+            if (accessToken) {
+                cabecerasHTTP["x-access-token"] = accessToken;
+            }
+
+            const opciones = {
+                method: "POST",
+                headers: cabecerasHTTP,
+                body: JSON.stringify(content)
+            };
+
+            try {
+                const respuesta = await fetch(urlDestino, opciones);
+                let payload;
+
+                try {
+                    payload = await respuesta.json();
+                } catch (e) {
+                    payload = {
+                        error: {
+                            type: "InvalidJSON",
+                            message: "La respuesta no es JSON válido"
+                        }
+                    };
+                }
+
+                if (respuesta.ok) {
+                    let tokenEncontrado = respuesta.headers.get("x-access-token");
+                    if (!tokenEncontrado) {
+                        tokenEncontrado = payload.token || payload.data?.token || payload.data?.sessionKey;
+                    }
+
+                    if (tokenEncontrado) {
+                        accessToken = tokenEncontrado;
+                        localStorage.setItem("accessToken", accessToken);
+                    }
+
+                    return {
+                        data: payload.data || payload,
+                        _accessToken: tokenEncontrado || accessToken
+                    };
+                }
+
+                const excepcion = payload.error?.type || "ErrorHTTP";
+                const detalle = payload.error?.message || "Sin detalles";
+
+                if (respuesta.status === 400) throw new SpecificationError(excepcion, detalle);
+                if (respuesta.status === 401 || respuesta.status === 403) throw new UnauthorizedError(excepcion, detalle);
+                if (respuesta.status === 422) throw new DomainError(excepcion, detalle);
+
+                throw new ProgramError(excepcion, detalle);
+
+            } catch (error) {
+                if (error.status) throw error;
+                throw new ProgramError("NetworkError", error.message);
+            }
+        }
+
+        async function cargarSolicitudes() {
+            const container = document.getElementById("solicitudesContenido");
+            try {
+                const response = await RPCWebAPIFetch("/api/membership/listApplications", {});
+                const aplicaciones = response.data.applications || [];
+
+                if (aplicaciones.length === 0) {
+                    container.innerText = "No hay solicitudes pendientes en este momento.";
+                    return;
+                }
+
+                let html = '<table><thead><tr><th>Nombre y Apellido</th><th>DNI</th><th>Email</th><th>Teléfono</th><th>Acción</th></tr></thead><tbody>';
+                
+                aplicaciones.forEach(function(app) {
+                    html += '<tr>' +
+                                '<td>' + app.name + ' ' + app.surname + '</td>' +
+                                '<td>' + app.dni + '</td>' +
+                                '<td>' + app.email + '</td>' +
+                                '<td>' + app.phone + '</td>' +
+                                '<td><button onclick="aprobarSolicitud(\'' + app.idUser + '\')" class="btn-warning">Aprobar</button></td>' +
+                            '</tr>';
+                });
+                
+                html += '</tbody></table>';
+                container.innerHTML = html;
+
+            } catch (error) {
+                container.innerText = "Error al cargar las solicitudes: " + error.message;
+            }
+        }
+
+        window.aprobarSolicitud = async function(idUser) {
+            if (!confirm("¿Estás seguro de aprobar esta solicitud?")) {
+                return;
+            }
+
+            try {
+                const response = await RPCWebAPIFetch("/api/membership/approveApplication", { userId: idUser });
+                mostrarResultado(response.data.message || "Solicitud aprobada con éxito", false);
+                cargarSolicitudes(); // Recargamos la tabla
+            } catch (error) {
+                mostrarResultado("Error al aprobar: " + error.message, true);
+            }
+        };
+
+        async function onBtnLogoutClick() {
+            try {
+                await RPCWebAPIFetch("/logout", {});
+            } catch (e) {
+                console.warn("Logout warning:", e.message);
+            }
+            localStorage.removeItem("accessToken");
+            window.location.href = "index.html";
+        }
+
+        document.getElementById("btnLogout").onclick = onBtnLogoutClick;
+
+        function main() {
+            cargarSolicitudes();
+        }
+
+        window.onload = main;
+    </script>
+</body>
+
+</html>

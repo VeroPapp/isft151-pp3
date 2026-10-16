@@ -166,10 +166,17 @@
 
                 mostrarResultado(`¡Bienvenido ${user.name || ''}! Rol: ${user.role || 'N/A'}`);
 
-                if (response.data.redirectToChangePassword) {
+                if (response.data.redirectToChangePassword){
                     window.location.href = "change-password.html";
                     return;
-                }
+                } //agregado 15-10-26
+                if (user.role === "CLUB_ADMIN" || user.role === "SUPER_ADMIN") {
+                    window.location.href = "admin.html";
+                    return;
+                } else {
+                    window.location.href = "socio.html"; 
+                    return;
+                } // 
 
             } catch (error) {
                 mostrarResultado(`Fallo en Login [${error.name}]: ${error.message} - Detalle: ${error.detail}`, true);
