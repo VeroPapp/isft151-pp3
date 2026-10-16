@@ -109,7 +109,7 @@
         async function cargarSolicitudes() {
             const container = document.getElementById("solicitudesContenido");
             try {
-                const response = await RPCWebAPIFetch("/api/membership/listApplications", {});
+                const response = await RPCWebAPIFetch("/listMembershipApplications", {});
                 const aplicaciones = response.data.applications || [];
 
                 if (aplicaciones.length === 0) {
@@ -143,7 +143,7 @@
             }
 
             try {
-                const response = await RPCWebAPIFetch("/api/membership/approveApplication", { userId: idUser });
+                const response = await RPCWebAPIFetch("/approveMembershipApplication", { idUser: idUser });
                 mostrarResultado(response.data.message || "Solicitud aprobada con éxito", false);
                 cargarSolicitudes(); // Recargamos la tabla
             } catch (error) {

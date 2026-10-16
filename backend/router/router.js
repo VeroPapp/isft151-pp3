@@ -1,5 +1,5 @@
 const { login, logout } = require("../services/auth.js");
-const { createMembershipApplication } = require("../services/membership.js");
+const { createMembershipApplication, listMembershipApplications, approveMembershipApplication, rejectMembershipApplication } = require("../services/membership.js");
 
 function router() {
     const routerMap = new Map();
@@ -19,9 +19,9 @@ function router() {
 
     // ----- MEMBERSHIP APPLICATION ROUTES -----
     routerMap.set('/createMembershipApplication', { method: createMembershipApplication, status: "public" });
-    // routerMap.set('/listMembershipApplications', listMembershipApplications);
-    // routerMap.set('/approveMembershipApplication', approveMembershipApplication);
-    // routerMap.set('/rejectMembershipApplication', rejectMembershipApplication);
+    routerMap.set('/listMembershipApplications', {  method: listMembershipApplications, status: "private", roles: ["CLUB_ADMIN", "SUPER_ADMIN"] });
+    routerMap.set('/approveMembershipApplication', { method: approveMembershipApplication, status: "private", roles: ["CLUB_ADMIN", "SUPER_ADMIN"] });
+    routerMap.set('/rejectMembershipApplication', { method: rejectMembershipApplication, status: "private", roles: ["CLUB_ADMIN", "SUPER_ADMIN"] });
 
     return routerMap;
 }
