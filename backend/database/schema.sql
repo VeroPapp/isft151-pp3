@@ -43,14 +43,22 @@ CREATE TABLE IF NOT EXISTS users (
     FOREIGN KEY (idStatus) REFERENCES userStatus(idStatus) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
--- TIENE QUE CAMBIAR LA CONTRASEÑA
-INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, email, phone, password )
-VALUES (2, 2, 'Carlos', 'Tevez', '123', '1984-02-05', 'carlitos@email.com', '1123456789', '123');
+-- TIENE QUE CAMBIAR LA CONTRASEÑA (Carlos / password: "123")
+INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, email, phone, password)
+VALUES (2, 2, 'Carlos', 'Tevez', '123', '1984-02-05', 'carlitos@email.com', '1123456789',
+        'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3');
 
--- NO TIENE QUE CAMBIAR LA CONTRASEÑA
-INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, email, phone, password )
-VALUES (2, 3, 'Vero', 'Papp', '1234', '1945-07-05', 'verito@email.com', '11456789', '1234');
+-- NO TIENE QUE CAMBIAR LA CONTRASEÑA (Vero / password: "1234")
+INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, email, phone, password)
+VALUES (2, 3, 'Vero', 'Papp', '1234', '1945-07-05', 'verito@email.com', '11456789',
+        '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4');
 
--- NO ESTA ACTIVO
-INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, email, phone, password )
-VALUES (2, 4, 'Seba', 'asdd', '12345', '1999-09-09', 'seba@email.com', '1125689', '12345');
+-- NO ESTA ACTIVO (Seba / password: "12345")
+INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, email, phone, password)
+VALUES (2, 4, 'Seba', 'asdd', '12345', '1999-09-09', 'seba@email.com', '1125689',
+        '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5');
+
+-- ADMIN DE CLUB (adminClub / password: "123456")
+INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, email, phone, password)
+VALUES (3, 3, 'adminClub', 'asdd', '123456', '1999-09-09', 'adminclub@email.com', '1125689',
+        '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92');

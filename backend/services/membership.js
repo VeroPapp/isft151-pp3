@@ -1,5 +1,5 @@
 const { InternServerError, BadRequestError, UnauthorizedError, DomainError, sendError } = require("../helpers/errorHandler.js")
-const { createMembershipApplicationDB } = require("../models/membership.js");
+const { createMembershipApplicationDB, listMembershipApplicationsDB, approveMembershipApplicationDB, rejectMembershipApplicationDB } = require("../models/membership.js");
 const { sendSuccess } = require("../helpers/responseHandler.js")
 
 async function createMembershipApplication(request, response) {
@@ -49,14 +49,79 @@ async function createMembershipApplication(request, response) {
 }
 
 
-function listMembershipApplications(request, response) { }
+function listMembershipApplications(request, response) {
+    try {
+        const applications = listMembershipApplicationsDB();
 
-function approveMembershipApplication(request, response) { }
+        if (!applications || applications.length === 0) {
+            sendSuccess(response, {
+                message: "No hay solicitudes de membresía pendientes.",
+                applications: []
+            }, 200);
+            return;
+        }
 
-function rejectMembershipApplication(request, response) { }
+        sendSuccess(response, { applications }, 200);
 
+    } catch (error) {
+        sendError(response, error);
+    }
+}
+
+function approveMembershipApplication(request, response) {
+    try {
+        const { idUser } = request.body; // ← ahora sí, viene del cliente
+
+        if (!idUser) {
+            throw new BadRequestError("Falta el idUser de la solicitud a aprobar.");
+        }
+
+        const ok = approveMembershipApplicationDB(idUser);
+
+        if (!ok) {
+            throw new DomainError(
+                "No se encontró una solicitud pendiente con ese ID, o ya fue procesada."
+            );
+        }
+
+        sendSuccess(response, {
+            message: "Solicitud aprobada. El usuario deberá cambiar su contraseña en el próximo login."
+        }, 200);
+
+    } catch (error) {
+        sendError(response, error);
+    }
+}
+
+function rejectMembershipApplication(request, response) {
+    try {
+        const { idUser } = request.body;
+
+        if (!idUser) {
+            throw new BadRequestError("Falta el idUser de la solicitud a rechazar.");
+        }
+
+        const ok = rejectMembershipApplicationDB(idUser);
+
+        if (!ok) {
+            throw new DomainError(
+                "No se encontró una solicitud pendiente con ese ID, o ya fue procesada."
+            );
+        }
+
+        sendSuccess(response, {
+            message: "Solicitud rechazada correctamente."
+        }, 200);
+
+    } catch (error) {
+        sendError(response, error);
+    }
+}
 
 
 module.exports = {
-    createMembershipApplication
+    createMembershipApplication,
+    listMembershipApplications,
+    approveMembershipApplication,
+    rejectMembershipApplication
 };
