@@ -1,10 +1,16 @@
 const { sendSuccess } = require("../helpers/responseHandler.js");
-const { InternServerError, BadRequestError, UnauthorizedError, DomainError, sendError } = require("../helpers/errorHandler.js");
+const { BadRequestError, UnauthorizedError, DomainError, InternServerError, sendError } = require("../helpers/errorHandler.js");
+
 const { authenticate } = require("../models/auth.js");
 const { getStatusById } = require("../models/status.js");
 const { getRoleById } = require("../models/roles.js");
-const { updateSessionKeyByID } = require("../models/user.js");
+const { updateSessionKeyByID, getUserByID, updatePasswordByID, updateStatusByID } = require("../models/user.js");
+
 const { UserSession } = require("../services/session.js");
+const { validateChangePassword } = require("../helpers/validateChangePassword.js");
+const { calcularHashSHA256 } = require("../helpers/hash.js");
+
+
 
 function login(request, response) {
     let bodyRaw = "";
@@ -13,74 +19,70 @@ function login(request, response) {
         bodyRaw += chunk.toString();
     });
 
-    request.on("end", function () {
+    request.on("end", async function () {
         try {
-            if (!bodyRaw) {
-                throw new BadRequestError("El cuerpo de la petición no puede estar vacío.");
-            }
 
             const data = JSON.parse(bodyRaw);
             const { email, password } = data;
 
-            if (!email || !password || !password.trim()) {
+            if (!email || !password || !password.trim() || !email.trim()) {
                 throw new BadRequestError("El email y la contraseña son requeridos.");
             }
-            // * 1. Autenticación.
-            const usersExists = authenticate(email, password);
-            if (!usersExists) {
+
+            // 1. Autenticación
+            const userExists = authenticate(email, password);
+            if (!userExists) {
                 throw new UnauthorizedError("Credenciales inválidas o usuario no encontrado.");
             }
 
-            // * 2. Obtener el nombre del rol
-            const roleExists = getRoleById(usersExists.idRole);
+            // 2. Obtener el nombre del rol
+            const roleExists = getRoleById(userExists.idRole);
             if (!roleExists) {
                 throw new UnauthorizedError("El usuario no tiene un rol válido para iniciar sesión.");
             }
 
-            // * 3. Validación del Estado del Usuario
-            const statusExists = getStatusById(usersExists.idStatus);
-            if (!statusExists || statusExists.nameStatus === "PENDINGFORAPPROBATION" || statusExists.nameStatus === "REJECTED" || statusExists.nameStatus === "INACTIVE" || statusExists.nameStatus === "NONE") {
-                throw new UnauthorizedError("El usuario no está habilitado para iniciar sesión (Pendiente, rechazado o inactivo).");
+            // 3. Validación del Estado del Usuario
+            const statusExists = getStatusById(userExists.idStatus);
+            const invalidStatuses = ["PENDINGFORAPPROBATION", "REJECTED", "INACTIVE", "NONE"];
+
+            if (!statusExists || invalidStatuses.includes(statusExists.nameStatus)) {
+                throw new UnauthorizedError("El usuario no está habilitado para iniciar sesión.");
             }
 
-            // * Mapeo básico del usuario para la respuesta
-            const user = {
-                idUser: usersExists.idUser,
-                name: usersExists.name,
-                surname: usersExists.surname,
+            // Mapeo estructurado del usuario
+            const userPayload = {
+                idUser: userExists.idUser,
+                name: userExists.name,
+                surname: userExists.surname,
                 role: roleExists.nameRole,
             };
 
-            // * Si no tiene sesión ("NONE"), generamos una nueva y actualizamos la base de datos
-            let currentToken = usersExists.sessionKey;
-            if (usersExists.sessionKey === "NONE") {
+            // Gestión de la sesión (Token)
+            let currentToken = userExists.sessionKey;
+            if (currentToken === "NONE") {
                 const currentSession = new UserSession();
-                currentSession.setHash(usersExists.idUser, email);
-                currentToken = currentSession.getHash()
-                updateSessionKeyByID(currentToken, usersExists.idUser);
+                currentSession.setHash(userExists.idUser, email);
+                currentToken = currentSession.getHash();
+                updateSessionKeyByID(currentToken, userExists.idUser);
             }
 
-            // * Inyectamos SIEMPRE el token en la cabecera
+            // Inyectamos SIEMPRE el token en la cabecera
             response.setHeader("x-access-token", `${currentToken}`);
 
-            // * 4. Control del flujo para cambiar obligatoriamente la contraseña
+            // 4. Control del flujo para cambio obligatorio de contraseña
             if (statusExists.nameStatus === "PENDINGFORPASSWORDCHANGE") {
-                const result = {
+                return sendSuccess(response, {
                     message: "Contraseña temporal utilizada, redirección a cambio de contraseña",
                     redirectToChangePassword: true,
-                    user: user
-                };
-                sendSuccess(response, result, 200);
-                return
+                    user: userPayload
+                }, 200);
             }
 
-            // * Si es ACTIVE, mandamos el objeto completo estructurado
-            const result = {
+            // Login exitoso estándar
+            sendSuccess(response, {
                 message: "Login exitoso",
-                user: user
-            };
-
-            sendSuccess(response, result, 200);
+                user: userPayload
+            }, 200);
 
         } catch (error) {
             sendError(response, error);
@@ -89,41 +91,86 @@ function login(request, response) {
 }
 
 function logout(request, response) {
-
     try {
+        const idUser = request.user.IDuser
+        if (!idUser) {
+            throw new BadRequestError("No se pudo identificar al usuario en la sesión.");
+        }
 
-        const { IDuser, IDrole, IDstatus } = request.session
-        const updateSession = updateSessionKeyByID('NONE', IDuser)
+        const updateSession = updateSessionKeyByID('NONE', idUser);
         if (!updateSession) {
-            const error = new UnauthorizedError("El usuario no existe o no se pudo cerrar la sesión.")
-            throw error
+            throw new UnauthorizedError("El usuario no existe o no se pudo cerrar la sesión.");
         }
 
         sendSuccess(response, { message: "Sesión cerrada correctamente" }, 200);
-
     } catch (error) {
-
-        sendError(response, error)
+        sendError(response, error);
     }
 }
 
 function changePassword(request, response) {
+    let bodyRaw = "";
 
-    try {
+    request.on("data", chunk => {
+        bodyRaw += chunk.toString();
+    });
 
-        const { IDuser, IDrole, IDstatus } = request.session
-        const updateSession = updateSessionKeyByID('NONE', IDuser)
-        if (!updateSession) {
-            const error = new UnauthorizedError("El usuario no existe o no se pudo cerrar la sesión.")
-            throw error
+    request.on("end", function () {
+        try {
+            const idUser = request.user.IDuser;
+
+            const data = JSON.parse(bodyRaw);
+            const { currentPassword, newPassword, confirmPassword } = data;
+
+            if (!currentPassword || !newPassword || !confirmPassword || !currentPassword.trim() || !newPassword.trim() || !confirmPassword.trim()) {
+                throw new BadRequestError("Todos los campos deben ser textos y son obligatorios.");
+            }
+
+            if (newPassword !== confirmPassword) {
+                throw new BadRequestError("La nueva contraseña y la confirmación no coinciden.");
+            }
+
+            // Validar fuerza de la contraseña
+            if (!validateChangePassword(newPassword)) {
+                throw new BadRequestError("La contraseña debe tener al menos 8 caracteres e incluir una letra mayúscula, una letra minúscula, un número y un carácter especial.");
+            }
+
+            const userExists = getUserByID(idUser);
+            if (!userExists) {
+                throw new UnauthorizedError("El usuario no está registrado en la base de datos.");
+            }
+
+            // Verificar contraseña actual
+            const currentPasswordHash = calcularHashSHA256(currentPassword);
+            if (userExists.password !== currentPasswordHash) {
+                throw new BadRequestError("La contraseña actual ingresada es incorrecta.");
+            }
+
+            // Validar que la nueva contraseña no sea igual a datos sensibles o a la anterior
+            const newPasswordHash = calcularHashSHA256(newPassword);
+            if (userExists.dni == newPassword || userExists.email == newPassword) {
+                throw new BadRequestError("La contraseña no puede ser igual a tu DNI o Email.");
+            }
+            if (userExists.password === newPasswordHash) {
+                throw new BadRequestError("La nueva contraseña no puede ser igual a la anterior.");
+            }
+
+            // Actualizar contraseña y pasar estado a ACTIVO (3)
+            const updatePassword = updatePasswordByID(newPasswordHash, idUser);
+            if (!updatePassword) {
+                throw new DomainError("No se pudo actualizar la contraseña en el sistema.");
+            }
+
+            updateStatusByID(3, idUser);
+
+            // Devolver la cabecera con el token actual
+            response.setHeader("x-access-token", `${userExists.sessionKey}`);
+            sendSuccess(response, { message: "La contraseña ha sido modificada con éxito." }, 200);
+
+        } catch (error) {
+            sendError(response, error);
         }
-
-        sendSuccess(response, { message: "Sesión cerrada correctamente" }, 200);
-
-    } catch (error) {
-
-        sendError(response, error)
-    }
+    });
 }
 
 module.exports = { login, logout, changePassword };

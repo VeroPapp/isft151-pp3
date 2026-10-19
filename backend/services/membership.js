@@ -13,12 +13,6 @@ async function createMembershipApplication(request, response) {
     request.on("end", async () => {
         try {
 
-            // si el body esta vacio, lanza un error de especificación
-            if (!body) {
-                const error = new BadRequestError("El cuerpo de la petición no puede estar vacío.")
-                throw error
-            }
-
             const data = JSON.parse(body)
 
             // Extrae los datos del body
@@ -69,53 +63,63 @@ function listMembershipApplications(request, response) {
 }
 
 function approveMembershipApplication(request, response) {
-    try {
-        const { idUser } = request.body; // ← ahora sí, viene del cliente
+    let bodyRaw = "";
 
-        if (!idUser) {
-            throw new BadRequestError("Falta el idUser de la solicitud a aprobar.");
+    request.on("data", chunk => {
+        bodyRaw += chunk.toString();
+    });
+
+    request.on("end", () => {
+        try {
+            const data = JSON.parse(bodyRaw);
+            const { idUser } = data;
+
+            if (!idUser) {
+                throw new BadRequestError("Falta el idUser de la solicitud a aprobar.");
+            }
+
+            const ok = approveMembershipApplicationDB(idUser);
+
+            if (!ok) {
+                throw new DomainError("No se encontró una solicitud pendiente con ese ID, o ya fue procesada.");
+            }
+
+            sendSuccess(response, { message: "Solicitud aprobada. El usuario deberá cambiar su contraseña en el próximo login." }, 200);
+
+        } catch (error) {
+            sendError(response, error);
         }
-
-        const ok = approveMembershipApplicationDB(idUser);
-
-        if (!ok) {
-            throw new DomainError(
-                "No se encontró una solicitud pendiente con ese ID, o ya fue procesada."
-            );
-        }
-
-        sendSuccess(response, {
-            message: "Solicitud aprobada. El usuario deberá cambiar su contraseña en el próximo login."
-        }, 200);
-
-    } catch (error) {
-        sendError(response, error);
-    }
+    });
 }
 
 function rejectMembershipApplication(request, response) {
-    try {
-        const { idUser } = request.body;
+    let bodyRaw = "";
 
-        if (!idUser) {
-            throw new BadRequestError("Falta el idUser de la solicitud a rechazar.");
+    request.on("data", chunk => {
+        bodyRaw += chunk.toString();
+    });
+
+    request.on("end", () => {
+        try {
+            const data = JSON.parse(bodyRaw);
+            const { idUser } = data;
+
+            if (!idUser) {
+                throw new BadRequestError("Falta el idUser de la solicitud a rechazar.");
+            }
+
+            const ok = rejectMembershipApplicationDB(idUser);
+
+            if (!ok) {
+                throw new DomainError("No se encontró una solicitud pendiente con ese ID, o ya fue procesada.");
+            }
+
+            sendSuccess(response, { message: "Solicitud rechazada correctamente." }, 200);
+
+        } catch (error) {
+            sendError(response, error);
         }
-
-        const ok = rejectMembershipApplicationDB(idUser);
-
-        if (!ok) {
-            throw new DomainError(
-                "No se encontró una solicitud pendiente con ese ID, o ya fue procesada."
-            );
-        }
-
-        sendSuccess(response, {
-            message: "Solicitud rechazada correctamente."
-        }, 200);
-
-    } catch (error) {
-        sendError(response, error);
-    }
+    });
 }
 
 

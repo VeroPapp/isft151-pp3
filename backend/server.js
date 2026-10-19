@@ -2,7 +2,7 @@ const { createServer } = require("node:http");
 const { URL } = require("node:url");
 const instanceConfig = require("./config/config.js");
 const { InstanceRouter } = require("./router/router.js");
-const { authorize, validateSession } = require("./middlewares/auth.js")
+const { sessionAuthorized } = require("./middlewares/auth.js")
 const { sendError, BadRequestError, UnauthorizedError } = require("./helpers/errorHandler.js");
 
 const base = `http://localhost:${instanceConfig.server.port}`;
@@ -15,13 +15,6 @@ async function requestDispatcher(request, response) {
     // *le indica al navegador que el cliente puede leer estos headers de la respuesta
     response.setHeader("Access-Control-Expose-Headers", "x-access-token");
 
-    // Responder preflight OPTIONS
-    if (request.method === "OPTIONS") {
-        response.writeHead(204);
-        response.end();
-        return;
-    }
-
     const url = new URL(request.url, base);
     console.log("protocolo + dominio + endpoint completo: " + url);
 
@@ -30,51 +23,41 @@ async function requestDispatcher(request, response) {
 
     try {
 
+        // Responder preflight OPTIONS
+        if (request.method === "OPTIONS") {
+            response.writeHead(204);
+            response.end();
+            return;
+        }
+
         const handler = InstanceRouter.get(path);
         if (!handler) {
             throw new BadRequestError("Método o endpoint no encontrado.");
         }
 
-        // * Caso 1: Endpoint Público
-        if (handler.status === "public") {
-            return await handler.method(request, response);
+        const sessionKey = request.headers["x-access-token"];
+        console.log("sessionKey recibida: ", sessionKey);
+
+        // 1. Valida su sesión y su autorización (Ahora es una promesa real)
+        const session = await sessionAuthorized(sessionKey, path);
+
+        // 2. Si no está autorizado lanza el error
+        if (!session.isAuthorized) {
+            throw new UnauthorizedError("Usted no puede realizar dicha acción privada porque requiere de un token de sesión válido o no tiene los permisos requeridos.");
         }
 
-        // * Caso 2: Endpoint Privado
-        const sessionKey = request.headers["x-access-token"]
-        console.log("sessionKey ",sessionKey);
-        
-        if (!sessionKey) {
-            const error = new UnauthorizedError("Requiere de un token de session para seguir operando con dicha peticion, acceso privado.")
-            throw error
+        // 3. Si está autorizado e identificamos al usuario, inyectamos la sesión
+        if (session.IDuser !== null) {
+            request.user = session;
+        } else {
+            request.user = null; // Limpieza para rutas públicas
         }
 
-        const ok = await validateSession(sessionKey)
-        if (!ok) {
-            const error = new UnauthorizedError("No se encuentra su sesion o esta inactiva, debe loguearse de vuelta")
-            throw error
-        }
-
-        // * ID user/role/status asociado al sessionKey
-        const IDrole = ok.IDrole
-        const IDUser = ok.IDuser
-        const IDstatus = ok.IDstatus
-        const allowedRoles = handler.roles
-
-        // * Autorización por roles y frena si es (REJECTED/INACTIVE/PENDINGFORAPROBATION)
-        const okRole = authorize(IDstatus, IDrole, allowedRoles)
-        if (!okRole) {
-            throw new UnauthorizedError("No tienes permisos para realizar esta acción o esta dado de baja del sistema.");
-        }
-
-        // * para cualquier endpoint privado (ver perfil, listar actividades, ...) se agrega una pequeña validacion al inicio. Si (request.body.IDstatus === "PENDINGFORPASSWORDCHANGE") lanza un error exigiendo un cambio de contraseña antes de seguir operando.
-        request.session = { IDuser: IDUser, IDrole: IDrole, IDstatus: IDstatus }
-
-        return await handler.method(request, response)
+        // 4. Ejecuta el controlador de destino
+        return await handler.method(request, response);
 
     } catch (error) {
         console.error("DETALLE DEL ERROR CAPTURADO EN SERVER:", error);
-        // Captura centralizada que envía la respuesta formateada en JSON
         sendError(response, error);
     }
 }

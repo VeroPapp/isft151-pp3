@@ -5,7 +5,6 @@ function getUserBySessionKey(sessionKey) {
 
     try {
         const stmt = objectDB.prepare(sql);
-
         const userExists = stmt.get(sessionKey);
 
         if (!userExists) {
@@ -15,7 +14,6 @@ function getUserBySessionKey(sessionKey) {
         const { idUser, idRole, idStatus } = userExists;
 
         return { IDuser: idUser, IDrole: idRole, IDstatus: idStatus };
-
     } catch (error) {
         throw error;
     }
@@ -33,11 +31,73 @@ function updateSessionKeyByID(value, idUser) {
         }
 
         return { IDuser: idUser };
+    } catch (error) {
+        throw error;
+    }
+}
 
+function getUserByID(IDuser) {
+    const sql = "SELECT * FROM users WHERE idUser = ?";
+
+    try {
+        const stmt = objectDB.prepare(sql);
+        const userExists = stmt.get(IDuser);
+
+        if (!userExists) {
+            return null;
+        }
+
+        const { name, surname, dni, birthdate, email, phone, password, sessionKey } = userExists;
+
+        return {
+            name,
+            surname,
+            dni,
+            birthdate,
+            email,
+            phone,
+            password,
+            sessionKey
+        };
+    } catch (error) {
+        throw error;
+    }
+}
+
+function updatePasswordByID(newPassword, IDuser) {
+    const sql = "UPDATE users SET password = ? WHERE idUser = ?";
+
+    try {
+        const stmt = objectDB.prepare(sql);
+        const result = stmt.run(newPassword, IDuser);
+
+        if (result.changes === 0) {
+            return null;
+        }
+
+        return { IDuser: IDuser };
+    } catch (error) {
+        throw error;
+    }
+}
+
+function updateStatusByID(value, IDuser) {
+    const sql = "UPDATE users SET idStatus = ? WHERE idUser = ?";
+
+    try {
+        const stmt = objectDB.prepare(sql);
+        const result = stmt.run(value, IDuser);
+
+        if (result.changes === 0) {
+            return null;
+        }
+
+        return { IDuser: IDuser };
     } catch (error) {
         throw error;
     }
 }
 
 
-module.exports = { getUserBySessionKey, updateSessionKeyByID };
+
+module.exports = { getUserBySessionKey, updateSessionKeyByID, getUserByID, updatePasswordByID, updateStatusByID };
