@@ -109,7 +109,7 @@ function sendError(response, error) {
 
         default:
             codeStatus = 500
-            message = "Error interno del servidor" || error.message;
+            message = error.message || "Error interno del servidor";
             type = "ErrorInternServer"
             break;
     }

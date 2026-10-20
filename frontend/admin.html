@@ -36,6 +36,12 @@
             resultado.style.backgroundColor = esError ? "#ffe6e6" : "#e6ffe6";
             resultado.style.color = esError ? "#cc0000" : "#006600";
             resultado.innerText = mensaje;
+
+            if (esError) {
+                console.error("[ERROR]", mensaje);
+            } else {
+                console.log("[OK]", mensaje);
+            }
         }
 
         async function RPCWebAPIFetch(endpoint, content) {
@@ -94,11 +100,11 @@
                 const excepcion = payload.error?.type || "ErrorHTTP";
                 const detalle = payload.error?.message || "Sin detalles";
 
-                if (respuesta.status === 400) throw new SpecificationError(excepcion, detalle);
-                if (respuesta.status === 401 || respuesta.status === 403) throw new UnauthorizedError(excepcion, detalle);
-                if (respuesta.status === 422) throw new DomainError(excepcion, detalle);
+                if (respuesta.status === 400) throw new SpecificationError(detalle, excepcion);
+                if (respuesta.status === 401 || respuesta.status === 403) throw new UnauthorizedError(detalle, excepcion);
+                if (respuesta.status === 422) throw new DomainError(detalle, excepcion);
 
-                throw new ProgramError(excepcion, detalle);
+                throw new ProgramError(detalle, excepcion);
 
             } catch (error) {
                 if (error.status) throw error;
@@ -125,8 +131,11 @@
                                 '<td>' + app.dni + '</td>' +
                                 '<td>' + app.email + '</td>' +
                                 '<td>' + app.phone + '</td>' +
-                                '<td><button onclick="aprobarSolicitud(\'' + app.idUser + '\')" class="btn-warning">Aprobar</button></td>' +
-                                '<td><button onclick="rechazarSolicitud(\'' + app.idUser + '\')" class="btn-danger">Rechazar</button></td>' +
+                                '<td>' +
+                                    '<button onclick="aprobarSolicitud(' + app.idUser + ')" class="btn-warning">Aprobar</button> ' +
+                                    '<button onclick="rechazarSolicitud(' + app.idUser + ')" class="btn-danger">Rechazar</button>' +
+                                '</td>'
+
                             '</tr>';
                 });
                 
@@ -152,20 +161,7 @@
             }
         };
 
-         window.aprobarSolicitud = async function(idUser) {
-            if (!confirm("¿Estás seguro de aprobar esta solicitud?")) {
-                return;
-            }
-
-            try {
-                const response = await RPCWebAPIFetch("/approveMembershipApplication", { idUser: idUser });
-                mostrarResultado(response.data.message || "Solicitud aprobada con éxito", false);
-                cargarSolicitudes(); // Recargamos la tabla
-            } catch (error) {
-                mostrarResultado("Error al aprobar: " + error.message, true);
-            }
-        };
-
+            
          window.rechazarSolicitud = async function(idUser) {
             if (!confirm("¿Estás seguro de rechazar esta solicitud?")) {
                 return;

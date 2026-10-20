@@ -32,7 +32,7 @@ function login(request, response) {
             // 1. Autenticación
             const userExists = authenticate(email, password);
             if (!userExists) {
-                throw new UnauthorizedError("Credenciales inválidas o usuario no encontrado.");
+                throw new UnauthorizedError("Credenciales inválidas.");
             }
 
             // 2. Obtener el nombre del rol

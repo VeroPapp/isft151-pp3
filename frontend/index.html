@@ -113,11 +113,11 @@
                 const excepcion = payload.error?.type || "ErrorHTTP";
                 const detalle = payload.error?.message || "Sin detalles";
 
-                if (respuesta.status === 400) throw new SpecificationError(excepcion, detalle);
-                if (respuesta.status === 401 || respuesta.status === 403) throw new UnauthorizedError(excepcion, detalle);
-                if (respuesta.status === 422) throw new DomainError(excepcion, detalle);
+                if (respuesta.status === 400) throw new SpecificationError(detalle, excepcion);
+                if (respuesta.status === 401 || respuesta.status === 403) throw new UnauthorizedError(detalle, excepcion);
+                if (respuesta.status === 422) throw new DomainError(detalle, excepcion);
 
-                throw new ProgramError(excepcion, detalle);
+                throw new ProgramError(detalle, excepcion);
 
             } catch (error) {
                 if (error.status) throw error;
@@ -127,9 +127,16 @@
 
         function mostrarResultado(mensaje, esError = false) {
             const resDiv = document.getElementById("resultado");
+            resDiv.style.display = "block";   // ← agrege esta línea
             resDiv.style.backgroundColor = esError ? "#ffe6e6" : "#e6ffe6";
             resDiv.style.color = esError ? "#cc0000" : "#006600";
             resDiv.innerText = mensaje;
+
+             if (esError) {
+                console.error("[ERROR]", mensaje);
+            } else {
+                console.log("[OK]", mensaje);
+            }
         }
 
         async function onBtnRegisterClick() {
@@ -146,7 +153,7 @@
                 const response = await RPCWebAPIFetch("/createMembershipApplication", payload);
                 mostrarResultado("Respuesta: " + (response.data.message || "Solicitud enviada"));
             } catch (error) {
-                mostrarResultado(`Fallo [${error.name}]: ${error.message} - Detalle: ${error.detail}`, true);
+                mostrarResultado(`Fallo [${error.name}]: ${error.message}`, true);
             }
         }
 
@@ -179,7 +186,7 @@
                 } // 
 
             } catch (error) {
-                mostrarResultado(`Fallo en Login [${error.name}]: ${error.message} - Detalle: ${error.detail}`, true);
+                mostrarResultado(`Fallo en Login [${error.name}]: ${error.message}`, true);
             }
         }
 
