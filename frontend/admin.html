@@ -21,95 +21,21 @@
     </fieldset>
 
     <script type="module">
-        import { SpecificationError, UnauthorizedError, DomainError, ProgramError } from './js/errors.js';
+        import { RPCWebAPIFetch } from './js/api.js';
 
-        const BASE_URL = "http://localhost:3000";
-        let accessToken = localStorage.getItem("accessToken");
-
-        if (!accessToken) {// Si no hay token, se redirige al index.html
-            window.location.href = "index.html";
+        if (!localStorage.getItem("accessToken")) {
+            window.location.href = "login.html";
         }
 
-        function mostrarResultado(mensaje, esError) {
+        function mostrarResultado(mensaje, esError = false) {
             const resultado = document.getElementById("resultado");
             resultado.style.display = "block";
             resultado.style.backgroundColor = esError ? "#ffe6e6" : "#e6ffe6";
             resultado.style.color = esError ? "#cc0000" : "#006600";
             resultado.innerText = mensaje;
 
-            if (esError) {
-                console.error("[ERROR]", mensaje);
-            } else {
-                console.log("[OK]", mensaje);
-            }
-        }
-
-        async function RPCWebAPIFetch(endpoint, content) {
-            if (!content) {
-                content = {};
-            }
-            const pathLimpio = endpoint.startsWith("/") ? endpoint : "/" + endpoint;
-            const urlDestino = BASE_URL + pathLimpio;
-
-            const cabecerasHTTP = {
-                "Content-Type": "application/json"
-            };
-
-            if (accessToken) {
-                cabecerasHTTP["x-access-token"] = accessToken;
-            }
-
-            const opciones = {
-                method: "POST",
-                headers: cabecerasHTTP,
-                body: JSON.stringify(content)
-            };
-
-            try {
-                const respuesta = await fetch(urlDestino, opciones);
-                let payload;
-
-                try {
-                    payload = await respuesta.json();
-                } catch (e) {
-                    payload = {
-                        error: {
-                            type: "InvalidJSON",
-                            message: "La respuesta no es JSON válido"
-                        }
-                    };
-                }
-
-                if (respuesta.ok) {
-                    let tokenEncontrado = respuesta.headers.get("x-access-token");
-                    if (!tokenEncontrado) {
-                        tokenEncontrado = payload.token || payload.data?.token || payload.data?.sessionKey;
-                    }
-
-                    if (tokenEncontrado) {
-                        accessToken = tokenEncontrado;
-                        localStorage.setItem("accessToken", accessToken);
-                    }
-
-                    return {
-                        data: payload.data || payload,
-                        _accessToken: tokenEncontrado || accessToken
-                    };
-                }
-
-                const excepcion = payload.error?.type || "ErrorHTTP";
-                const detalle = payload.error?.message || "Sin detalles";
-
-                if (respuesta.status === 400) throw new SpecificationError(detalle, excepcion);
-                if (respuesta.status === 401 || respuesta.status === 403) throw new UnauthorizedError(detalle, excepcion);
-                if (respuesta.status === 422) throw new DomainError(detalle, excepcion);
-
-                throw new ProgramError(detalle, excepcion);
-
-            } catch (error) {
-                if (error.status) throw error;
-                throw new ProgramError("NetworkError", error.message);
-            }
+            if (esError) console.error("[ERROR]", mensaje);
+            else console.log("[OK]", mensaje);
         }
 
         async function cargarSolicitudes() {
@@ -119,13 +45,13 @@
                 const aplicaciones = response.data.applications || [];
 
                 if (aplicaciones.length === 0) {
-                    container.innerText = "No hay solicitudes pendientes en este momento.";
+                    container.innerText = response.data.message || "No hay solicitudes pendientes en este momento.";
                     return;
                 }
 
                 let html = '<table><thead><tr><th>Nombre y Apellido</th><th>DNI</th><th>Email</th><th>Teléfono</th><th>Acción</th></tr></thead><tbody>';
-                
-                aplicaciones.forEach(function(app) {
+
+                aplicaciones.forEach(function (app) {
                     html += '<tr>' +
                                 '<td>' + app.name + ' ' + app.surname + '</td>' +
                                 '<td>' + app.dni + '</td>' +
@@ -134,43 +60,36 @@
                                 '<td>' +
                                     '<button onclick="aprobarSolicitud(' + app.idUser + ')" class="btn-warning">Aprobar</button> ' +
                                     '<button onclick="rechazarSolicitud(' + app.idUser + ')" class="btn-danger">Rechazar</button>' +
-                                '</td>'
-
+                                '</td>' +
                             '</tr>';
                 });
-                
+
                 html += '</tbody></table>';
                 container.innerHTML = html;
-
             } catch (error) {
                 container.innerText = "Error al cargar las solicitudes: " + error.message;
             }
         }
 
-        window.aprobarSolicitud = async function(idUser) {
-            if (!confirm("¿Estás seguro de aprobar esta solicitud?")) {
-                return;
-            }
+        window.aprobarSolicitud = async function (idUser) {
+            if (!confirm("¿Estás seguro de aprobar esta solicitud?")) return;
 
             try {
-                const response = await RPCWebAPIFetch("/approveMembershipApplication", { idUser: idUser });
+                const response = await RPCWebAPIFetch("/approveMembershipApplication", { idUser });
                 mostrarResultado(response.data.message || "Solicitud aprobada con éxito", false);
-                cargarSolicitudes(); // Recargamos la tabla
+                cargarSolicitudes();
             } catch (error) {
                 mostrarResultado("Error al aprobar: " + error.message, true);
             }
         };
 
-            
-         window.rechazarSolicitud = async function(idUser) {
-            if (!confirm("¿Estás seguro de rechazar esta solicitud?")) {
-                return;
-            }
+        window.rechazarSolicitud = async function (idUser) {
+            if (!confirm("¿Estás seguro de rechazar esta solicitud?")) return;
 
             try {
-                const response = await RPCWebAPIFetch("/rejectMembershipApplication", { idUser: idUser });
+                const response = await RPCWebAPIFetch("/rejectMembershipApplication", { idUser });
                 mostrarResultado(response.data.message || "Solicitud rechazada con éxito", false);
-                cargarSolicitudes(); // Recargamos la tabla
+                cargarSolicitudes();
             } catch (error) {
                 mostrarResultado("Error al rechazar: " + error.message, true);
             }
@@ -183,16 +102,12 @@
                 console.warn("Logout warning:", e.message);
             }
             localStorage.removeItem("accessToken");
-            window.location.href = "index.html";
+            window.location.href = "login.html";
         }
 
         document.getElementById("btnLogout").onclick = onBtnLogoutClick;
 
-        function main() {
-            cargarSolicitudes();
-        }
-
-        window.onload = main;
+        cargarSolicitudes();
     </script>
 </body>
 
