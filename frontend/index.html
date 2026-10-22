@@ -3,133 +3,361 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Panel de pruebas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comunidad Activa - Club Social y Deportivo</title>
     <link rel="stylesheet" href="./css/styles.css">
+    <style>
+        :root {
+            --primary: #1a7f4f;
+            --primary-dark: #0f5a37;
+            --accent: #f59e0b;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; }
+
+        body.landing {
+            margin: 0;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.6;
+        }
+
+        .landing-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .landing-header {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border);
+            z-index: 10;
+        }
+
+        .landing-header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            padding-bottom: 16px;
+        }
+
+        .landing-logo {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
+
+        .landing-nav {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .landing-nav a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .landing-nav a:hover { color: var(--primary); }
+
+        .landing-btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+
+        .landing-btn:hover { background: var(--primary-dark); }
+
+        .landing-btn-outline {
+            border: 2px solid var(--primary);
+            color: var(--primary) !important;
+            padding: 10px 22px !important;
+            border-radius: 8px;
+            font-weight: 600 !important;
+        }
+
+        .landing-btn-outline:hover { background: var(--primary); color: white !important; }
+
+        .landing-hero {
+            padding: 100px 0;
+            background: linear-gradient(135deg, #1a7f4f 0%, #16a34a 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .landing-hero h1 { font-size: 2.75rem; margin: 0 0 16px; }
+        .landing-hero p { font-size: 1.25rem; margin: 0 0 32px; opacity: 0.95; }
+
+        .landing-hero .landing-btn { background: var(--accent); }
+        .landing-hero .landing-btn:hover { background: #d97706; }
+
+        .landing-about { padding: 80px 0; text-align: center; }
+        .landing-about h2 { font-size: 2rem; margin: 0 0 16px; }
+        .landing-about p { max-width: 700px; margin: 0 auto; color: var(--muted); font-size: 1.1rem; }
+
+        .landing-activities { padding: 80px 0; background: white; }
+        .landing-activities h2, .landing-membership h2 { font-size: 2rem; text-align: center; margin: 0 0 16px; }
+
+        .landing-activities > .landing-container > p,
+        .landing-membership > .landing-container > p {
+            text-align: center;
+            color: var(--muted);
+            margin: 0 0 40px;
+        }
+
+        .landing-activities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .activity-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .activity-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .activity-card h3 { margin: 0 0 8px; color: var(--primary-dark); font-size: 1.25rem; }
+        .activity-day { margin: 0 0 8px; color: var(--accent); font-weight: 500; }
+        .activity-instructor { margin: 0 0 8px; color: var(--muted); font-size: 0.9rem; }
+        .activity-desc { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+        .landing-empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: var(--muted);
+            padding: 40px;
+            font-style: italic;
+        }
+
+        .landing-membership { padding: 80px 0; }
+
+        .landing-form {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            display: grid;
+            gap: 16px;
+        }
+
+        .landing-form label { font-weight: 500; display: block; margin-bottom: 4px; }
+
+        .landing-form input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .landing-form input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 127, 79, 0.1);
+        }
+
+        .landing-form .landing-btn { width: 100%; margin-top: 8px; }
+
+        .landing-result {
+            max-width: 500px;
+            margin: 20px auto 0;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .landing-result:empty { display: none; }
+        .landing-result-ok { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .landing-result-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+        .landing-footer {
+            padding: 40px 0;
+            background: var(--primary-dark);
+            color: white;
+            text-align: center;
+        }
+
+        .landing-footer p { margin: 0; opacity: 0.85; }
+
+        @media (max-width: 640px) {
+            .landing-hero h1 { font-size: 2rem; }
+            .landing-nav { gap: 12px; font-size: 0.9rem; }
+            .landing-nav a:not(.landing-btn-outline) { display: none; }
+        }
+    </style>
 </head>
 
-<body>
-    <h1>Comunidad Activa - Panel de Pruebas</h1>
+<body class="landing">
+    <header class="landing-header">
+        <div class="landing-container landing-header-inner">
+            <a href="#inicio" class="landing-logo">Comunidad Activa</a>
+            <nav class="landing-nav">
+                <a href="#actividades">Actividades</a>
+                <a href="#socios">Hacete Socio</a>
+                <a href="login.html" class="landing-btn-outline">Iniciar Sesión</a>
+            </nav>
+        </div>
+    </header>
 
-    <fieldset>
-        <legend>Solicitud de Preinscripción a Socio</legend>
-        <label>Nombre:</label> <input id="regName" required><br>
-        <label>Apellido:</label> <input id="regSurname" required><br>
-        <label>DNI:</label> <input type="number" id="regDni" required><br>
-        <label>Fecha Nacimiento:</label> <input type="date" id="regBirthdate" required><br>
-        <label>Email:</label> <input type="email" id="regEmail" required><br>
-        <label>Teléfono:</label> <input type="tel" id="regPhone" required><br>
-        <button id="btnRegister">Enviar Solicitud</button>
-    </fieldset>
+    <section id="inicio" class="landing-hero">
+        <div class="landing-container">
+            <h1>Bienvenido a Comunidad Activa</h1>
+            <p>Un club para toda la familia. Deporte, cultura y comunidad.</p>
+            <a href="#socios" class="landing-btn">Quiero ser socio</a>
+        </div>
+    </section>
 
-    <hr>
+    <section class="landing-about">
+        <div class="landing-container">
+            <h2>Sobre el club</h2>
+            <p>
+                En Comunidad Activa creemos que el deporte y la vida en comunidad transforman personas.
+                Ofrecemos actividades para todas las edades, con profesores capacitados y un espacio
+                pensado para disfrutar, aprender y crecer juntos.
+            </p>
+        </div>
+    </section>
 
-    <h2>Control de Sesión</h2>
-    <fieldset>
-        <legend>Credenciales de Acceso</legend>
-        <label>Email:</label> <input type="email" id="txtEmail" placeholder="admin@club.com">
-        <label>Password:</label> <input type="password" id="txtPass" placeholder="Contraseña">
-        <button id="btnLogin">Iniciar Sesión</button>
-        <button id="btnLogout" disabled>Cerrar Sesión</button>
-        <span id="sessionStatus" style="margin-left:15px; font-weight:bold; color:red;">Sesión Cerrada</span>
-    </fieldset>
+    <section id="actividades" class="landing-activities">
+        <div class="landing-container">
+            <h2>Actividades y horarios</h2>
+            <p>Estas son las actividades que ofrece el club actualmente.</p>
+            <div id="actividadesContenido" class="landing-activities-grid">
+                Cargando actividades...
+            </div>
+        </div>
+    </section>
 
-    <hr>
+    <section id="socios" class="landing-membership">
+        <div class="landing-container">
+            <h2>Hacete socio</h2>
+            <p>Completá el formulario y nos comunicaremos con vos por email.</p>
 
-    <div id="resultado"></div>
+            <form id="membershipForm" class="landing-form">
+                <div>
+                    <label for="regName">Nombre</label>
+                    <input id="regName" required>
+                </div>
+                <div>
+                    <label for="regSurname">Apellido</label>
+                    <input id="regSurname" required>
+                </div>
+                <div>
+                    <label for="regDni">DNI</label>
+                    <input type="number" id="regDni" required>
+                </div>
+                <div>
+                    <label for="regBirthdate">Fecha de nacimiento</label>
+                    <input type="date" id="regBirthdate" required>
+                </div>
+                <div>
+                    <label for="regEmail">Email</label>
+                    <input type="email" id="regEmail" required>
+                </div>
+                <div>
+                    <label for="regPhone">Teléfono</label>
+                    <input type="tel" id="regPhone" required>
+                </div>
+                <button type="submit" class="landing-btn">Enviar Solicitud</button>
+            </form>
+
+            <div id="resultado" class="landing-result"></div>
+        </div>
+    </section>
+
+    <footer class="landing-footer">
+        <div class="landing-container">
+            <p>&copy; 2026 Comunidad Activa. Todos los derechos reservados.</p>
+        </div>
+    </footer>
 
     <script type="module">
         import { RPCWebAPIFetch } from './js/api.js';
 
-        function mostrarResultado(mensaje, esError = false) {
-            const resDiv = document.getElementById("resultado");
-            resDiv.style.display = "block";
-            resDiv.style.backgroundColor = esError ? "#ffe6e6" : "#e6ffe6";
-            resDiv.style.color = esError ? "#cc0000" : "#006600";
-            resDiv.innerText = mensaje;
+        async function cargarActividades() {
+            const container = document.getElementById("actividadesContenido");
+            try {
+                const response = await RPCWebAPIFetch("/listActivities", {});
+                const actividades = response.data.activities || [];
 
-            if (esError) console.error("[ERROR]", mensaje);
-            else console.log("[OK]", mensaje);
+                if (actividades.length === 0) {
+                    container.innerHTML = `<p class="landing-empty">${response.data.message || "No hay actividades cargadas todavía."}</p>`;
+                    return;
+                }
+
+                container.innerHTML = actividades.map(a => `
+                    <article class="activity-card">
+                        <h3>${a.name}</h3>
+                        <p class="activity-day"><strong>${a.day}</strong> · ${a.startTime} a ${a.endTime}</p>
+                        ${a.instructor ? `<p class="activity-instructor">Prof. ${a.instructor}</p>` : ""}
+                        ${a.description ? `<p class="activity-desc">${a.description}</p>` : ""}
+                    </article>
+                `).join("");
+
+            } catch (error) {
+                container.innerHTML = `<p class="landing-empty">No se pudieron cargar las actividades: ${error.message}</p>`;
+                console.error("[actividades]", error);
+            }
         }
 
-        async function onBtnRegisterClick() {
+        async function onRegisterSubmit(e) {
+            e.preventDefault();
+            const resultado = document.getElementById("resultado");
+
             const payload = {
-                name: document.getElementById("regName").value,
-                surname: document.getElementById("regSurname").value,
-                dni: document.getElementById("regDni").value,
+                name: document.getElementById("regName").value.trim(),
+                surname: document.getElementById("regSurname").value.trim(),
+                dni: document.getElementById("regDni").value.trim(),
                 birthdate: document.getElementById("regBirthdate").value,
-                email: document.getElementById("regEmail").value,
-                phone: document.getElementById("regPhone").value
+                email: document.getElementById("regEmail").value.trim(),
+                phone: document.getElementById("regPhone").value.trim()
             };
 
             try {
                 const response = await RPCWebAPIFetch("/createMembershipApplication", payload);
-                mostrarResultado("Respuesta: " + (response.data.message || "Solicitud enviada"));
+                resultado.className = "landing-result landing-result-ok";
+                resultado.innerText = response.data.message || "Solicitud enviada correctamente.";
+                document.getElementById("membershipForm").reset();
             } catch (error) {
-                mostrarResultado(`Fallo [${error.name}]: ${error.message}`, true);
+                resultado.className = "landing-result landing-result-error";
+                resultado.innerText = error.message;
+                console.error("[membership]", error);
             }
         }
 
-        async function onBtnLoginClick() {
-            const email = document.getElementById("txtEmail").value;
-            const password = document.getElementById("txtPass").value;
-
-            try {
-                const response = await RPCWebAPIFetch("/login", { email, password });
-                const user = response.data.user || response.data;
-
-                document.getElementById("sessionStatus").innerText = `Sesión Activa (${user.role || 'Usuario'})`;
-                document.getElementById("sessionStatus").style.color = "green";
-                document.getElementById("btnLogin").disabled = true;
-                document.getElementById("btnLogout").disabled = false;
-
-                mostrarResultado(`¡Bienvenido ${user.name || ''}! Rol: ${user.role || 'N/A'}`);
-
-                if (response.data.redirectToChangePassword) {
-                    window.location.href = "change-password.html";
-                    return;
-                }
-                if (user.role === "CLUB_ADMIN" || user.role === "SUPER_ADMIN") {
-                    window.location.href = "admin.html";
-                } else {
-                    window.location.href = "socio.html";
-                }
-            } catch (error) {
-                mostrarResultado(`Fallo en Login [${error.name}]: ${error.message}`, true);
-            }
-        }
-
-        async function onBtnLogoutClick() {
-            try {
-                await RPCWebAPIFetch("/logout", {});
-            } catch (e) {
-                console.warn("El backend rechazó el logout o ya expiró la sesión:", e.message);
-            }
-
-            localStorage.removeItem("accessToken");
-
-            document.getElementById("sessionStatus").innerText = "Sesión Cerrada";
-            document.getElementById("sessionStatus").style.color = "red";
-            document.getElementById("btnLogin").disabled = false;
-            document.getElementById("btnLogout").disabled = true;
-
-            mostrarResultado("Usuario cerró sesión", false);
-        }
-
-        function main() {
-            const tokenGuardado = localStorage.getItem("accessToken");
-            if (tokenGuardado) {
-                document.getElementById("sessionStatus").innerText = "Sesión Activa";
-                document.getElementById("sessionStatus").style.color = "green";
-                document.getElementById("btnLogin").disabled = true;
-                document.getElementById("btnLogout").disabled = false;
-            }
-
-            document.getElementById("btnRegister").onclick = onBtnRegisterClick;
-            document.getElementById("btnLogin").onclick = onBtnLoginClick;
-            document.getElementById("btnLogout").onclick = onBtnLogoutClick;
-        }
-
-        window.onload = main;
+        document.getElementById("membershipForm").addEventListener("submit", onRegisterSubmit);
+        cargarActividades();
     </script>
 </body>
 
