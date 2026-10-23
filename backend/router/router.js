@@ -1,7 +1,7 @@
 const { login, logout, changePassword } = require("../services/auth.js");
 const { createMembershipApplication, listMembershipApplications, approveMembershipApplication, rejectMembershipApplication } = require("../services/membership.js");
 const { getUserProfile, listMembers } = require("../services/user.js"); 
-const { listActivities } = require("../services/activities.js"); 
+// const { listActivities } = require("../services/activities.js"); 
 
 function router() {
     const routerMap = new Map();
@@ -31,7 +31,7 @@ function router() {
     routerMap.set('/listMembers', { method: listMembers, status: "private", roles: ["CLUB_ADMIN", "SUPER_ADMIN"], allowedStatuses: ["ACTIVE"] });
 
     // ----- ACTIVITIES ROUTES -----
-    routerMap.set('/listActivities', { method: listActivities, status: "public" });
+    // routerMap.set('/listActivities', { method: listActivities, status: "public" });
 
 
 

@@ -1,6 +1,6 @@
 const { objectDB } = require("../database/connectDB.js");
 
-function getUserBySessionKey(sessionKey) {
+function getUserBySessionKeyDB(sessionKey) {
     const sql = "SELECT * FROM users WHERE sessionKey = ?";
 
     try {
@@ -19,7 +19,7 @@ function getUserBySessionKey(sessionKey) {
     }
 }
 
-function updateSessionKeyByID(value, idUser) {
+function updateSessionKeyByIdDB(value, idUser) {
     const sql = "UPDATE users SET sessionKey = ? WHERE idUser = ?";
 
     try {
@@ -36,7 +36,7 @@ function updateSessionKeyByID(value, idUser) {
     }
 }
 
-function getUserByID(IDuser) {
+function getUserByIdDB(IDuser) {
     const sql = "SELECT * FROM users WHERE idUser = ?";
 
     try {
@@ -64,7 +64,7 @@ function getUserByID(IDuser) {
     }
 }
 
-function updatePasswordByID(newPassword, IDuser) {
+function updatePasswordByIdDB(newPassword, IDuser) {
     const sql = "UPDATE users SET password = ? WHERE idUser = ?";
 
     try {
@@ -81,7 +81,7 @@ function updatePasswordByID(newPassword, IDuser) {
     }
 }
 
-function updateStatusByID(value, IDuser) {
+function updateStatusByIdDB(value, IDuser) {
     const sql = "UPDATE users SET idStatus = ? WHERE idUser = ?";
 
     try {
@@ -123,4 +123,4 @@ function listMembersDB() {
 }
 
 
-module.exports = { getUserBySessionKey, updateSessionKeyByID, getUserByID, updatePasswordByID, updateStatusByID, listMembersDB };
+module.exports = { getUserBySessionKeyDB, updateSessionKeyByIdDB, getUserByIdDB, updatePasswordByIdDB, updateStatusByIdDB, listMembersDB };

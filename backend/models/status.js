@@ -1,6 +1,6 @@
 const { objectDB } = require("../database/connectDB.js")
 
-function getStatusById(id){
+function getStatusByIdDB(id){
     try {
         const sql = "SELECT * FROM userStatus WHERE idStatus = ?"
         const stmt = objectDB.prepare(sql)
@@ -18,4 +18,4 @@ function getStatusById(id){
     }
 }
 
-module.exports = { getStatusById }
+module.exports = { getStatusByIdDB }

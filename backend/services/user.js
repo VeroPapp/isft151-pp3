@@ -1,7 +1,7 @@
 const { sendSuccess } = require("../helpers/responseHandler.js");
 const { sendError, BadRequestError, UnauthorizedError } = require("../helpers/errorHandler.js");
-const { getUserByID } = require("../models/user.js");
-const { getRoleById } = require("../models/roles.js");
+const { getUserByIdDB } = require("../models/user.js");
+const { getRoleByIdDB } = require("../models/roles.js");
 const { listMembersDB } = require("../models/user.js");
 
 
@@ -12,12 +12,12 @@ function getUserProfile(request, response) {
             throw new UnauthorizedError("No se pudo identificar al usuario en la sesión.");
         }
 
-        const user = getUserByID(IDuser);
+        const user = getUserByIdDB(IDuser);
         if (!user) {
             throw new BadRequestError("Usuario no encontrado.");
         }
 
-        const role = getRoleById(request.user.IDrole);
+        const role = getRoleByIdDB(request.user.IDrole);
 
         // Excluir campos sensibles
         const { password, sessionKey, ...profile } = user;

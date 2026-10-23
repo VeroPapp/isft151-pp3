@@ -1,7 +1,7 @@
 const { objectDB } = require("../database/connectDB.js");
 const { calcularHashSHA256 } = require("../helpers/hash.js");
 
-function authenticate(emailUser, password) {
+function authenticateDB(emailUser, password) {
     const sql = "SELECT * FROM users WHERE email = ? AND password = ?";
 
     try {
@@ -24,4 +24,4 @@ function authenticate(emailUser, password) {
     }
 }
 
-module.exports = { authenticate };
+module.exports = { authenticateDB };

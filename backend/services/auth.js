@@ -1,10 +1,10 @@
 const { sendSuccess } = require("../helpers/responseHandler.js");
 const { BadRequestError, UnauthorizedError, DomainError, InternServerError, sendError } = require("../helpers/errorHandler.js");
 
-const { authenticate } = require("../models/auth.js");
-const { getStatusById } = require("../models/status.js");
-const { getRoleById } = require("../models/roles.js");
-const { updateSessionKeyByID, getUserByID, updatePasswordByID, updateStatusByID } = require("../models/user.js");
+const { authenticateDB } = require("../models/auth.js");
+const { getStatusByIdDB } = require("../models/status.js");
+const { getRoleByIdDB } = require("../models/roles.js");
+const { updateSessionKeyByIdDB, getUserByIdDB, updatePasswordByIdDB, updateStatusByIdDB } = require("../models/user.js");
 
 const { UserSession } = require("../services/session.js");
 const { validateChangePassword } = require("../helpers/validateChangePassword.js");
@@ -30,19 +30,19 @@ function login(request, response) {
             }
 
             // 1. Autenticación
-            const userExists = authenticate(email, password);
+            const userExists = authenticateDB(email, password);
             if (!userExists) {
                 throw new UnauthorizedError("Credenciales inválidas.");
             }
 
             // 2. Obtener el nombre del rol
-            const roleExists = getRoleById(userExists.idRole);
+            const roleExists = getRoleByIdDB(userExists.idRole);
             if (!roleExists) {
                 throw new UnauthorizedError("El usuario no tiene un rol válido para iniciar sesión.");
             }
 
             // 3. Validación del Estado del Usuario
-            const statusExists = getStatusById(userExists.idStatus);
+            const statusExists = getStatusByIdDB(userExists.idStatus);
             const invalidStatuses = ["PENDINGFORAPPROBATION", "REJECTED", "INACTIVE", "NONE"];
 
             if (!statusExists || invalidStatuses.includes(statusExists.nameStatus)) {
@@ -63,7 +63,7 @@ function login(request, response) {
                 const currentSession = new UserSession();
                 currentSession.setHash(userExists.idUser, email);
                 currentToken = currentSession.getHash();
-                updateSessionKeyByID(currentToken, userExists.idUser);
+                updateSessionKeyByIdDB(currentToken, userExists.idUser);
             }
 
             // Inyectamos SIEMPRE el token en la cabecera
@@ -97,7 +97,7 @@ function logout(request, response) {
             throw new BadRequestError("No se pudo identificar al usuario en la sesión.");
         }
 
-        const updateSession = updateSessionKeyByID('NONE', idUser);
+        const updateSession = updateSessionKeyByIdDB('NONE', idUser);
         if (!updateSession) {
             throw new UnauthorizedError("El usuario no existe o no se pudo cerrar la sesión.");
         }
@@ -135,7 +135,7 @@ function changePassword(request, response) {
                 throw new BadRequestError("La contraseña debe tener al menos 8 caracteres e incluir una letra mayúscula, una letra minúscula, un número y un carácter especial.");
             }
 
-            const userExists = getUserByID(idUser);
+            const userExists = getUserByIdDB(idUser);
             if (!userExists) {
                 throw new UnauthorizedError("El usuario no está registrado en la base de datos.");
             }
@@ -156,19 +156,19 @@ function changePassword(request, response) {
             }
 
             // Actualizar contraseña 
-            const updatePassword = updatePasswordByID(newPasswordHash, idUser);
+            const updatePassword = updatePasswordByIdDB(newPasswordHash, idUser);
             if (!updatePassword) {
                 throw new DomainError("No se pudo actualizar la contraseña en el sistema.");
             }
 
             // Pasar estado a ACTIVO (3)
-            const updateStatus = updateStatusByID(3, idUser);
+            const updateStatus = updateStatusByIdDB(3, idUser);
             if (!updateStatus) {
                 throw new DomainError("No se pudo actualizar el estado del usuario en el sistema.");
             }
 
             // Actualiza la sessionKey a "NONE" del usuario
-            const updateSession = updateSessionKeyByID('NONE', idUser);
+            const updateSession = updateSessionKeyByIdDB('NONE', idUser);
             if (!updateSession) {
                 throw new UnauthorizedError("El usuario no existe o no se pudo cerrar la sesión.");
             }

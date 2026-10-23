@@ -1,7 +1,7 @@
 const { InstanceRouter } = require("../router/router.js");
-const { getUserBySessionKey } = require("../models/user.js");
-const { getRoleById } = require("../models/roles.js");
-const { getStatusById } = require("../models/status.js");
+const { getUserBySessionKeyDB } = require("../models/user.js");
+const { getRoleByIdDB } = require("../models/roles.js");
+const { getStatusByIdDB } = require("../models/status.js");
 
 // Definimos la función como async para mantener la consistencia con el await del servidor
 async function sessionAuthorized(sessionKey, endpoint) {
@@ -22,13 +22,13 @@ async function sessionAuthorized(sessionKey, endpoint) {
         return { isAuthorized: false, IDuser: null, IDrole: null, IDstatus: null };
     }
 
-    const user = getUserBySessionKey(sessionKey);
+    const user = getUserBySessionKeyDB(sessionKey);
     if (!user) {
         return { isAuthorized: false, IDuser: null, IDrole: null, IDstatus: null };
     }
 
-    const role = getRoleById(user.IDrole);
-    const status = getStatusById(user.IDstatus);
+    const role = getRoleByIdDB(user.IDrole);
+    const status = getStatusByIdDB(user.IDstatus);
 
     if (!role || !status) {
         return { isAuthorized: false, IDuser: null, IDrole: null, IDstatus: null };

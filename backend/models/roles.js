@@ -1,6 +1,6 @@
 const { objectDB } = require("../database/connectDB.js")
 
-function getRoleById(id){
+function getRoleByIdDB(id){
     try {
         const sql = "SELECT * FROM roles WHERE idRole = ?"
         const stmt = objectDB.prepare(sql)
@@ -18,4 +18,4 @@ function getRoleById(id){
     }
 }
 
-module.exports = { getRoleById }
+module.exports = { getRoleByIdDB }
