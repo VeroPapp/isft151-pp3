@@ -70,8 +70,14 @@
             cursor: pointer;
         }
 
-        .login-card button:hover { background: #0f5a37; }
-        .login-card button:disabled { opacity: 0.6; cursor: not-allowed; }
+        .login-card button:hover {
+            background: #0f5a37;
+        }
+
+        .login-card button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
 
         .login-result {
             margin-top: 16px;
@@ -81,9 +87,19 @@
             text-align: center;
         }
 
-        .login-result:empty { display: none; }
-        .login-result-ok { background: #dcfce7; color: #166534; }
-        .login-result-error { background: #fee2e2; color: #991b1b; }
+        .login-result:empty {
+            display: none;
+        }
+
+        .login-result-ok {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .login-result-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
 
         .login-back {
             display: block;
@@ -94,7 +110,9 @@
             font-size: 0.9rem;
         }
 
-        .login-back:hover { color: #1a7f4f; }
+        .login-back:hover {
+            color: #1a7f4f;
+        }
     </style>
 </head>
 
@@ -118,46 +136,64 @@
     </div>
 
     <script type="module">
-        import { RPCWebAPIFetch } from './js/api.js';
+        import { RPCWebAPIFetchPublic } from './js/api.js';
 
-        async function onLoginSubmit(e) {
-            e.preventDefault();
-            const resultado = document.getElementById("resultado");
+        function mostrarResultado(mensaje, esError = false) {
+            const resDiv = document.getElementById("resultado");
+            resDiv.style.display = "block";
+            resDiv.className = esError ? "login-result login-result-error" : "login-result login-result-ok";
+            resDiv.style.backgroundColor = esError ? "#ffe6e6" : "#e6ffe6";
+            resDiv.style.color = esError ? "#cc0000" : "#006600";
+            resDiv.innerText = mensaje;
+
+            if (esError) console.error("[ERROR]", mensaje);
+            else console.log("[OK]", mensaje);
+        }
+
+        async function onLoginSubmit(event) {
+            event.preventDefault();
             const btn = document.getElementById("btnLogin");
 
             const email = document.getElementById("txtEmail").value.trim();
             const password = document.getElementById("txtPass").value;
 
             btn.disabled = true;
-            resultado.className = "login-result";
-            resultado.innerText = "";
 
             try {
-                const response = await RPCWebAPIFetch("/login", { email, password });
-                const user = response.data.user || response.data;
+                const response = await RPCWebAPIFetchPublic("/login", { email, password });
+                const user = response.data.user;
 
-                resultado.className = "login-result login-result-ok";
-                resultado.innerText = `¡Bienvenido ${user.name || ""}!`;
+                mostrarResultado(`¡Bienvenido ${user.name || ""}!`)
 
-                if (response.data.redirectToChangePassword) {
-                    window.location.href = "change-password.html";
-                    return;
-                }
 
-                if (user.role === "CLUB_ADMIN" || user.role === "SUPER_ADMIN") {
-                    window.location.href = "admin.html";
-                } else {
-                    window.location.href = "socio.html";
-                }
+                setTimeout(function () {
+                    if (response.data.redirectToChangePassword) {
+                        window.location.href = "change-password.html";
+                        return; 
+                    }
+
+                    if (user.role === "CLUB_ADMIN" || user.role === "SUPER_ADMIN") {
+                        window.location.href = "admin.html";
+                    } else {
+                        window.location.href = "socio.html";
+                    }
+                }, 4000); 
+
             } catch (error) {
-                resultado.className = "login-result login-result-error";
-                resultado.innerText = error.message;
+                mostrarResultado(error.message, true)
                 console.error("[login]", error);
                 btn.disabled = false;
             }
         }
 
-        document.getElementById("loginForm").addEventListener("submit", onLoginSubmit);
+
+        async function main() {
+
+            document.getElementById("loginForm").onsubmit = onLoginSubmit;
+
+        }
+
+        window.onload = main;
     </script>
 </body>
 

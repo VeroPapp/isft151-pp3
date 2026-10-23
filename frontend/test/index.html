@@ -38,7 +38,7 @@
     <div id="resultado"></div>
 
     <script type="module">
-        import { RPCWebAPIFetch } from './js/api.js';
+        import { RPCWebAPIFetchPublic, RPCWebAPIFetchPrivate } from "../js/api.js";
 
         function mostrarResultado(mensaje, esError = false) {
             const resDiv = document.getElementById("resultado");
@@ -62,7 +62,7 @@
             };
 
             try {
-                const response = await RPCWebAPIFetch("/createMembershipApplication", payload);
+                const response = await RPCWebAPIFetchPublic("/createMembershipApplication", payload);
                 mostrarResultado("Respuesta: " + (response.data.message || "Solicitud enviada"));
             } catch (error) {
                 mostrarResultado(`Fallo [${error.name}]: ${error.message}`, true);
@@ -74,15 +74,15 @@
             const password = document.getElementById("txtPass").value;
 
             try {
-                const response = await RPCWebAPIFetch("/login", { email, password });
-                const user = response.data.user || response.data;
+                const response = await RPCWebAPIFetchPublic("/login", { email, password });
+                const user = response.data.user;
 
                 document.getElementById("sessionStatus").innerText = `Sesión Activa (${user.role || 'Usuario'})`;
                 document.getElementById("sessionStatus").style.color = "green";
                 document.getElementById("btnLogin").disabled = true;
                 document.getElementById("btnLogout").disabled = false;
 
-                mostrarResultado(`¡Bienvenido ${user.name || ''}! Rol: ${user.role || 'N/A'}`);
+                mostrarResultado(`¡Bienvenido ${user.name || ''}! con Rol: ${user.role || 'N/A'}`);
 
                 if (response.data.redirectToChangePassword) {
                     window.location.href = "change-password.html";
@@ -100,7 +100,7 @@
 
         async function onBtnLogoutClick() {
             try {
-                await RPCWebAPIFetch("/logout", {});
+                await RPCWebAPIFetchPrivate("/logout", {});
             } catch (e) {
                 console.warn("El backend rechazó el logout o ya expiró la sesión:", e.message);
             }
