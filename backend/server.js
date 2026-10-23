@@ -11,15 +11,11 @@ async function requestDispatcher(request, response) {
 
     response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
     response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-    response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, x-access-token");
-    // *le indica al navegador que el cliente puede leer estos headers de la respuesta
+    response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, x-access-token, x-api-version");
+    // le indica al navegador que el cliente puede leer estos headers de la respuesta
     response.setHeader("Access-Control-Expose-Headers", "x-access-token");
 
-    const url = new URL(request.url, base);
-    console.log("protocolo + dominio + endpoint completo: " + url);
-
-    const path = url.pathname;
-    console.log("path + endpoint de la peticion: " + path);
+    const APIVersionServer = '1.0'
 
     try {
 
@@ -29,6 +25,22 @@ async function requestDispatcher(request, response) {
             response.end();
             return;
         }
+
+        if (request.method !== "POST") {
+            throw new BadRequestError("Metodo de envio no correspondiente para el servidor.")
+        }
+
+        const APIVersionRequest = request.headers['x-api-version'];
+
+        if (APIVersionRequest !== APIVersionServer) {
+            throw new BadRequestError("Version de API incorrecta")
+        }
+
+        const url = new URL(request.url, base);
+        console.log("protocolo + dominio + endpoint completo: " + url);
+
+        const path = url.pathname;
+        console.log("path + endpoint de la peticion: " + path);
 
         const handler = InstanceRouter.get(path);
         if (!handler) {

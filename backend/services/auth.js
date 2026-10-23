@@ -155,16 +155,24 @@ function changePassword(request, response) {
                 throw new BadRequestError("La nueva contraseña no puede ser igual a la anterior.");
             }
 
-            // Actualizar contraseña y pasar estado a ACTIVO (3)
+            // Actualizar contraseña 
             const updatePassword = updatePasswordByID(newPasswordHash, idUser);
             if (!updatePassword) {
                 throw new DomainError("No se pudo actualizar la contraseña en el sistema.");
             }
 
-            updateStatusByID(3, idUser);
+            // Pasar estado a ACTIVO (3)
+            const updateStatus = updateStatusByID(3, idUser);
+            if (!updateStatus) {
+                throw new DomainError("No se pudo actualizar el estado del usuario en el sistema.");
+            }
 
-            // Devolver la cabecera con el token actual
-            response.setHeader("x-access-token", `${userExists.sessionKey}`);
+            // Actualiza la sessionKey a "NONE" del usuario
+            const updateSession = updateSessionKeyByID('NONE', idUser);
+            if (!updateSession) {
+                throw new UnauthorizedError("El usuario no existe o no se pudo cerrar la sesión.");
+            }
+
             sendSuccess(response, { message: "La contraseña ha sido modificada con éxito." }, 200);
 
         } catch (error) {
