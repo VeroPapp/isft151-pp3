@@ -98,6 +98,29 @@ function updateStatusByID(value, IDuser) {
     }
 }
 
+function listMembersDB() {
+    try {
+        const sql = `
+            SELECT
+                u.idUser,
+                u.name,
+                u.surname,
+                u.dni,
+                u.email,
+                u.phone,
+                u.creationDate,
+                us.name AS status
+            FROM users u
+            INNER JOIN userStatus us ON u.idStatus = us.idStatus
+            WHERE u.idRole = 2
+            ORDER BY u.surname ASC, u.name ASC
+        `;
+        const stmt = objectDB.prepare(sql);
+        return stmt.all();
+    } catch (error) {
+        throw error;
+    }
+}
 
 
-module.exports = { getUserBySessionKey, updateSessionKeyByID, getUserByID, updatePasswordByID, updateStatusByID };
+module.exports = { getUserBySessionKey, updateSessionKeyByID, getUserByID, updatePasswordByID, updateStatusByID, listMembersDB };
