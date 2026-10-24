@@ -163,21 +163,17 @@
                 const response = await RPCWebAPIFetchPublic("/login", { email, password });
                 const user = response.data.user;
 
-                mostrarResultado(`¡Bienvenido ${user.name || ""}!`)
 
+                if (response.data.redirectToChangePassword) {
+                    window.location.href = "change-password.html";
+                    return;
+                }
 
-                setTimeout(function () {
-                    if (response.data.redirectToChangePassword) {
-                        window.location.href = "change-password.html";
-                        return; 
-                    }
-
-                    if (user.role === "CLUB_ADMIN" || user.role === "SUPER_ADMIN") {
-                        window.location.href = "admin.html";
-                    } else {
-                        window.location.href = "socio.html";
-                    }
-                }, 4000); 
+                if (user.role === "CLUB_ADMIN" || user.role === "SUPER_ADMIN") {
+                    window.location.href = "admin.html";
+                } else {
+                    window.location.href = "socio.html";
+                }
 
             } catch (error) {
                 mostrarResultado(error.message, true)
