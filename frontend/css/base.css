@@ -1,0 +1,227 @@
+/* ==========================================================
+   BASE.CSS - Variables y estilos compartidos por todas las páginas
+   ========================================================== */
+
+:root {
+    --primary: #1a7f4f;
+    --primary-dark: #0f5a37;
+    --accent: #f59e0b;
+    --danger: #dc2626;
+    --bg: #f8fafc;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+
+    --success-bg: #dcfce7;
+    --success-text: #166534;
+    --success-border: #86efac;
+
+    --error-bg: #fee2e2;
+    --error-text: #991b1b;
+    --error-border: #fca5a5;
+
+    --warning-bg: #fef3c7;
+    --warning-text: #92400e;
+    --warning-border: #fcd34d;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+/* ---------- Botones ---------- */
+
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+    font-family: inherit;
+    text-decoration: none;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-success { background: #16a34a; color: white; }
+.btn-success:hover:not(:disabled) { background: #15803d; }
+
+.btn-danger { background: var(--danger); color: white; }
+.btn-danger:hover:not(:disabled) { background: #b91c1c; }
+
+.btn-warning { background: var(--accent); color: white; }
+.btn-warning:hover:not(:disabled) { background: #d97706; }
+
+/* ---------- Badges de estado ---------- */
+
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.badge-active   { background: var(--success-bg); color: var(--success-text); }
+.badge-pending  { background: var(--warning-bg); color: var(--warning-text); }
+.badge-inactive { background: #f1f5f9;            color: var(--muted); }
+.badge-rejected { background: var(--error-bg);   color: var(--error-text); }
+
+/* ---------- Formularios ---------- */
+
+.form-grid { display: grid; gap: 14px; }
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.form-field label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    background: white;
+}
+
+.form-field textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(26, 127, 79, 0.1);
+}
+
+/* ---------- Mensaje de resultado (#resultado) ---------- */
+
+#resultado {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+#resultado:empty { display: none; }
+
+#resultado.ok {
+    background: var(--success-bg);
+    color: var(--success-text);
+    border: 1px solid var(--success-border);
+}
+
+#resultado.error {
+    background: var(--error-bg);
+    color: var(--error-text);
+    border: 1px solid var(--error-border);
+}
+
+/* ---------- Estados vacíos / placeholders ---------- */
+
+.empty-msg {
+    color: var(--muted);
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+.empty-row {
+    text-align: center;
+    color: var(--muted);
+    font-style: italic;
+    padding: 40px 20px;
+}
+
+.placeholder-msg {
+    background: var(--warning-bg);
+    border: 1px solid var(--warning-border);
+    color: #78350f;
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+/* ---------- Tablas ---------- */
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.data-table th {
+    text-align: left;
+    padding: 10px 12px;
+    background: var(--bg);
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+}
+
+.data-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover { background: var(--bg); }
+
+.table-wrap { overflow-x: auto; }
+
+.actions-cell {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+/* ---------- Utilidades ---------- */
+
+.hidden { display: none !important; }
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+}
+
+.shake { animation: shake 0.4s ease-in-out; }

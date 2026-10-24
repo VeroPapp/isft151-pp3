@@ -1,0 +1,185 @@
+/* ==========================================================
+   PROFILES.CSS - Paneles de socio y administración
+   ========================================================== */
+
+/* ---------- Headers ---------- */
+
+.socio-header,
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    border-bottom: 1px solid var(--border);
+}
+
+.socio-header {
+    padding: 16px 20px;
+    margin-bottom: 24px;
+}
+
+.admin-header {
+    padding: 16px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.socio-header h1,
+.admin-header h1 {
+    margin: 0;
+    color: var(--primary-dark);
+}
+
+.socio-header h1 { font-size: 1.5rem; }
+.admin-header h1 { font-size: 1.25rem; }
+
+.socio-header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* ---------- Contenedor admin ---------- */
+
+.admin-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+/* ---------- Cards / secciones ---------- */
+
+.socio-section,
+.section-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.socio-section h2,
+.section-card h2 {
+    margin: 0 0 16px;
+    color: var(--primary-dark);
+}
+
+.socio-section h2 { font-size: 1.25rem; }
+.section-card h2 { font-size: 1.15rem; }
+
+/* ---------- Perfil (socio) ---------- */
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+.profile-field { display: flex; flex-direction: column; }
+
+.profile-field label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+
+.profile-field span {
+    font-size: 1rem;
+    color: var(--text);
+    font-weight: 500;
+}
+
+/* ---------- Actividades (vista socio) ---------- */
+
+.activities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+}
+
+.activities-grid .activity-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.activities-grid .activity-card h3 {
+    margin: 0 0 6px;
+    color: var(--primary-dark);
+    font-size: 1.05rem;
+}
+
+.activities-grid .activity-card .day {
+    color: var(--accent);
+    font-weight: 600;
+    margin: 0 0 6px;
+}
+
+.activities-grid .activity-card .instructor {
+    color: var(--muted);
+    font-size: 0.875rem;
+    margin: 0 0 6px;
+}
+
+.activities-grid .activity-card .desc {
+    color: var(--muted);
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+/* ---------- Tabs (admin) ---------- */
+
+.tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 24px;
+    overflow-x: auto;
+}
+
+.tab {
+    background: none;
+    border: none;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+    font-family: inherit;
+}
+
+.tab:hover { color: var(--primary); }
+
+.tab.active {
+    color: var(--primary-dark);
+    border-bottom-color: var(--primary);
+    font-weight: 600;
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 700px) {
+    .form-row { grid-template-columns: 1fr; }
+    .admin-container { padding: 16px; }
+
+    .socio-section,
+    .section-card { padding: 16px; }
+
+    .data-table { font-size: 0.8rem; }
+    .data-table th,
+    .data-table td { padding: 8px 6px; }
+
+    .socio-header { padding: 16px; }
+    .socio-header h1 { font-size: 1.2rem; }
+}
