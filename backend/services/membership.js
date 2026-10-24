@@ -1,4 +1,4 @@
-const { InternServerError, BadRequestError, UnauthorizedError, DomainError, sendError } = require("../helpers/errorHandler.js")
+const { BadRequestError, DomainError, sendError } = require("../helpers/errorHandler.js")
 const { createMembershipApplicationDB, listMembershipApplicationsDB, approveMembershipApplicationDB, rejectMembershipApplicationDB } = require("../models/membership.js");
 const { sendSuccess } = require("../helpers/responseHandler.js")
 
@@ -13,22 +13,25 @@ async function createMembershipApplication(request, response) {
     request.on("end", async () => {
         try {
 
-            const data = JSON.parse(body)
+            let data;
+            try {
+                data = JSON.parse(body);
+            } catch (error) {
+                throw new BadRequestError("El cuerpo de la petición debe contener un JSON válido.");
+            }
 
             // Extrae los datos del body
-            const { name, surname, dni, birthdate, email, phone } = data
+            const { name, surname, dni, birthdate, email, phone } = data;
 
             // Validación de datos de entrada
             if (!name || !surname || !dni || !birthdate || !email || !phone) {
-                const error = new BadRequestError("Faltan campos obligatorios para realizar la solicitud de membresia")
-                throw error
+                throw new BadRequestError("Faltan campos obligatorios para realizar la solicitud de membresia")
             }
 
             const userId = createMembershipApplicationDB(name, surname, dni, birthdate, email, phone)
 
             if (!userId) {
-                const error = new DomainError("El numero de DNI o email ya está registrado en el sistema.")
-                throw error
+                throw new DomainError("El numero de DNI o email ya está registrado en el sistema.")
             }
 
             const message = { message: "Solicitud enviada correctamente. Pronto nos comunicaremos vía mail." }
@@ -47,7 +50,7 @@ function listMembershipApplications(request, response) {
     try {
         const applications = listMembershipApplicationsDB();
 
-        if (!applications || applications.length === 0) {
+        if (applications.length === 0) {
             sendSuccess(response, {
                 message: "No hay solicitudes de membresía pendientes.",
                 applications: []
@@ -71,7 +74,15 @@ function approveMembershipApplication(request, response) {
 
     request.on("end", () => {
         try {
-            const data = JSON.parse(bodyRaw);
+            let data;
+            try {
+                data = JSON.parse(bodyRaw);
+            } catch (error) {
+                throw new BadRequestError(
+                    "El cuerpo de la petición debe contener un JSON válido."
+                );
+            }
+
             const { idUser } = data;
 
             if (!idUser) {
@@ -101,7 +112,15 @@ function rejectMembershipApplication(request, response) {
 
     request.on("end", () => {
         try {
-            const data = JSON.parse(bodyRaw);
+            let data;
+            try {
+                data = JSON.parse(bodyRaw);
+            } catch (error) {
+                throw new BadRequestError(
+                    "El cuerpo de la petición debe contener un JSON válido."
+                );
+            }
+
             const { idUser } = data;
 
             if (!idUser) {

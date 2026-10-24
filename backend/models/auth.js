@@ -2,11 +2,21 @@ const { objectDB } = require("../database/connectDB.js");
 const { calcularHashSHA256 } = require("../helpers/hash.js");
 
 function authenticateDB(emailUser, password) {
-    const sql = "SELECT * FROM users WHERE email = ? AND password = ?";
+    const sql = `
+    SELECT
+        idUser,
+        name,
+        surname,
+        idRole,
+        idStatus,
+        sessionKey
+    FROM users
+    WHERE email = ? AND password = ?
+    `;
 
     try {
         const stmt = objectDB.prepare(sql);
-        
+
         const hashedPassword = calcularHashSHA256(password);
 
         const userExists = stmt.get(emailUser, hashedPassword);
@@ -15,9 +25,23 @@ function authenticateDB(emailUser, password) {
             return null;
         }
 
-        const { idUser, name, surname, idRole, temporaryPassword, idStatus, email, sessionKey } = userExists;
+        const {
+            idUser,
+            name,
+            surname,
+            idRole,
+            idStatus,
+            sessionKey
+        } = userExists;
 
-        return { idUser, name, surname, idRole, temporaryPassword, idStatus, email, sessionKey };
+        return {
+            idUser,
+            name,
+            surname,
+            idRole,
+            idStatus,
+            sessionKey
+        };
 
     } catch (error) {
         throw error;

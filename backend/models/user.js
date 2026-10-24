@@ -1,7 +1,11 @@
 const { objectDB } = require("../database/connectDB.js");
 
 function getUserBySessionKeyDB(sessionKey) {
-    const sql = "SELECT * FROM users WHERE sessionKey = ?";
+    const sql = `
+    SELECT idUser, idRole, idStatus
+    FROM users
+    WHERE sessionKey = ?
+    `;
 
     try {
         const stmt = objectDB.prepare(sql);
@@ -37,7 +41,19 @@ function updateSessionKeyByIdDB(value, idUser) {
 }
 
 function getUserByIdDB(IDuser) {
-    const sql = "SELECT * FROM users WHERE idUser = ?";
+    const sql = `
+    SELECT
+        name,
+        surname,
+        dni,
+        birthdate,
+        email,
+        phone,
+        password,
+        sessionKey
+    FROM users
+    WHERE idUser = ?
+    `;
 
     try {
         const stmt = objectDB.prepare(sql);
@@ -64,35 +80,56 @@ function getUserByIdDB(IDuser) {
     }
 }
 
-function updatePasswordByIdDB(newPassword, IDuser) {
-    const sql = "UPDATE users SET password = ? WHERE idUser = ?";
+// function updatePasswordByIdDB(newPassword, IDuser) {
+//     const sql = "UPDATE users SET password = ? WHERE idUser = ?";
+
+//     try {
+//         const stmt = objectDB.prepare(sql);
+//         const result = stmt.run(newPassword, IDuser);
+
+//         if (result.changes === 0) {
+//             return null;
+//         }
+
+//         return { IDuser: IDuser };
+//     } catch (error) {
+//         throw error;
+//     }
+// }
+
+// function updateStatusByIdDB(value, IDuser) {
+//     const sql = "UPDATE users SET idStatus = ? WHERE idUser = ?";
+
+//     try {
+//         const stmt = objectDB.prepare(sql);
+//         const result = stmt.run(value, IDuser);
+
+//         if (result.changes === 0) {
+//             return null;
+//         }
+
+//         return { IDuser: IDuser };
+//     } catch (error) {
+//         throw error;
+//     }
+// }
+
+function updatePasswordStatusSessionByIdDB(newPassword, idStatus, sessionKey, idUser) {
+    const sql = `
+        UPDATE users
+        SET password = ?, idStatus = ?, sessionKey = ?
+        WHERE idUser = ?
+    `;
 
     try {
         const stmt = objectDB.prepare(sql);
-        const result = stmt.run(newPassword, IDuser);
+        const result = stmt.run(newPassword, idStatus, sessionKey, idUser);
 
         if (result.changes === 0) {
             return null;
         }
 
-        return { IDuser: IDuser };
-    } catch (error) {
-        throw error;
-    }
-}
-
-function updateStatusByIdDB(value, IDuser) {
-    const sql = "UPDATE users SET idStatus = ? WHERE idUser = ?";
-
-    try {
-        const stmt = objectDB.prepare(sql);
-        const result = stmt.run(value, IDuser);
-
-        if (result.changes === 0) {
-            return null;
-        }
-
-        return { IDuser: IDuser };
+        return { IDuser: idUser };
     } catch (error) {
         throw error;
     }
@@ -123,4 +160,4 @@ function listMembersDB() {
 }
 
 
-module.exports = { getUserBySessionKeyDB, updateSessionKeyByIdDB, getUserByIdDB, updatePasswordByIdDB, updateStatusByIdDB, listMembersDB };
+module.exports = { getUserBySessionKeyDB, updateSessionKeyByIdDB, getUserByIdDB, listMembersDB, updatePasswordStatusSessionByIdDB };

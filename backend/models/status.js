@@ -1,8 +1,12 @@
 const { objectDB } = require("../database/connectDB.js")
 
-function getStatusByIdDB(id){
+function getStatusByIdDB(id) {
     try {
-        const sql = "SELECT * FROM userStatus WHERE idStatus = ?"
+        const sql = `
+    SELECT idStatus, name
+    FROM userStatus
+    WHERE idStatus = ?
+    `;
         const stmt = objectDB.prepare(sql)
         const statusExists = stmt.get(id)
 

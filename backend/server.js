@@ -48,7 +48,6 @@ async function requestDispatcher(request, response) {
         }
 
         const sessionKey = request.headers["x-access-token"];
-        console.log("sessionKey recibida: ", sessionKey);
 
         // 1. Valida su sesión y su autorización (Ahora es una promesa real)
         const session = await sessionAuthorized(sessionKey, path);

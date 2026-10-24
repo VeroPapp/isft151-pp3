@@ -1,10 +1,10 @@
 const { sendSuccess } = require("../helpers/responseHandler.js");
-const { BadRequestError, UnauthorizedError, DomainError, InternServerError, sendError } = require("../helpers/errorHandler.js");
+const { BadRequestError, UnauthorizedError, DomainError, sendError } = require("../helpers/errorHandler.js");
 
 const { authenticateDB } = require("../models/auth.js");
 const { getStatusByIdDB } = require("../models/status.js");
 const { getRoleByIdDB } = require("../models/roles.js");
-const { updateSessionKeyByIdDB, getUserByIdDB, updatePasswordByIdDB, updateStatusByIdDB } = require("../models/user.js");
+const { updateSessionKeyByIdDB, getUserByIdDB, updatePasswordStatusSessionByIdDB } = require("../models/user.js");
 
 const { UserSession } = require("../services/session.js");
 const { validateChangePassword } = require("../helpers/validateChangePassword.js");
@@ -22,7 +22,13 @@ function login(request, response) {
     request.on("end", async function () {
         try {
 
-            const data = JSON.parse(bodyRaw);
+            let data;
+            try {
+                data = JSON.parse(bodyRaw);
+            } catch (error) {
+                throw new BadRequestError("El cuerpo de la petición debe contener un JSON válido.");
+            }
+
             const { email, password } = data;
 
             if (!email || !password || !password.trim() || !email.trim()) {
@@ -119,7 +125,13 @@ function changePassword(request, response) {
         try {
             const idUser = request.user.IDuser;
 
-            const data = JSON.parse(bodyRaw);
+            let data;
+            try {
+                data = JSON.parse(bodyRaw);
+            } catch (error) {
+                throw new BadRequestError("El cuerpo de la petición debe contener un JSON válido.");
+            }
+
             const { currentPassword, newPassword, confirmPassword } = data;
 
             if (!currentPassword || !newPassword || !confirmPassword || !currentPassword.trim() || !newPassword.trim() || !confirmPassword.trim()) {
@@ -155,22 +167,10 @@ function changePassword(request, response) {
                 throw new BadRequestError("La nueva contraseña no puede ser igual a la anterior.");
             }
 
-            // Actualizar contraseña 
-            const updatePassword = updatePasswordByIdDB(newPasswordHash, idUser);
-            if (!updatePassword) {
-                throw new DomainError("No se pudo actualizar la contraseña en el sistema.");
-            }
-
-            // Pasar estado a ACTIVO (3)
-            const updateStatus = updateStatusByIdDB(3, idUser);
-            if (!updateStatus) {
-                throw new DomainError("No se pudo actualizar el estado del usuario en el sistema.");
-            }
-
-            // Actualiza la sessionKey a "NONE" del usuario
-            const updateSession = updateSessionKeyByIdDB('NONE', idUser);
-            if (!updateSession) {
-                throw new UnauthorizedError("El usuario no existe o no se pudo cerrar la sesión.");
+            // Actualizar contraseña, estado y sesión en una sola consulta
+            const updateUser = updatePasswordStatusSessionByIdDB(newPasswordHash, 3, "NONE", idUser);
+            if (!updateUser) {
+                throw new DomainError("No se pudo actualizar la información del usuario en el sistema.");
             }
 
             sendSuccess(response, { message: "La contraseña ha sido modificada con éxito." }, 200);

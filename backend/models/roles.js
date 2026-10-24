@@ -1,8 +1,12 @@
 const { objectDB } = require("../database/connectDB.js")
 
-function getRoleByIdDB(id){
+function getRoleByIdDB(id) {
     try {
-        const sql = "SELECT * FROM roles WHERE idRole = ?"
+        const sql = `
+    SELECT idRole, name
+    FROM roles
+    WHERE idRole = ?
+    `;
         const stmt = objectDB.prepare(sql)
         const roleExists = stmt.get(id)
 

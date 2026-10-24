@@ -1,8 +1,7 @@
 const { sendSuccess } = require("../helpers/responseHandler.js");
 const { sendError, BadRequestError, UnauthorizedError } = require("../helpers/errorHandler.js");
-const { getUserByIdDB } = require("../models/user.js");
+const { getUserByIdDB, listMembersDB } = require("../models/user.js");
 const { getRoleByIdDB } = require("../models/roles.js");
-const { listMembersDB } = require("../models/user.js");
 
 
 function getUserProfile(request, response) {
@@ -19,9 +18,13 @@ function getUserProfile(request, response) {
 
         const role = getRoleByIdDB(request.user.IDrole);
 
+        if (!role) {
+            throw new UnauthorizedError("No se pudo identificar el rol del usuario.");
+        }
+
         // Excluir campos sensibles
         const { password, sessionKey, ...profile } = user;
-        profile.role = role?.nameRole || "MEMBER";
+        profile.role = role.nameRole;
 
         sendSuccess(response, { profile }, 200);
 
@@ -34,7 +37,7 @@ function listMembers(request, response) {
     try {
         const members = listMembersDB();
 
-        if (!members || members.length === 0) {
+        if (members.length === 0) {
             sendSuccess(response, {
                 message: "No hay miembros registrados todavía.",
                 members: []
