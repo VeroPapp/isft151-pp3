@@ -1,7 +1,7 @@
 const { login, logout, changePassword } = require("../services/auth.js");
 const { createMembershipApplication, listMembershipApplications, approveMembershipApplication, rejectMembershipApplication } = require("../services/membership.js");
 const { getUserProfile, listMembers } = require("../services/user.js"); 
-// const { listActivities } = require("../services/activities.js"); 
+const { listActivities, createActivity, updateActivity, registerMemberToActivity, cancelRegistration, getMyEnrollments } = require("../services/activity.js");
 
 function router() {
     const routerMap = new Map();
@@ -32,8 +32,48 @@ function router() {
 
     // ----- ACTIVITIES ROUTES -----
     // routerMap.set('/listActivities', { method: listActivities, status: "public" });
+    routerMap.set('/listActivities', { 
+        method: listActivities, 
+        status: "private", 
+        roles: ["MEMBER", "CLUB_ADMIN", "SUPER_ADMIN"], 
+        allowedStatuses: ["ACTIVE"] 
+    });
+    
+    routerMap.set('/createActivity', { 
+        method: createActivity, 
+        status: "private", 
+        roles: ["CLUB_ADMIN", "SUPER_ADMIN"], 
+        allowedStatuses: ["ACTIVE"] 
+    });
+    
+    routerMap.set('/updateActivity', { 
+        method: updateActivity, 
+        status: "private", 
+        roles: ["CLUB_ADMIN", "SUPER_ADMIN"], 
+        allowedStatuses: ["ACTIVE"] 
+    });
 
+    routerMap.set('/registerMemberToActivity', { 
+        method: registerMemberToActivity, 
+        status: "private", 
+        roles: ["MEMBER"], 
+        allowedStatuses: ["ACTIVE"] 
+    });
+    
+    routerMap.set('/cancelRegistration', { 
+        method: cancelRegistration, 
+        status: "private", 
+        roles: ["MEMBER"], 
+        allowedStatuses: ["ACTIVE"] 
+    });
 
+    routerMap.set('/getMyEnrollments', { 
+        method: getMyEnrollments, 
+        status: "private", 
+        roles: ["MEMBER"], 
+        allowedStatuses: ["ACTIVE"] 
+});
+   //nuevo 24-10-26-----
 
     return routerMap;
 }

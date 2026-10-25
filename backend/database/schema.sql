@@ -62,3 +62,32 @@ VALUES (2, 4, 'Seba', 'asdd', '12345', '1999-09-09', 'seba@email.com', '1125689'
 INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, email, phone, password)
 VALUES (3, 3, 'adminClub', 'asdd', '123456', '1999-09-09', 'adminclub@email.com', '1125689',
         '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92');
+
+
+-- TABLA DE ACTIVIDADES
+
+CREATE TABLE IF NOT EXISTS activities (
+        idActivity INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        description TEXT,
+        startDate TEXT, 
+        endDate TEXt,
+        instructor TEXT,
+        capacity INTEGER NOT NULL,
+        trainingDays TEXT,
+        trainingTime TEXT,
+        scope TEXT,
+        status TEXT DEFAULT 'ACTIVE'
+);
+
+-- TABLA DE INSCRIPCIONES
+
+CREATE TABLE IF NOT EXISTS activity_registration (
+        idRegistration INTEGER PRIMARY KEY AUTOINCREMENT,
+        idUser INTEGER NOT NULL,
+        idActivity INTEGER NOT NULL,
+        registrationDate TEXT DEFAULT CURRENT_TIMESTAMP,
+        status TEXT DEFAULT 'ACTIVE',
+        FOREIGN KEY (idUser) REFERENCES users(idUser),
+        FOREIGN KEY (idActivity) REFERENCES activities(idActivity)
+);

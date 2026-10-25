@@ -1,0 +1,62 @@
+1) sessionKey = null --> user/password
+2) sessionKey (invalida/expiradda)
+3) sessionKey (valida)
+
+----------
+Objecto request: Path --> Endpoint --> Nombre
+
+
+
+funtion requestDispatcher (request, responde)
+
+{
+	{
+	  //ejecuto handler
+	}
+	else
+	{
+		//Nos vimos
+	}
+}
+
+function sessionAuthorized(sessionKey (identidad), endpoint (lo que queres hacer))
+{
+	//Averiguar en primera instancia si el endpoint es publico o no.
+	//Si es publico --> return (userObject)
+
+	//Sino (es privado)
+	//Averigua si la identidad es valida..
+	//1. SessionKey es nulo/vacia? return NULL.
+	//2. SessionKey esta expirada? return NULL.
+	//3. SessionKey es valida.
+		-> Obtener el UserId asociado. //query..
+		-> Obtener los rolesId asociados a UserId
+		-> Obtener para (endpoint) los rolesId requeridos. //router
+		-> Si los roles de userId pertenecen al conjunto de rolesId (endpoint)
+		-> Si es esto se cumple, --> return { userObject}
+		(sino, NULL)
+}
+
+ejemplo de userObject:
+
+funtion requestDispatcher (request, responde)
+
+{
+	let userObject = sessionAuthorized(sessionKey, endpoint )
+	if ( userObject != null)
+	{
+	  //ejecuto handler
+	}
+	else
+	{
+		//Nos vimos
+		ThrowAuthorizationError().
+	}
+}
+
+userObject
+{
+	id: null
+	rolesId: visitante/public
+	.....
+}

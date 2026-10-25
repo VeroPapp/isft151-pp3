@@ -41,10 +41,7 @@
     <section class="socio-section">
         <h2>Mis Inscripciones</h2>
         <div id="enrollmentsContainer">
-            <div class="placeholder-msg">
-                <strong>Próximamente:</strong> el sistema de inscripciones a actividades todavía no está implementado en el backend.
-                Cuando esté disponible, vas a poder inscribirte desde acá y ver tus horarios.
-            </div>
+            <p class="empty-msg">Cargando tus inscripciones...</p>
         </div>
     </section>
 
@@ -61,7 +58,7 @@
             return `${parts[2]}/${parts[1]}/${parts[0]}`;
         }
 
-        // --- Carga la información del socio ---
+        // ---1 Carga la información del socio ---
         async function loadProfile() {
             const container = document.getElementById("profileContainer");
             try {
@@ -85,11 +82,11 @@
             }
         }
 
-        // --- Lista las actividades disponibles ---
+        // ---2 Lista las actividades disponibles ---
         async function loadActivities() {
             const container = document.getElementById("activitiesContainer");
             try {
-                const response = await RPCWebAPIFetchPublic("/listActivities", {});
+                const response = await RPCWebAPIFetchPrivate("/listActivities", {});
                 const activities = response.data.activities || [];
 
                 if (activities.length === 0) {
@@ -97,12 +94,13 @@
                     return;
                 }
 
+                // CORREGIDO: Se usan trainingDays y trainingTime para evitar 'undefined'
                 const activitiesHTML = activities.map(function(activity) {
                     let html = `
                         <article class="activity-card" style="display: flex; flex-direction: column; justify-content: space-between;">
                             <div>
                                 <h3>${activity.name}</h3>
-                                <p class="day">${activity.day} · ${activity.startTime} a ${activity.endTime}</p>
+                                <p class="day">${activity.trainingDays || "Días a definir"} · ${activity.trainingTime || "Horario a definir"}</p>
                                 ${activity.instructor ? `<p class="instructor">Prof. ${activity.instructor}</p>` : ""}
                                 ${activity.description ? `<p class="desc">${activity.description}</p>` : ""}
                             </div>
@@ -121,7 +119,7 @@
             }
         }
 
-        // --- Lista las actividades inscriptas ---
+        // ---3 Lista las actividades inscriptas del socio ---
         async function loadEnrollments() {
             const container = document.getElementById("enrollmentsContainer");
             try {
@@ -137,7 +135,8 @@
                     return `
                         <div class="activity-card" style="margin-bottom: 10px; border-left: 4px solid var(--success-text);">
                             <h3>${enrollment.name}</h3>
-                            <p class="day">${enrollment.day} · ${enrollment.startTime} a ${enrollment.endTime}</p>
+                            <p class="day">${enrollment.trainingDays || "—"} · ${enrollment.trainingTime || "—"}</p>
+                            ${enrollment.instructor ? `<p class="instructor">Prof. ${enrollment.instructor}</p>` : ""}
                         </div>
                     `;
                 }).join("");
@@ -149,37 +148,35 @@
             }
         }
 
-        // --- Manejador de inscripción a actividad ---
+       
+        // ---4 Manejador de inscripción a actividad ---
         async function onEnrollClick(event) {
-            // Buscamos si el elemento clickeado (o su padre) tiene la clase 'enroll-btn'
             const button = event.target.closest(".enroll-btn");
-            
-            // Si el usuario hizo click en otra parte de la tarjeta, no hacemos nada
             if (!button) return;
 
-            const activityId = button.getAttribute("data-id");
+            const activityId = parseInt(button.getAttribute("data-id"), 10);
 
             if (!confirm("¿Confirmás tu inscripción a esta actividad?")) return;
 
-            // Deshabilitamos el botón para que no se pueda clickear dos veces
             button.disabled = true;
             button.innerText = "Inscribiendo...";
 
             try {
-                const response = await RPCWebAPIFetchPrivate("/enrollInActivity", { idActivity: activityId });
+                // Llamada correcta al endpoint del backend
+                const response = await RPCWebAPIFetchPrivate("/registerMemberToActivity", { idActivity: activityId });
                 alert(response.data.message || "¡Inscripción exitosa!");
                 
-                // Recargamos las inscripciones para que aparezca en la lista de abajo
+                // Recargamos tanto las actividades (para actualizar cupos si aplica) como las inscripciones
+                loadActivities();
                 loadEnrollments();
             } catch (error) {
                 alert("Error al inscribirse: " + error.message);
-                // Si hay error, volvemos a habilitar el botón
                 button.disabled = false;
                 button.innerText = "Inscribirme";
             }
         }
 
-        // --- Manejador del btn de logout ---
+        // ---5 Manejador del btn de logout ---
         async function onLogoutClick() {
             try {
                 await RPCWebAPIFetchPrivate("/logout", {});
