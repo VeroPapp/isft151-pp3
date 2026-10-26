@@ -6,8 +6,8 @@ const {
     cancelRegistrationDB,
     listUserEnrollmentsDB
 } = require("../models/activity.js");
-const {sendSuccess } = require("../helpers/responseHandler.js");
-const {sendError, BadRequestError, DomainError } = require("../helpers/errorHandler.js");
+const { sendSuccess } = require("../helpers/responseHandler.js");
+const { sendError, BadRequestError, DomainError } = require("../helpers/errorHandler.js");
 
 
 function listActivities(request, response) {
@@ -56,10 +56,10 @@ function createActivity(request, response) {
 
             const idActivity = createActivityDB(data);
 
-            sendSuccess(response, { 
+            sendSuccess(response, {
                 idActivity: idActivity,
                 status: "ACTIVE",
-                message: "Actividad creada correctamente" 
+                message: "Actividad creada correctamente"
             }, 200);
         } catch (error) {
             sendError(response, error);
@@ -106,24 +106,24 @@ function updateActivity(request, response) {
     });
 }
 // FUNCION REGISTRAR SOCIO A ACTIVIDAD
-function registerMemberToActivity(request, response, currentUser) {
+function registerMemberToActivity(request, response) {
     let body = "";
-    
+
     request.on("data", function (chunk) {
         body += chunk.toString();
     });
-    
+
     request.on("end", async function () {
         try {
             const data = JSON.parse(body);
             if (!data.idActivity) {
                 throw new BadRequestError("MissingActivityID", ["Debe especificar el ID de la actividad."]);
             }
-            
-            // El idUser viene del usuario autenticado actual (currentUser adjunto por el middleware de auth)
-            const idUser = currentUser.IDuser;
+
+            // El idUser viene del usuario autenticado actual
+            const idUser = request.user.IDuser;
             const idRegistration = registerMemberToActivityDB(idUser, data.idActivity);
-            
+
             sendSuccess(response, {
                 message: "Inscripción creada correctamente.",
                 idRegistration: idRegistration
@@ -134,28 +134,28 @@ function registerMemberToActivity(request, response, currentUser) {
     });
 }
 
-    //CANCELAR INSCRIPCION(permite al socio darse de baja de una actividad)
- function cancelRegistration(request, response, currentUser) {
+//CANCELAR INSCRIPCION(permite al socio darse de baja de una actividad)
+function cancelRegistration(request, response) {
     let body = "";
-    
+
     request.on("data", function (chunk) {
         body += chunk.toString();
     });
-    
+
     request.on("end", async function () {
         try {
             const data = JSON.parse(body);
             if (!data.idActivity) {
                 throw new BadRequestError("MissingActivityID", ["Debe especificar el ID de la actividad."]);
             }
-            
-            const idUser = currentUser.IDuser;
+
+            const idUser = request.user.IDuser;
             const changes = cancelRegistrationDB(idUser, data.idActivity);
 
             if (changes === 0) {
                 throw new DomainError("RegistrationNotFound", ["No se encontró una inscripción activa para esta actividad."]);
             }
-            
+
             sendSuccess(response, {
                 message: "Inscripción cancelada correctamente"
             }, 200);
@@ -166,9 +166,9 @@ function registerMemberToActivity(request, response, currentUser) {
 }
 
 // Listar inscripciones del usuario actual
-function getMyEnrollments(request, response, currentUser) {
+function getMyEnrollments(request, response) {
     try {
-        const idUser = currentUser.IDuser;
+        const idUser = request.user.IDuser;
         const enrollments = listUserEnrollmentsDB(idUser);
 
         sendSuccess(response, { enrollments: enrollments }, 200);
