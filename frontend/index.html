@@ -169,7 +169,7 @@
                 container.innerHTML = activities.map(activity => `
                     <article class="activity-card">
                         <h3>${activity.name}</h3>
-                        <p class="activity-day"><strong>${activity.day}</strong> · ${activity.startTime} a ${activity.endTime}</p>
+                        <p class="activity-day"><strong>${activity.trainingDays}</strong> · ${activity.trainingTime}
                         ${activity.instructor ? `<p class="activity-instructor">Prof. ${activity.instructor}</p>` : ""}
                         ${activity.description ? `<p class="activity-desc">${activity.description}</p>` : ""}
                     </article>

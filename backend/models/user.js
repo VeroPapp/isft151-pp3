@@ -23,26 +23,10 @@ function getUserBySessionKeyDB(sessionKey) {
     }
 }
 
-function updateSessionKeyByIdDB(value, idUser) {
-    const sql = "UPDATE users SET sessionKey = ? WHERE idUser = ?";
-
-    try {
-        const stmt = objectDB.prepare(sql);
-        const result = stmt.run(value, idUser);
-
-        if (result.changes === 0) {
-            return null;
-        }
-
-        return { IDuser: idUser };
-    } catch (error) {
-        throw error;
-    }
-}
-
 function getUserByIdDB(IDuser) {
     const sql = `
     SELECT
+        idUser,
         name,
         surname,
         dni,
@@ -50,7 +34,9 @@ function getUserByIdDB(IDuser) {
         email,
         phone,
         password,
-        sessionKey
+        sessionKey,
+        idRole,
+        idStatus
     FROM users
     WHERE idUser = ?
     `;
@@ -63,67 +49,80 @@ function getUserByIdDB(IDuser) {
             return null;
         }
 
-        const { name, surname, dni, birthdate, email, phone, password, sessionKey } = userExists;
+        return userExists;
 
-        return {
-            name,
-            surname,
-            dni,
-            birthdate,
-            email,
-            phone,
-            password,
-            sessionKey
-        };
     } catch (error) {
         throw error;
     }
 }
 
-// function updatePasswordByIdDB(newPassword, IDuser) {
-//     const sql = "UPDATE users SET password = ? WHERE idUser = ?";
 
-//     try {
-//         const stmt = objectDB.prepare(sql);
-//         const result = stmt.run(newPassword, IDuser);
+function listMembersDB() {
+    try {
 
-//         if (result.changes === 0) {
-//             return null;
-//         }
+        const sql = `
+            SELECT
+                users.idUser,
+                users.name,
+                users.surname,
+                users.dni,
+                users.email,
+                users.phone,
+                users.creationDate,
+                userStatus.name AS statusName
+            FROM users
+            INNER JOIN userStatus 
+                ON users.idStatus = userStatus.idStatus
+            WHERE users.idRole = 2
+            ORDER BY 
+                users.surname ASC
+        `;
 
-//         return { IDuser: IDuser };
-//     } catch (error) {
-//         throw error;
-//     }
-// }
+        const stmt = objectDB.prepare(sql);
 
-// function updateStatusByIdDB(value, IDuser) {
-//     const sql = "UPDATE users SET idStatus = ? WHERE idUser = ?";
+        const members = stmt.all();
 
-//     try {
-//         const stmt = objectDB.prepare(sql);
-//         const result = stmt.run(value, IDuser);
+        if (members.length === 0) {
+            return [];
+        }
 
-//         if (result.changes === 0) {
-//             return null;
-//         }
+        return members
+    } catch (error) {
+        throw error;
+    }
+}
 
-//         return { IDuser: IDuser };
-//     } catch (error) {
-//         throw error;
-//     }
-// }
 
-function updatePasswordStatusSessionByIdDB(newPassword, idStatus, sessionKey, idUser) {
+function removeMemberDB(value, idUser) {
+
     const sql = `
         UPDATE users
-        SET password = ?, idStatus = ?, sessionKey = ?
+        SET idStatus = ?
         WHERE idUser = ?
     `;
 
     try {
         const stmt = objectDB.prepare(sql);
-        const result = stmt.run(newPassword, idStatus, sessionKey, idUser);
+        const result = stmt.run(value, idUser);
+
+        if (result.changes === 0) {
+            return null;
+        }
+
+        return { idUser: idUser };
+    } catch (error) {
+        throw error;
+    }
+
+}
+
+function updateMemberDB(name, surname, dni, birthdate, phone, email, idUser) {
+    const sql = `UPDATE users SET name = ?, surname = ?, dni = ?, birthdate = ?, phone = ?, email = ? WHERE idUser = ? `;
+
+    try {
+        const stmt = objectDB.prepare(sql);
+
+        const result = stmt.run(name, surname, dni, birthdate, phone, email, idUser);
 
         if (result.changes === 0) {
             return null;
@@ -135,29 +134,65 @@ function updatePasswordStatusSessionByIdDB(newPassword, idStatus, sessionKey, id
     }
 }
 
-function listMembersDB() {
+function updatePhoneDB(phone, idUser) {
+    const sql = `UPDATE users SET phone = ? WHERE idUser = ? `;
+
     try {
-        const sql = `
-            SELECT
-                u.idUser,
-                u.name,
-                u.surname,
-                u.dni,
-                u.email,
-                u.phone,
-                u.creationDate,
-                us.name AS status
-            FROM users u
-            INNER JOIN userStatus us ON u.idStatus = us.idStatus
-            WHERE u.idRole = 2
-            ORDER BY u.surname ASC, u.name ASC
-        `;
         const stmt = objectDB.prepare(sql);
-        return stmt.all();
+        const result = stmt.run(phone, idUser);
+
+        if (result.changes === 0) {
+            return null;
+        }
+
+        return { IDuser: idUser };
     } catch (error) {
         throw error;
     }
 }
 
+function updateSessionKeyDB(sessionKey, idUser) {
+    const sql = `UPDATE users SET sessionKey = ? WHERE idUser = ? `;
 
-module.exports = { getUserBySessionKeyDB, updateSessionKeyByIdDB, getUserByIdDB, listMembersDB, updatePasswordStatusSessionByIdDB };
+    try {
+        const stmt = objectDB.prepare(sql);
+        const result = stmt.run(sessionKey, idUser);
+
+        if (result.changes === 0) {
+            return null;
+        }
+
+        return { IDuser: idUser };
+    } catch (error) {
+        throw error;
+    }
+}
+
+function updatePasswordStatusSessionDB(password, idStatus, sessionKey, idUser) {
+    const sql = `UPDATE users SET password = ?, idStatus = ?, sessionKey = ? WHERE idUser = ? `;
+
+    try {
+        const stmt = objectDB.prepare(sql);
+
+        const result = stmt.run(password, idStatus, sessionKey, idUser);
+
+        if (result.changes === 0) {
+            return null;
+        }
+
+        return { IDuser: idUser };
+    } catch (error) {
+        throw error;
+    }
+}
+
+module.exports = {
+    getUserBySessionKeyDB,
+    getUserByIdDB,
+    listMembersDB,
+    updateMemberDB,
+    updatePhoneDB,
+    updateSessionKeyDB,
+    updatePasswordStatusSessionDB,
+    removeMemberDB
+};

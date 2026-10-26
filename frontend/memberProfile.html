@@ -62,7 +62,7 @@
         async function loadProfile() {
             const container = document.getElementById("profileContainer");
             try {
-                const response = await RPCWebAPIFetchPrivate("/getUserProfile", {});
+                const response = await RPCWebAPIFetchPrivate("/getMemberProfile", {});
                 const profile = response.data.profile;
 
                 document.getElementById("greeting").innerText = `Hola, ${profile.name}`;

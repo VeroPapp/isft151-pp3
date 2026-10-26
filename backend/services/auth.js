@@ -4,7 +4,7 @@ const { BadRequestError, UnauthorizedError, DomainError, sendError } = require("
 const { authenticateDB } = require("../models/auth.js");
 const { getStatusByIdDB } = require("../models/status.js");
 const { getRoleByIdDB } = require("../models/roles.js");
-const { updateSessionKeyByIdDB, getUserByIdDB, updatePasswordStatusSessionByIdDB } = require("../models/user.js");
+const { getUserByIdDB, updateSessionKeyDB, updatePasswordStatusSessionDB } = require("../models/user.js");
 
 const { UserSession } = require("../services/session.js");
 const { validateChangePassword } = require("../helpers/validateChangePassword.js");
@@ -69,7 +69,11 @@ function login(request, response) {
                 const currentSession = new UserSession();
                 currentSession.setHash(userExists.idUser, email);
                 currentToken = currentSession.getHash();
-                updateSessionKeyByIdDB(currentToken, userExists.idUser);
+
+                const updateSession = updateSessionKeyDB(currentToken, userExists.idUser);
+                if (!updateSession) {
+                    throw new DomainError("No se pudo guardar la sesión del usuario.");
+                }
             }
 
             // Inyectamos SIEMPRE el token en la cabecera
@@ -103,9 +107,9 @@ function logout(request, response) {
             throw new BadRequestError("No se pudo identificar al usuario en la sesión.");
         }
 
-        const updateSession = updateSessionKeyByIdDB('NONE', idUser);
+        const updateSession = updateSessionKeyDB("NONE", idUser);
         if (!updateSession) {
-            throw new UnauthorizedError("El usuario no existe o no se pudo cerrar la sesión.");
+            throw new DomainError("No se pudo actualizar el miembro en el sistema.");
         }
 
         sendSuccess(response, { message: "Sesión cerrada correctamente" }, 200);
@@ -168,7 +172,7 @@ function changePassword(request, response) {
             }
 
             // Actualizar contraseña, estado y sesión en una sola consulta
-            const updateUser = updatePasswordStatusSessionByIdDB(newPasswordHash, 3, "NONE", idUser);
+            const updateUser = updatePasswordStatusSessionDB(newPasswordHash, 3, "NONE", idUser);
             if (!updateUser) {
                 throw new DomainError("No se pudo actualizar la información del usuario en el sistema.");
             }
