@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Comunidad Activa</title>
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/profiles.css">
+</head>
+
+<body class="admin-page">
+    <header class="admin-header">
+        <h1>Panel de Administración</h1>
+        <button id="logoutButton" class="btn btn-danger">Cerrar Sesión</button>
+    </header>
+
+    <div class="admin-container">
+        <div id="resultMessage" role="alert" aria-live="polite"></div>
+
+        <nav class="tabs">
+            <button class="tab active" data-tab="applications">Solicitudes</button>
+            <button class="tab" data-tab="activities">Actividades</button>
+            <button class="tab" data-tab="members">Miembros</button>
+        </nav>
+
+        <!-- ============ TAB: SOLICITUDES ============ -->
+        <section class="tab-panel active" id="tab-applications">
+            <div class="section-card">
+                <h2>Solicitudes de Membresía Pendientes</h2>
+                <div class="table-wrap" id="applicationsContainer">
+                    <p class="empty-row">Cargando solicitudes...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ TAB: ACTIVIDADES ============ -->
+        <section class="tab-panel" id="tab-activities">
+    <div class="section-card">
+        <h2>Nueva Actividad</h2>
+        <form id="createActivityForm" class="form-grid">
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="activityName">Nombre *</label>
+                    <input id="activityName" required placeholder="Ej: Fútbol Infantil">
+                </div>
+                <div class="form-field">
+                    <label for="activityCapacity">Capacidad / Cupo *</label>
+                    <input type="number" id="activityCapacity" required min="1" placeholder="Ej: 20">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="activityTrainingDays">Días de entrenamiento *</label>
+                    <input id="activityTrainingDays" required placeholder="Ej: Lunes y Miércoles">
+                </div>
+                <div class="form-field">
+                    <label for="activityTrainingTime">Horario *</label>
+                    <input id="activityTrainingTime" required placeholder="Ej: 18:00 a 19:30">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="activityStartDate">Fecha Inicio *</label>
+                    <input type="date" id="activityStartDate" required>
+                </div>
+                <div class="form-field">
+                    <label for="activityEndDate">Fecha Fin *</label>
+                    <input type="date" id="activityEndDate" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="activityInstructor">Instructor</label>
+                    <input id="activityInstructor" placeholder="Ej: Prof. Martín">
+                </div>
+                <div class="form-field">
+                    <label for="activityScope">Scope / Alcance</label>
+                    <input id="activityScope" placeholder="Ej: General">
+                </div>
+            </div>
+            <div class="form-field">
+                <label for="activityDescription">Descripción</label>
+                <textarea id="activityDescription" placeholder="Descripción breve de la actividad"></textarea>
+            </div>
+            <div>
+                <button type="submit" id="submitActivityButton" class="btn btn-success">Crear Actividad</button>
+            </div>
+        </form>
+    </div>
+            <div class="section-card">
+                <h2>Actividades Existentes</h2>
+                <div class="table-wrap" id="activitiesContainer">
+                    <p class="empty-row">Cargando actividades...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ TAB: MIEMBROS ============ -->
+        <section class="tab-panel" id="tab-members">
+            <div class="section-card">
+                <h2>Miembros del Club</h2>
+                <div class="table-wrap" id="membersContainer">
+                    <p class="empty-row">Cargando miembros...</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script type="module">
+        import { RPCWebAPIFetchPrivate, RPCWebAPIFetchPublic } from './js/api.js';
+
+        if (!localStorage.getItem("accessToken")) {
+            window.location.href = "login.html";
+        }
+        // Variables globales para edicion 
+        let editingActivityId = null; // Guardará el ID si estamos editando (null si estamos creando)
+        let cachedActivities = [];    // Almacenará la lista de actividades para reutilizar sus datos
+
+        // ---------- Helpers ----------
+        function showMessage(message, isError = false) {
+            const resultDiv = document.getElementById("resultMessage");
+            resultDiv.style.display = "block";
+            resultDiv.className = isError ? "error" : "ok";
+            resultDiv.innerText = message;
+
+            if (isError) console.error("[admin]", message);
+            else console.log("[admin]", message);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return "—";
+            const datePart = dateString.split(" ")[0];
+            const parts = datePart.split("-");
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+
+        function getStatusBadge(status) {
+            const labels = {
+                "ACTIVE": { text: "Activo", cls: "badge-active" },
+                "PENDINGFORPASSWORDCHANGE": { text: "Cambio de contraseña pendiente", cls: "badge-pending" },
+                "PENDINGFORAPPROBATION": { text: "Pendiente", cls: "badge-pending" },
+                "INACTIVE": { text: "Inactivo", cls: "badge-inactive" },
+                "REJECTED": { text: "Rechazado", cls: "badge-rejected" }
+            };
+            const label = labels[status] || { text: status || "—", cls: "badge-inactive" };
+            return `<span class="badge ${label.cls}">${label.text}</span>`;
+        }
+
+        // ---------- Tabs ----------
+        function setupTabs() {
+            const tabs = document.querySelectorAll(".tab");
+            const panels = document.querySelectorAll(".tab-panel");
+
+            tabs.forEach(function(tab) {
+                tab.addEventListener("click", function() {
+                    tabs.forEach(function(t) { t.classList.remove("active"); });
+                    panels.forEach(function(p) { p.classList.remove("active"); });
+                    
+                    tab.classList.add("active");
+                    document.getElementById(`tab-${tab.dataset.tab}`).classList.add("active");
+                });
+            });
+        }
+
+        // ---------- Solicitudes ----------
+        async function loadApplications() {
+            const container = document.getElementById("applicationsContainer");
+            try {
+                const response = await RPCWebAPIFetchPrivate("/listMembershipApplications", {});
+                const applications = response.data.applications || [];
+
+                if (applications.length === 0) {
+                    container.innerHTML = `<p class="empty-row">${response.data.message || "No hay solicitudes pendientes."}</p>`;
+                    return;
+                }
+
+                const rows = applications.map(function(app) {
+                    return `
+                        <tr>
+                            <td><strong>${app.name} ${app.surname}</strong></td>
+                            <td>${app.dni}</td>
+                            <td>${app.email}</td>
+                            <td>${app.phone}</td>
+                            <td>
+                                <div class="actions-cell">
+                                    <button class="btn btn-success action-btn" data-action="approve" data-id="${app.idUser}">Aprobar</button>
+                                    <button class="btn btn-danger action-btn" data-action="reject" data-id="${app.idUser}">Rechazar</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join("");
+
+                container.innerHTML = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre y Apellido</th>
+                                <th>DNI</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                `;
+            } catch (error) {
+                container.innerHTML = `<p class="empty-row">Error al cargar solicitudes: ${error.message}</p>`;
+                console.error("[applications]", error);
+            }
+        }
+
+        // --- Manejador de aprobar/rechazar solicitudes ---
+        async function onApplicationActionClick(event) {
+            const button = event.target.closest(".action-btn");
+            if (!button) return;
+
+            const action = button.getAttribute("data-action");
+            const idUser = button.getAttribute("data-id");
+            
+            if (action === "approve") {
+                if (!confirm("¿Confirmás que querés aprobar esta solicitud?")) return;
+                button.disabled = true;
+                button.textContent = "Aprobando...";
+                try {
+                    const response = await RPCWebAPIFetchPrivate("/approveMembershipApplication", { idUser: idUser });
+                    showMessage(response.data.message || "Solicitud aprobada.", false);
+                    loadApplications();
+                } catch (error) {
+                    showMessage("Error al aprobar: " + error.message, true);
+                    button.disabled = false;
+                    button.textContent = "Aprobar";
+                }
+            } 
+            else if (action === "reject") {
+                if (!confirm("¿Confirmás que querés rechazar esta solicitud?")) return;
+                button.disabled = true;
+                button.textContent = "Rechazando...";
+                try {
+                    const response = await RPCWebAPIFetchPrivate("/rejectMembershipApplication", { idUser: idUser });
+                    showMessage(response.data.message || "Solicitud rechazada.", false);
+                    loadApplications();
+                } catch (error) {
+                    showMessage("Error al rechazar: " + error.message, true);
+                    button.disabled = false;
+                    button.textContent = "Rechazar";
+                }
+            }
+        }
+
+       // ---------- Lista las actividades ----------
+        async function loadActivities() {
+            const container = document.getElementById("activitiesContainer");
+            try {
+                const response = await RPCWebAPIFetchPrivate("/listActivities", {});
+                
+                // Se guarda actividades en cache
+                cachedActivities = response.data.activities || [];
+                
+                // CORREGIDO: Evaluamos cachedActivities en lugar de activities
+                if (cachedActivities.length === 0) {
+                    container.innerHTML = `<p class="empty-row">${response.data.message || "No hay actividades cargadas todavía."}</p>`;
+                    return;
+                }
+
+                const rows = cachedActivities.map(function(activity) {
+                    return `
+                        <tr>
+                            <td><strong>${activity.name}</strong></td>
+                            <td>${activity.trainingDays || "—"}</td>
+                            <td>${activity.trainingTime || "—"}</td>
+                            <td>${activity.instructor || "—"}</td>
+                            <td>${activity.description || "—"}</td>
+                            <td>
+                                <!-- CORREGIDO: Agregamos la clase edit-activity-btn -->
+                                <button class="btn btn-primary action-btn edit-activity-btn" data-id="${activity.idActivity}">Editar</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join("");
+
+                container.innerHTML = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Día</th>
+                                <th>Horario</th>
+                                <th>Instructor</th>
+                                <th>Descripción</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                `;
+            } catch (error) {
+                container.innerHTML = `<p class="empty-row">Error al cargar actividades: ${error.message}</p>`;
+                console.error("[activities]", error);
+            }
+        }
+
+
+
+        // ==========================================================
+        // 4. NUEVA FUNCIÓN: CARGA LOS DATOS AL FORMULARIO AL HACER CLIC
+        // ==========================================================
+        function onActivityContainerClick(event) {
+            const editBtn = event.target.closest(".edit-activity-btn");
+            if (!editBtn) return; // Si no hizo clic en el botón editar, no hace nada
+
+            const id = parseInt(editBtn.getAttribute("data-id"), 10);
+            const activity = cachedActivities.find(a => a.idActivity === id);
+            if (!activity) return;
+
+            // Rellenamos los inputs de arriba con los datos actuales
+            document.getElementById("activityName").value = activity.name || "";
+            document.getElementById("activityCapacity").value = activity.capacity || "";
+            document.getElementById("activityTrainingDays").value = activity.trainingDays || "";
+            document.getElementById("activityTrainingTime").value = activity.trainingTime || "";
+            document.getElementById("activityStartDate").value = activity.startDate || "";
+            document.getElementById("activityEndDate").value = activity.endDate || "";
+            document.getElementById("activityInstructor").value = activity.instructor || "";
+            document.getElementById("activityScope").value = activity.scope || "";
+            document.getElementById("activityDescription").value = activity.description || "";
+            
+
+            // Activamos el modo edición guardando el ID
+            editingActivityId = id;
+
+            // Cambiamos el diseño y texto del botón superior para indicar edición
+            const submitBtn = document.getElementById("submitActivityButton");
+            submitBtn.textContent = "Actualizar Actividad";
+            submitBtn.className = "btn btn-primary";
+
+            // Subimos la pantalla suavemente hacia el formulario
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ---------- Crear/Actualizar Actividad ----------
+        async function onCreateActivitySubmit(event) {
+            event.preventDefault();
+
+            const button = document.getElementById("submitActivityButton");
+            const payload = {
+                name: document.getElementById("activityName").value.trim(),
+                capacity: parseInt(document.getElementById("activityCapacity").value, 10),
+                trainingDays: document.getElementById("activityTrainingDays").value.trim(),
+                trainingTime: document.getElementById("activityTrainingTime").value.trim(),
+                startDate: document.getElementById("activityStartDate").value,
+                endDate: document.getElementById("activityEndDate").value,
+                instructor: document.getElementById("activityInstructor").value.trim() || null,
+                scope: document.getElementById("activityScope").value.trim() || null,
+                description: document.getElementById("activityDescription").value.trim() || null
+            };
+
+            button.disabled = true;
+
+            try {
+                // 5. EVALUAMOS SI ESTAMOS EDITANDO O CREANDO
+                if (editingActivityId) {
+                    // MODO EDICIÓN: Agregamos el ID al payload y llamamos a updateActivity
+                    payload.idActivity = editingActivityId;
+                    const response = await RPCWebAPIFetchPrivate("/updateActivity", payload);
+                    showMessage(response.data.message || "Actividad actualizada correctamente.", false);
+                    
+                    // Reseteamos el estado de edición
+                    editingActivityId = null;
+                    button.textContent = "Crear Actividad";
+                    button.className = "btn btn-success";
+                } else {
+                    // MODO CREACIÓN: Llamamos a createActivity de siempre
+                    const response = await RPCWebAPIFetchPrivate("/createActivity", payload);
+                    showMessage(response.data.message || "Actividad creada correctamente.", false);
+                }
+
+                document.getElementById("createActivityForm").reset();
+                loadActivities();
+            } catch (error) {
+                showMessage("Error: " + error.message, true);
+            } finally {
+                button.disabled = false;
+                if (!editingActivityId) {
+                    button.textContent = "Crear Actividad";
+                    button.className = "btn btn-success";
+                }
+            }
+        }
+        // ---------- Lista los miembros ----------
+        async function loadMembers() {
+            const container = document.getElementById("membersContainer");
+            try {
+                const response = await RPCWebAPIFetchPrivate("/listMembers", {});
+                const members = response.data.members || [];
+
+                if (members.length === 0) {
+                    container.innerHTML = `<p class="empty-row">${response.data.message || "No hay miembros registrados todavía."}</p>`;
+                    return;
+                }
+
+                const rows = members.map(function(member) {
+                    return `
+                        <tr>
+                            <td><strong>${member.name} ${member.surname}</strong></td>
+                            <td>${member.dni}</td>
+                            <td>${member.email}</td>
+                            <td>${member.phone}</td>
+                            <td>${getStatusBadge(member.status)}</td>
+                            <td>${formatDate(member.creationDate)}</td>
+                        </tr>
+                    `;
+                }).join("");
+
+                container.innerHTML = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre y Apellido</th>
+                                <th>DNI</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Estado</th>
+                                <th>Alta</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                `;
+            } catch (error) {
+                container.innerHTML = `<p class="empty-row">Error al cargar miembros: ${error.message}</p>`;
+                console.error("[members]", error);
+            }
+        }
+
+        async function onLogoutClick() {
+            try {
+                await RPCWebAPIFetchPrivate("/logout", {});
+            } catch (error) {
+                console.warn("Logout warning:", error.message);
+            } finally {
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("userRole");
+                window.location.href = "login.html";
+            }
+        }
+
+        function main() {
+            document.getElementById("logoutButton").onclick = onLogoutClick;
+            document.getElementById("applicationsContainer").onclick = onApplicationActionClick;
+            document.getElementById("createActivityForm").onsubmit = onCreateActivitySubmit;
+            document.getElementById("activitiesContainer").onclick = onActivityContainerClick;
+
+            setupTabs();
+
+            loadApplications();
+            loadActivities();
+            loadMembers();
+        }
+
+        window.onload = main;
+    </script>
+</body>
+
+</html>

@@ -5,115 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión - Comunidad Activa</title>
-    <link rel="stylesheet" href="./css/styles.css">
-    <style>
-        body.login-page {
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #1a7f4f 0%, #16a34a 100%);
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-            padding: 20px;
-        }
-
-        .login-card {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-        }
-
-        .login-card h1 {
-            margin: 0 0 24px;
-            text-align: center;
-            color: #0f5a37;
-        }
-
-        .login-card label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 6px;
-            margin-top: 16px;
-            color: #1e293b;
-        }
-
-        .login-card input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-family: inherit;
-            box-sizing: border-box;
-        }
-
-        .login-card input:focus {
-            outline: none;
-            border-color: #1a7f4f;
-            box-shadow: 0 0 0 3px rgba(26, 127, 79, 0.1);
-        }
-
-        .login-card button {
-            width: 100%;
-            margin-top: 24px;
-            padding: 12px;
-            background: #1a7f4f;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .login-card button:hover {
-            background: #0f5a37;
-        }
-
-        .login-card button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .login-result {
-            margin-top: 16px;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            text-align: center;
-        }
-
-        .login-result:empty {
-            display: none;
-        }
-
-        .login-result-ok {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .login-result-error {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .login-back {
-            display: block;
-            text-align: center;
-            margin-top: 24px;
-            color: #64748b;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
-
-        .login-back:hover {
-            color: #1a7f4f;
-        }
-    </style>
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/auth.css">
 </head>
 
 <body class="login-page">
@@ -121,16 +14,19 @@
         <h1>Iniciar Sesión</h1>
 
         <form id="loginForm">
-            <label for="txtEmail">Email</label>
-            <input type="email" id="txtEmail" required autocomplete="email">
+            <label for="email">Email</label>
+            <input type="email" id="email" required autocomplete="email">
 
-            <label for="txtPass">Contraseña</label>
-            <input type="password" id="txtPass" required autocomplete="current-password">
+            <label for="password">Contraseña</label>
+            <div class="password-input-wrap">
+                <input type="password" id="password" required autocomplete="current-password">
+                <button type="button" class="toggle-password" data-target="password" aria-label="Mostrar contraseña" title="Mostrar/ocultar">👁</button>
+            </div>
 
-            <button type="submit" id="btnLogin">Ingresar</button>
+            <div id="resultMessage" class="login-result" role="alert" aria-live="assertive"></div>
+
+            <button type="submit" id="loginButton">Ingresar</button>
         </form>
-
-        <div id="resultado" class="login-result"></div>
 
         <a href="index.html" class="login-back">← Volver al inicio</a>
     </div>
@@ -138,55 +34,86 @@
     <script type="module">
         import { RPCWebAPIFetchPublic } from './js/api.js';
 
-        function mostrarResultado(mensaje, esError = false) {
-            const resDiv = document.getElementById("resultado");
-            resDiv.style.display = "block";
-            resDiv.className = esError ? "login-result login-result-error" : "login-result login-result-ok";
-            resDiv.style.backgroundColor = esError ? "#ffe6e6" : "#e6ffe6";
-            resDiv.style.color = esError ? "#cc0000" : "#006600";
-            resDiv.innerText = mensaje;
+        // --- Toggle de ocultar/mostrar contraseña ---
+        const toggleButton = document.querySelector(".toggle-password");
+        
+        toggleButton.addEventListener("click", function() {
+            const input = document.getElementById(toggleButton.getAttribute("data-target"));
+            const isShowing = input.type === "text";
+            
+            input.type = isShowing ? "password" : "text";
+            toggleButton.textContent = isShowing ? "👁" : "🙈";
+        });
 
-            if (esError) console.error("[ERROR]", mensaje);
-            else console.log("[OK]", mensaje);
+        // Muestra mensaje de error o éxito al hacer login
+        function showMessage(message, isError) {
+            const resultDiv = document.getElementById("resultMessage");
+            resultDiv.style.display = "block";
+            resultDiv.className = isError ? "login-result login-result-error shake" : "login-result login-result-ok";
+            resultDiv.innerText = message;
+
+            if (isError) {
+                console.error("[ERROR]", message);
+                // setTimeout para remover la animación de error para que se vuelva a aplicar si vuelve a haber otro error
+                setTimeout(function() { 
+                    resultDiv.classList.remove("shake"); 
+                }, 500);
+            } else {
+                console.log("[OK]", message);
+            }
         }
 
+        // Manejador del form del login
         async function onLoginSubmit(event) {
             event.preventDefault();
-            const btn = document.getElementById("btnLogin");
+            
+            const button = document.getElementById("loginButton");
+            const emailInput = document.getElementById("email");
+            const passwordInput = document.getElementById("password");
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
 
-            const email = document.getElementById("txtEmail").value.trim();
-            const password = document.getElementById("txtPass").value;
-
-            btn.disabled = true;
+            if (!email || !password) {
+                showMessage("Los datos ingresados son incorrectos.", true);
+                emailInput.value = "";
+                passwordInput.value = "";
+                emailInput.focus();
+                return;
+            }
+            
+            button.disabled = true;
+            button.innerText = "Ingresando...";
 
             try {
-                const response = await RPCWebAPIFetchPublic("/login", { email, password });
+                const response = await RPCWebAPIFetchPublic("/login", { email: email, password: password });
                 const user = response.data.user;
 
-
                 if (response.data.redirectToChangePassword) {
-                    window.location.href = "change-password.html";
+                    window.location.href = "changePassword.html";
                     return;
                 }
 
                 if (user.role === "CLUB_ADMIN" || user.role === "SUPER_ADMIN") {
-                    window.location.href = "admin.html";
+                    window.location.href = "adminProfile.html";
                 } else {
-                    window.location.href = "socio.html";
+                    window.location.href = "memberProfile.html";
                 }
 
             } catch (error) {
-                mostrarResultado(error.message, true)
+                showMessage(error.message || "Los datos ingresados son incorrectos.", true);
                 console.error("[login]", error);
-                btn.disabled = false;
+                
+                emailInput.value = "";
+                passwordInput.value = "";
+                button.disabled = false;
+                button.innerText = "Ingresar";
+                emailInput.focus(); 
             }
         }
 
-
-        async function main() {
-
+        function main() {
             document.getElementById("loginForm").onsubmit = onLoginSubmit;
-
         }
 
         window.onload = main;

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comunidad Activa - Mi Panel</title>
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/profiles.css">
+</head>
+
+<body>
+    <div class="socio-header">
+        <h1 id="greeting">Mi Panel</h1>
+        <div class="socio-header-actions">
+            <a href="changePassword.html" class="btn-warning" style="padding: 8px 16px; border-radius: 6px; text-decoration: none; background: #f59e0b; color: white; font-weight: 600;">Cambiar Contraseña</a>
+            <button id="logoutButton" class="btn-danger">Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <div id="resultMessage"></div>
+
+    <!-- MIS DATOS PERSONALES -->
+    <section class="socio-section">
+        <h2>Mis Datos Personales</h2>
+        <div id="profileContainer">
+            <p class="empty-msg">Cargando información del perfil...</p>
+        </div>
+    </section>
+
+    <!-- ACTIVIDADES DEL CLUB -->
+    <section class="socio-section">
+        <h2>Actividades del Club</h2>
+        <p style="color: #64748b; margin-top: -8px;">Estas son las actividades disponibles para inscribirse en el club.</p>
+        <div id="activitiesContainer">
+            <p class="empty-msg">Cargando actividades...</p>
+        </div>
+    </section>
+
+    <!-- MIS INSCRIPCIONES -->
+    <section class="socio-section">
+        <h2>Mis Inscripciones</h2>
+        <div id="enrollmentsContainer">
+            <p class="empty-msg">Cargando tus inscripciones...</p>
+        </div>
+    </section>
+
+    <script type="module">
+        import { RPCWebAPIFetchPrivate, RPCWebAPIFetchPublic } from './js/api.js';
+
+        if (!localStorage.getItem("accessToken")) {
+            window.location.href = "login.html";
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return "—";
+            const parts = dateString.split("-");
+            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+
+        // ---1 Carga la información del socio ---
+        async function loadProfile() {
+            const container = document.getElementById("profileContainer");
+            try {
+                const response = await RPCWebAPIFetchPrivate("/getUserProfile", {});
+                const profile = response.data.profile;
+
+                document.getElementById("greeting").innerText = `Hola, ${profile.name}`;
+
+                container.innerHTML = `
+                    <div class="profile-grid">
+                        <div class="profile-field"><label>Nombre</label><span>${profile.name}</span></div>
+                        <div class="profile-field"><label>Apellido</label><span>${profile.surname}</span></div>
+                        <div class="profile-field"><label>DNI</label><span>${profile.dni}</span></div>
+                        <div class="profile-field"><label>Fecha Nac.</label><span>${formatDate(profile.birthdate)}</span></div>
+                        <div class="profile-field"><label>Email</label><span>${profile.email}</span></div>
+                        <div class="profile-field"><label>Teléfono</label><span>${profile.phone}</span></div>
+                    </div>
+                `;
+            } catch (error) {
+                container.innerHTML = `<p class="empty-msg">Error al cargar el perfil: ${error.message}</p>`;
+            }
+        }
+
+        // ---2 Lista las actividades disponibles ---
+        async function loadActivities() {
+            const container = document.getElementById("activitiesContainer");
+            try {
+                const response = await RPCWebAPIFetchPrivate("/listActivities", {});
+                const activities = response.data.activities || [];
+
+                if (activities.length === 0) {
+                    container.innerHTML = `<p class="empty-msg">No hay actividades cargadas.</p>`;
+                    return;
+                }
+
+                // CORREGIDO: Se usan trainingDays y trainingTime para evitar 'undefined'
+                const activitiesHTML = activities.map(function(activity) {
+                    let html = `
+                        <article class="activity-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                <h3>${activity.name}</h3>
+                                <p class="day">${activity.trainingDays || "Días a definir"} · ${activity.trainingTime || "Horario a definir"}</p>
+                                ${activity.instructor ? `<p class="instructor">Prof. ${activity.instructor}</p>` : ""}
+                                ${activity.description ? `<p class="desc">${activity.description}</p>` : ""}
+                            </div>
+                            <button class="btn btn-success enroll-btn" data-id="${activity.idActivity}" style="margin-top: 15px; width: 100%;">
+                                Inscribirme
+                            </button>
+                        </article>
+                    `;
+                    return html;
+                }).join("");
+
+                container.innerHTML = `<div class="activities-grid">${activitiesHTML}</div>`;
+
+            } catch (error) {
+                container.innerHTML = `<p class="empty-msg">Error al cargar actividades: ${error.message}</p>`;
+            }
+        }
+
+        // ---3 Lista las actividades inscriptas del socio ---
+        async function loadEnrollments() {
+            const container = document.getElementById("enrollmentsContainer");
+            try {
+                const response = await RPCWebAPIFetchPrivate("/getMyEnrollments", {});
+                const enrollments = response.data.enrollments || [];
+
+                if (enrollments.length === 0) {
+                    container.innerHTML = `<p class="empty-msg">Todavía no estás inscripto en ninguna actividad.</p>`;
+                    return;
+                }
+
+                const enrollmentsHTML = enrollments.map(function(enrollment) {
+                    return `
+                        <div class="activity-card" style="margin-bottom: 10px; border-left: 4px solid var(--success-text);">
+                            <h3>${enrollment.name}</h3>
+                            <p class="day">${enrollment.trainingDays || "—"} · ${enrollment.trainingTime || "—"}</p>
+                            ${enrollment.instructor ? `<p class="instructor">Prof. ${enrollment.instructor}</p>` : ""}
+                        </div>
+                    `;
+                }).join("");
+
+                container.innerHTML = enrollmentsHTML;
+
+            } catch (error) {
+                container.innerHTML = `<p class="empty-msg">Error al cargar tus inscripciones: ${error.message}</p>`;
+            }
+        }
+
+       
+        // ---4 Manejador de inscripción a actividad ---
+        async function onEnrollClick(event) {
+            const button = event.target.closest(".enroll-btn");
+            if (!button) return;
+
+            const activityId = parseInt(button.getAttribute("data-id"), 10);
+
+            if (!confirm("¿Confirmás tu inscripción a esta actividad?")) return;
+
+            button.disabled = true;
+            button.innerText = "Inscribiendo...";
+
+            try {
+                // Llamada correcta al endpoint del backend
+                const response = await RPCWebAPIFetchPrivate("/registerMemberToActivity", { idActivity: activityId });
+                alert(response.data.message || "¡Inscripción exitosa!");
+                
+                // Recargamos tanto las actividades (para actualizar cupos si aplica) como las inscripciones
+                loadActivities();
+                loadEnrollments();
+            } catch (error) {
+                alert("Error al inscribirse: " + error.message);
+                button.disabled = false;
+                button.innerText = "Inscribirme";
+            }
+        }
+
+        // ---5 Manejador del btn de logout ---
+        async function onLogoutClick() {
+            try {
+                await RPCWebAPIFetchPrivate("/logout", {});
+            } catch (error) {
+                console.warn("Logout warning:", error.message);
+            } finally {
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("userRole");
+                window.location.href = "login.html";
+            }
+        }
+
+        function main() {
+            document.getElementById("logoutButton").onclick = onLogoutClick;
+            document.getElementById("activitiesContainer").onclick = onEnrollClick;
+
+            loadProfile();
+            loadActivities();
+            loadEnrollments();
+        }
+
+        window.onload = main;
+    </script>
+</body>
+
+</html>
