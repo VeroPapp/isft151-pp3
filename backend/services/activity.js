@@ -1,66 +1,42 @@
-const {
-    listActivitiesDB,
-    createActivityDB,
-    updateActivityDB,
-    registerMemberToActivityDB,
-    cancelRegistrationDB,
-    listUserEnrollmentsDB
-} = require("../models/activity.js");
 const { sendSuccess } = require("../helpers/responseHandler.js");
 const { sendError, BadRequestError, DomainError } = require("../helpers/errorHandler.js");
+const { listAllActivitiesDB, listActiveActivitiesDB, createActivityDB, updateActivityDB, deactivateActivityDB, activateActivityDB } = require("../models/activity.js");
 
+function listAllActivities(request, response) {
+    try {
+        const activities = listAllActivitiesDB();
+        sendSuccess(response, { activities }, 200);
+    } catch (error) {
+        sendError(response, error);
+    }
+}
 
-function listActivities(request, response) {
-    let body = "";
-
-    request.on("data", function (chunk) {
-        body += chunk.toString();
-    });
-
-    request.on("end", async function () {
-        try {
-            let data = {};
-            if (body.trim() !== "") {
-                try {
-                    data = JSON.parse(body);
-                } catch (e) {
-                    throw new BadRequestError("InvalidJSON", ["El cuerpo de la petición no es un JSON válido."]);
-                }
-            }
-
-            // llamamos al modelo pasando los filtros opcionales (name, scope, etc.)
-            const activities = listActivitiesDB(data);
-
-            sendSuccess(response, { activities: activities }, 200);
-        } catch (error) {
-            sendError(response, error);
+function listActiveActivities(request, response) {
+    try {
+        const activities = listActiveActivitiesDB();
+        if (activities.length === 0) {
+            return sendSuccess(response, { message: "No hay actividades cargadas.", activities: [] }, 200);
         }
-    });
+        sendSuccess(response, { activities }, 200);
+    } catch (error) {
+        sendError(response, error);
+    }
 }
 
 function createActivity(request, response) {
-    let body = "";
-
-    request.on("data", function (chunk) {
-        body += chunk.toString();
-    });
-
-    request.on("end", async function () {
+    let bodyRaw = "";
+    request.on("data", chunk => bodyRaw += chunk.toString());
+    request.on("end", () => {
         try {
-            const data = JSON.parse(body);
+            const data = JSON.parse(bodyRaw);
+            const { name, description, startDate, endDate, instructor, capacity, scope, schedules } = data;
 
-            // validaciones basicas de campos obligatorios
-            if (!data.name || !data.capacity) {
-                throw new BadRequestError("MissingFields", ["El nombre y la capacidad de la actividad son obligatorios."]);
+            if (!name || !schedules || schedules.length === 0) {
+                throw new BadRequestError("El nombre y al menos un horario son obligatorios.");
             }
 
-            const idActivity = createActivityDB(data);
-
-            sendSuccess(response, {
-                idActivity: idActivity,
-                status: "ACTIVE",
-                message: "Actividad creada correctamente"
-            }, 200);
+            createActivityDB({ name, description, startDate, endDate, instructor, capacity, scope }, schedules);
+            sendSuccess(response, { message: "Actividad creada correctamente." }, 201);
         } catch (error) {
             sendError(response, error);
         }
@@ -68,35 +44,21 @@ function createActivity(request, response) {
 }
 
 function updateActivity(request, response) {
-    let body = "";
-
-    request.on("data", function (chunk) {
-        body += chunk.toString();
-    });
-
-    request.on("end", async function () {
+    let bodyRaw = "";
+    request.on("data", chunk => bodyRaw += chunk.toString());
+    request.on("end", () => {
         try {
-            const data = JSON.parse(body);
-            const { idActivity, name, capacity, trainingDays, trainingTime, startDate, endDate, instructor, scope, description } = data;
+            const data = JSON.parse(bodyRaw);
+            const { idActivity, name, description, startDate, endDate, instructor, capacity, scope, schedules } = data;
 
-            if (!idActivity || !name || !capacity) {
-                throw new BadRequestError("El ID, el nombre y la capacidad de la actividad son obligatorios.");
+            if (!idActivity || !name || !schedules || schedules.length === 0) {
+                throw new BadRequestError("Faltan campos obligatorios (ID, nombre y al menos un horario).");
             }
 
-            const updatedRows = updateActivityDB(idActivity, {
-                name,
-                description,
-                startDate,
-                endDate,
-                instructor,
-                capacity,
-                trainingDays,
-                trainingTime,
-                scope
-            });
-
-            if (updatedRows === 0) {
-                throw new BadRequestError("No se encontró la actividad a actualizar.");
+            const changes = updateActivityDB(idActivity, { name, description, startDate, endDate, instructor, capacity, scope }, schedules);
+            
+            if (changes === 0) {
+                throw new DomainError("No se encontró la actividad o no hubo cambios.");
             }
 
             sendSuccess(response, { message: "Actividad actualizada correctamente." }, 200);
@@ -105,83 +67,52 @@ function updateActivity(request, response) {
         }
     });
 }
-// FUNCION REGISTRAR SOCIO A ACTIVIDAD
-function registerMemberToActivity(request, response) {
-    let body = "";
 
-    request.on("data", function (chunk) {
-        body += chunk.toString();
-    });
-
-    request.on("end", async function () {
+function deactivateActivity(request, response) {
+    let bodyRaw = "";
+    request.on("data", chunk => bodyRaw += chunk.toString());
+    request.on("end", () => {
         try {
-            const data = JSON.parse(body);
-            if (!data.idActivity) {
-                throw new BadRequestError("MissingActivityID", ["Debe especificar el ID de la actividad."]);
-            }
+            const data = JSON.parse(bodyRaw);
+            const { idActivity } = data;
 
-            // El idUser viene del usuario autenticado actual
-            const idUser = request.user.IDuser;
-            const idRegistration = registerMemberToActivityDB(idUser, data.idActivity);
+            if (!idActivity) throw new BadRequestError("Falta el ID de la actividad.");
 
-            sendSuccess(response, {
-                message: "Inscripción creada correctamente.",
-                idRegistration: idRegistration
-            }, 200);
+            const ok = deactivateActivityDB(idActivity);
+            if (!ok) throw new DomainError("No se encontró la actividad.");
+
+            sendSuccess(response, { message: "Actividad dada de baja correctamente." }, 200);
         } catch (error) {
             sendError(response, error);
         }
     });
 }
 
-//CANCELAR INSCRIPCION(permite al socio darse de baja de una actividad)
-function cancelRegistration(request, response) {
-    let body = "";
-
-    request.on("data", function (chunk) {
-        body += chunk.toString();
-    });
-
-    request.on("end", async function () {
+function activateActivity(request, response) {
+    let bodyRaw = "";
+    request.on("data", chunk => bodyRaw += chunk.toString());
+    request.on("end", () => {
         try {
-            const data = JSON.parse(body);
-            if (!data.idActivity) {
-                throw new BadRequestError("MissingActivityID", ["Debe especificar el ID de la actividad."]);
-            }
+            const data = JSON.parse(bodyRaw);
+            const { idActivity } = data;
 
-            const idUser = request.user.IDuser;
-            const changes = cancelRegistrationDB(idUser, data.idActivity);
+            if (!idActivity) throw new BadRequestError("Falta el ID de la actividad.");
 
-            if (changes === 0) {
-                throw new DomainError("RegistrationNotFound", ["No se encontró una inscripción activa para esta actividad."]);
-            }
+            const ok = activateActivityDB(idActivity);
+            if (!ok) throw new DomainError("No se encontró la actividad.");
 
-            sendSuccess(response, {
-                message: "Inscripción cancelada correctamente"
-            }, 200);
+            sendSuccess(response, { message: "Actividad reactivada correctamente." }, 200);
         } catch (error) {
             sendError(response, error);
         }
     });
 }
 
-// Listar inscripciones del usuario actual
-function getMyEnrollments(request, response) {
-    try {
-        const idUser = request.user.IDuser;
-        const enrollments = listUserEnrollmentsDB(idUser);
-
-        sendSuccess(response, { enrollments: enrollments }, 200);
-    } catch (error) {
-        sendError(response, error);
-    }
-}
-
-module.exports = {
-    listActivities,
-    createActivity,
-    updateActivity,
-    registerMemberToActivity,
-    cancelRegistration,
-    getMyEnrollments
+module.exports = { 
+    listAllActivities,
+    listActiveActivities, 
+    createActivity, 
+    updateActivity, 
+    deactivateActivity,
+    activateActivity
 };

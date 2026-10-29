@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +7,6 @@
     <link rel="stylesheet" href="./css/base.css">
     <link rel="stylesheet" href="./css/auth.css">
 </head>
-
 <body class="login-page">
     <div class="login-card">
         <h1>Iniciar Sesión</h1>
@@ -33,37 +31,10 @@
 
     <script type="module">
         import { RPCWebAPIFetchPublic } from './js/api.js';
+        import { setupPasswordToggle, showMessage } from './js/helpers.js';
 
-        // --- Toggle de ocultar/mostrar contraseña ---
-        const toggleButton = document.querySelector(".toggle-password");
-        
-        toggleButton.addEventListener("click", function() {
-            const input = document.getElementById(toggleButton.getAttribute("data-target"));
-            const isShowing = input.type === "text";
-            
-            input.type = isShowing ? "password" : "text";
-            toggleButton.textContent = isShowing ? "👁" : "🙈";
-        });
+        setupPasswordToggle();
 
-        // Muestra mensaje de error o éxito al hacer login
-        function showMessage(message, isError) {
-            const resultDiv = document.getElementById("resultMessage");
-            resultDiv.style.display = "block";
-            resultDiv.className = isError ? "login-result login-result-error shake" : "login-result login-result-ok";
-            resultDiv.innerText = message;
-
-            if (isError) {
-                console.error("[ERROR]", message);
-                // setTimeout para remover la animación de error para que se vuelva a aplicar si vuelve a haber otro error
-                setTimeout(function() { 
-                    resultDiv.classList.remove("shake"); 
-                }, 500);
-            } else {
-                console.log("[OK]", message);
-            }
-        }
-
-        // Manejador del form del login
         async function onLoginSubmit(event) {
             event.preventDefault();
             
@@ -75,7 +46,7 @@
             const password = passwordInput.value;
 
             if (!email || !password) {
-                showMessage("Los datos ingresados son incorrectos.", true);
+                showMessage("resultMessage", "Los datos ingresados son incorrectos.", true);
                 emailInput.value = "";
                 passwordInput.value = "";
                 emailInput.focus();
@@ -88,9 +59,10 @@
             try {
                 const response = await RPCWebAPIFetchPublic("/login", { email: email, password: password });
                 const user = response.data.user;
+                localStorage.setItem("userRole", user.role || "");
 
                 if (response.data.redirectToChangePassword) {
-                    window.location.href = "changePassword.html";
+                    window.location.href = "changePassword.html?mandatory=true";
                     return;
                 }
 
@@ -101,9 +73,7 @@
                 }
 
             } catch (error) {
-                showMessage(error.message || "Los datos ingresados son incorrectos.", true);
-                console.error("[login]", error);
-                
+                showMessage("resultMessage", error.message || "Los datos ingresados son incorrectos.", true);
                 emailInput.value = "";
                 passwordInput.value = "";
                 button.disabled = false;
@@ -119,5 +89,4 @@
         window.onload = main;
     </script>
 </body>
-
 </html>

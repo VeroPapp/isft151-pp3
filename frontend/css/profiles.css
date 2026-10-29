@@ -1,7 +1,3 @@
-/* ==========================================================
-   PROFILES.CSS - Paneles de socio y administración
-   ========================================================== */
-
 /* ---------- Headers ---------- */
 
 .socio-header,
@@ -31,10 +27,16 @@
     color: var(--primary-dark);
 }
 
-.socio-header h1 { font-size: 1.5rem; }
-.admin-header h1 { font-size: 1.25rem; }
+.socio-header h1 {
+    font-size: 1.5rem;
+}
 
-.socio-header-actions {
+.admin-header h1 {
+    font-size: 1.25rem;
+}
+
+.socio-header-actions,
+.admin-header-actions {
     display: flex;
     gap: 12px;
     align-items: center;
@@ -65,8 +67,13 @@
     color: var(--primary-dark);
 }
 
-.socio-section h2 { font-size: 1.25rem; }
-.section-card h2 { font-size: 1.15rem; }
+.socio-section h2 {
+    font-size: 1.25rem;
+}
+
+.section-card h2 {
+    font-size: 1.15rem;
+}
 
 /* ---------- Perfil (socio) ---------- */
 
@@ -76,7 +83,10 @@
     gap: 16px;
 }
 
-.profile-field { display: flex; flex-direction: column; }
+.profile-field {
+    display: flex;
+    flex-direction: column;
+}
 
 .profile-field label {
     font-size: 0.8rem;
@@ -92,7 +102,19 @@
     font-weight: 500;
 }
 
-/* ---------- Actividades (vista socio) ---------- */
+.phone-edit-input {
+    padding: 6px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    width: 150px;
+}
+
+.phone-edit-btn {
+    padding: 2px 8px;
+    font-size: 0.75rem;
+}
+
+/* ---------- Grilla de Actividades (Socio) ---------- */
 
 .activities-grid {
     display: grid;
@@ -100,35 +122,15 @@
     gap: 16px;
 }
 
-.activities-grid .activity-card {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px;
-}
-
-.activities-grid .activity-card h3 {
-    margin: 0 0 6px;
+.activity-capacity {
+    font-size: 0.85rem;
     color: var(--primary-dark);
-    font-size: 1.05rem;
-}
-
-.activities-grid .activity-card .day {
-    color: var(--accent);
     font-weight: 600;
-    margin: 0 0 6px;
-}
-
-.activities-grid .activity-card .instructor {
-    color: var(--muted);
-    font-size: 0.875rem;
-    margin: 0 0 6px;
-}
-
-.activities-grid .activity-card .desc {
-    color: var(--muted);
-    font-size: 0.875rem;
-    margin: 0;
+    margin: 8px 0;
+    background-color: rgba(26, 127, 79, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
 }
 
 /* ---------- Tabs (admin) ---------- */
@@ -156,7 +158,9 @@
     font-family: inherit;
 }
 
-.tab:hover { color: var(--primary); }
+.tab:hover {
+    color: var(--primary);
+}
 
 .tab.active {
     color: var(--primary-dark);
@@ -164,22 +168,137 @@
     font-weight: 600;
 }
 
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+/* ---------- Constructor de Horarios (Admin) ---------- */
+
+.schedule-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+    background: #f8fafc;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+}
+
+.schedule-row select,
+.schedule-row input {
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+}
+
+.schedule-row .btn-remove {
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+#addScheduleBtn {
+    background: transparent;
+    color: var(--primary);
+    border: 1px dashed var(--primary);
+    padding: 10px;
+    width: 100%;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+#addScheduleBtn:hover {
+    background: rgba(26, 127, 79, 0.05);
+}
+
+/* ---------- Modal de Inscriptos ---------- */
+
+.modal-overlay {
+    display: none; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0,0,0,0.5); 
+    z-index: 1000; 
+    justify-content: center; 
+    align-items: center;
+}
+
+.modal-content {
+    background: white; 
+    padding: 24px; 
+    border-radius: 12px; 
+    width: 100%; 
+    max-width: 600px; 
+    max-height: 80vh; 
+    overflow-y: auto; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 16px; 
+    border-bottom: 1px solid var(--border); 
+    padding-bottom: 12px;
+}
+
+.modal-header h2 {
+    margin: 0; 
+    font-size: 1.25rem; 
+    color: var(--primary-dark);
+}
+
 
 /* ---------- Responsive ---------- */
 
 @media (max-width: 700px) {
-    .form-row { grid-template-columns: 1fr; }
-    .admin-container { padding: 16px; }
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-container {
+        padding: 16px;
+    }
 
     .socio-section,
-    .section-card { padding: 16px; }
+    .section-card {
+        padding: 16px;
+    }
 
-    .data-table { font-size: 0.8rem; }
+    .data-table {
+        font-size: 0.8rem;
+    }
+
     .data-table th,
-    .data-table td { padding: 8px 6px; }
+    .data-table td {
+        padding: 8px 6px;
+    }
 
-    .socio-header { padding: 16px; }
-    .socio-header h1 { font-size: 1.2rem; }
+    .socio-header {
+        padding: 16px;
+    }
+
+    .socio-header h1 {
+        font-size: 1.2rem;
+    }
+
+    .modal-content {
+        max-height: 90vh;
+        padding: 16px;
+        border-radius: 8px;
+    }
 }

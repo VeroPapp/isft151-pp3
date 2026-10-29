@@ -1,7 +1,3 @@
-/* ==========================================================
-   BASE.CSS - Variables y estilos compartidos por todas las páginas
-   ========================================================== */
-
 :root {
     --primary: #1a7f4f;
     --primary-dark: #0f5a37;
@@ -216,6 +212,71 @@ body {
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
+}
+
+/* ---------- Tarjetas de Actividades (Compartido) ---------- */
+.activity-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.activity-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.activity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    gap: 10px;
+}
+
+.activity-header h3 {
+    margin: 0;
+    color: var(--primary-dark);
+    font-size: 1.15rem;
+}
+
+.activity-scope-badge {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.activity-dates {
+    font-size: 0.85rem;
+    color: #475569;
+    margin: 0 0 8px 0;
+    font-weight: 500;
+}
+
+.activity-day { 
+    margin: 0 0 4px 0; 
+    color: var(--accent); 
+    font-weight: 600; 
+    font-size: 0.9rem;
+}
+
+.activity-instructor { 
+    margin: 0 0 8px 0; 
+    color: var(--muted); 
+    font-size: 0.9rem; 
+}
+
+.activity-desc { 
+    margin: 0; 
+    color: var(--muted); 
+    font-size: 0.95rem; 
 }
 
 /* ---------- Utilidades ---------- */

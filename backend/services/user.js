@@ -1,10 +1,13 @@
 const { sendSuccess } = require("../helpers/responseHandler.js");
 const { sendError, BadRequestError, UnauthorizedError, DomainError } = require("../helpers/errorHandler.js");
-const { getUserByIdDB, listMembersDB, updateMemberDB, updatePhoneDB, removeMemberDB } = require("../models/user.js");
+const { getUserByIdDB, listMembersDB, updateMemberDB, updatePhoneDB, changeMemberStatusDB} = require("../models/user.js");
 const { getStatusByIdDB } = require("../models/status.js");
 const { getRoleByIdDB } = require("../models/roles.js");
 
-// ["CLUB_ADMIN", "SUPER_ADMIN"]
+// ==========================================
+// ADMINISTRADORES (CLUB_ADMIN / SUPER_ADMIN)
+// ==========================================
+
 function getMember(request, response) {
     let bodyRaw = "";
 
@@ -45,7 +48,6 @@ function getMember(request, response) {
     })
 }
 
-// ["CLUB_ADMIN", "SUPER_ADMIN"]
 function listMembers(request, response) {
     try {
         const members = listMembersDB();
@@ -64,7 +66,6 @@ function listMembers(request, response) {
     }
 }
 
-// ["CLUB_ADMIN", "SUPER_ADMIN"]
 function updateMember(request, response) {
 
     let bodyRaw = "";
@@ -114,8 +115,7 @@ function updateMember(request, response) {
 
 }
 
-// ["CLUB_ADMIN", "SUPER_ADMIN"]
-function removeMember(request, response) {
+function deactivateMember(request, response) {
     let bodyRaw = "";
 
     request.on('data', chunk => {
@@ -150,7 +150,7 @@ function removeMember(request, response) {
 
             // cambia el estado a "INACTIVE"
             const INACTIVE = 5
-            const result = removeMemberDB(INACTIVE, idUser);
+            const result = changeMemberStatusDB(INACTIVE, idUser);
             if (!result) {
                 throw new DomainError("No se pudo desactivar la membresía de un socio.");
             }
@@ -164,7 +164,58 @@ function removeMember(request, response) {
     })
 }
 
-// ["MEMBER"]
+function activateMember(request, response) {
+    let bodyRaw = "";
+
+    request.on('data', chunk => {
+        bodyRaw += chunk.toString();
+    });
+
+    request.on("end", async function () {
+        try {
+            let data;
+            try {
+                data = JSON.parse(bodyRaw);
+            } catch (error) {
+                throw new BadRequestError("El cuerpo de la petición debe contener un JSON válido.");
+            }
+
+            const { idUser } = data
+
+            if (!idUser) {
+                throw new BadRequestError("Se requiere el ID del usuario.");
+            }
+
+            const member = getUserByIdDB(idUser);
+            if (!member) {
+                throw new BadRequestError("Usuario no encontrado.");
+            }
+
+            const roleMember = getRoleByIdDB(member.idRole)
+            if (roleMember.nameRole !== "MEMBER") {
+                throw new DomainError("No se puede activar un usuario que no tiene el rol MEMBER.");
+            }
+
+            // Cambia el estado a "ACTIVE" (3)
+            const ACTIVE = 3
+            const result = changeMemberStatusDB(ACTIVE, idUser); // Reutilizamos la función que ya hace el UPDATE
+            if (!result) {
+                throw new DomainError("No se pudo reactivar la membresía del socio.");
+            }
+
+            sendSuccess(response, { message: "Socio reactivado correctamente." }, 200);
+
+        } catch (error) {
+            sendError(response, error);
+        }
+    })
+}
+
+
+// ==========================================
+// SOCIOS (MEMBER)
+// ==========================================
+
 function getMemberProfile(request, response) {
     try {
 
@@ -183,7 +234,6 @@ function getMemberProfile(request, response) {
 
 }
 
-// ["MEMBER"]
 function updateMemberProfile(request, response) {
 
     let bodyRaw = "";
@@ -228,22 +278,12 @@ function updateMemberProfile(request, response) {
 
 }
 
-module.exports = { getMember, listMembers, updateMember, removeMember, getMemberProfile, updateMemberProfile };
-
-
-
-
-
-
-
-
-
-// * PENDIENTE HACER:
-// /getMemberActivities
-// /getMemberActivityByID
-// /recoverPassword
-// /registerMemberToActivity
-// /cancelRegistration
-// /listRegistrationsByActivity
-// /HACER FRONTEND -> WEB COMPONENTS
-// REVISAR LO DE SIL, MODULO ACTIVIDADES
+module.exports = { 
+    getMember, 
+    listMembers, 
+    updateMember, 
+    deactivateMember,
+    activateMember, 
+    getMemberProfile, 
+    updateMemberProfile 
+}

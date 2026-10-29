@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,11 +7,17 @@
     <link rel="stylesheet" href="./css/base.css">
     <link rel="stylesheet" href="./css/profiles.css">
 </head>
-
 <body class="admin-page">
+
+    <!-- ========================================== -->
+    <!-- HEADER                                     -->
+    <!-- ========================================== -->
     <header class="admin-header">
         <h1>Panel de Administración</h1>
-        <button id="logoutButton" class="btn btn-danger">Cerrar Sesión</button>
+        <div class="admin-header-actions">
+            <a href="changePassword.html" class="btn btn-warning">Cambiar Contraseña</a>
+            <button id="logoutButton" class="btn btn-danger">Cerrar Sesión</button>
+        </div>
     </header>
 
     <div class="admin-container">
@@ -24,7 +29,9 @@
             <button class="tab" data-tab="members">Miembros</button>
         </nav>
 
-        <!-- ============ TAB: SOLICITUDES ============ -->
+        <!-- ========================================== -->
+        <!-- TAB: SOLICITUDES                           -->
+        <!-- ========================================== -->
         <section class="tab-panel active" id="tab-applications">
             <div class="section-card">
                 <h2>Solicitudes de Membresía Pendientes</h2>
@@ -34,60 +41,71 @@
             </div>
         </section>
 
-        <!-- ============ TAB: ACTIVIDADES ============ -->
+        <!-- ========================================== -->
+        <!-- TAB: ACTIVIDADES                           -->
+        <!-- ========================================== -->
         <section class="tab-panel" id="tab-activities">
-    <div class="section-card">
-        <h2>Nueva Actividad</h2>
-        <form id="createActivityForm" class="form-grid">
-            <div class="form-row">
-                <div class="form-field">
-                    <label for="activityName">Nombre *</label>
-                    <input id="activityName" required placeholder="Ej: Fútbol Infantil">
-                </div>
-                <div class="form-field">
-                    <label for="activityCapacity">Capacidad / Cupo *</label>
-                    <input type="number" id="activityCapacity" required min="1" placeholder="Ej: 20">
-                </div>
+            <div class="section-card">
+                <h2 id="activityFormTitle">Nueva Actividad</h2>
+                <form id="createActivityForm" class="form-grid">
+                    <input type="hidden" id="editActivityId" value="">
+                    
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="activityName">Nombre *</label>
+                            <input id="activityName" required placeholder="Ej: Fútbol Infantil">
+                        </div>
+                        <div class="form-field">
+                            <label for="activityInstructor">Instructor</label>
+                            <input id="activityInstructor" placeholder="Ej: Martín">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="activityCapacity">Capacidad</label>
+                            <input type="number" id="activityCapacity" placeholder="Ej: 20">
+                        </div>
+                        <div class="form-field">
+                            <label for="activityScope">Alcance</label>
+                            <select id="activityScope">
+                                <option value="General">General (Abierto a todo público)</option>
+                                <option value="Solo Socios">Solo Socios</option>
+                                <option value="Invitados">Invitados / No Socios</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-field">
+                        <label for="activityDescription">Descripción</label>
+                        <textarea id="activityDescription" placeholder="Descripción breve de la actividad"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="activityStartDate">Fecha de inicio</label>
+                            <input type="date" id="activityStartDate">
+                        </div>
+                        <div class="form-field">
+                            <label for="activityEndDate">Fecha de fin</label>
+                            <input type="date" id="activityEndDate">
+                        </div>
+                    </div>
+
+                    <!-- Constructor de Horarios -->
+                    <div class="form-field">
+                        <label>Horarios *</label>
+                        <div id="schedulesContainer">
+                            <!-- Fila inicial (se llena desde JS) -->
+                        </div>
+                        <button type="button" id="addScheduleBtn">+ Agregar otro horario</button>
+                    </div>
+
+                    <div>
+                        <button type="submit" id="submitActivityButton" class="btn btn-success">Crear Actividad</button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-danger" style="display: none; margin-left: 10px;">Cancelar Edición</button>
+                    </div>
+                </form>
             </div>
-            <div class="form-row">
-                <div class="form-field">
-                    <label for="activityTrainingDays">Días de entrenamiento *</label>
-                    <input id="activityTrainingDays" required placeholder="Ej: Lunes y Miércoles">
-                </div>
-                <div class="form-field">
-                    <label for="activityTrainingTime">Horario *</label>
-                    <input id="activityTrainingTime" required placeholder="Ej: 18:00 a 19:30">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-field">
-                    <label for="activityStartDate">Fecha Inicio *</label>
-                    <input type="date" id="activityStartDate" required>
-                </div>
-                <div class="form-field">
-                    <label for="activityEndDate">Fecha Fin *</label>
-                    <input type="date" id="activityEndDate" required>
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-field">
-                    <label for="activityInstructor">Instructor</label>
-                    <input id="activityInstructor" placeholder="Ej: Prof. Martín">
-                </div>
-                <div class="form-field">
-                    <label for="activityScope">Scope / Alcance</label>
-                    <input id="activityScope" placeholder="Ej: General">
-                </div>
-            </div>
-            <div class="form-field">
-                <label for="activityDescription">Descripción</label>
-                <textarea id="activityDescription" placeholder="Descripción breve de la actividad"></textarea>
-            </div>
-            <div>
-                <button type="submit" id="submitActivityButton" class="btn btn-success">Crear Actividad</button>
-            </div>
-        </form>
-    </div>
+
             <div class="section-card">
                 <h2>Actividades Existentes</h2>
                 <div class="table-wrap" id="activitiesContainer">
@@ -96,7 +114,9 @@
             </div>
         </section>
 
-        <!-- ============ TAB: MIEMBROS ============ -->
+        <!-- ========================================== -->
+        <!-- TAB: MIEMBROS                              -->
+        <!-- ========================================== -->
         <section class="tab-panel" id="tab-members">
             <div class="section-card">
                 <h2>Miembros del Club</h2>
@@ -107,112 +127,206 @@
         </section>
     </div>
 
+    <!-- ========================================== -->
+    <!-- MODAL: VER INSCRIPTOS                      -->
+    <!-- ========================================== -->
+    <div id="registrationsModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Inscriptos</h2>
+                <button id="closeModalBtn" class="btn btn-danger">X</button>
+            </div>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre y Apellido</th>
+                            <th>DNI</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalRegistrationsBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL: EDITAR MIEMBRO                      -->
+    <!-- ========================================== -->
+    <div id="editMemberModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 id="editMemberTitle">Editar Socio</h2>
+                <button id="closeEditMemberBtn" class="btn btn-danger">X</button>
+            </div>
+            <form id="editMemberForm" class="form-grid" onsubmit="event.preventDefault();">
+                <input type="hidden" id="editMemberId">
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="editMemberName">Nombre *</label>
+                        <input id="editMemberName" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="editMemberSurname">Apellido *</label>
+                        <input id="editMemberSurname" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-field">
+                        <label for="editMemberDni">DNI *</label>
+                        <input id="editMemberDni" required>
+                    </div>
+                    <div class="form-field">
+                        <label for="editMemberBirthdate">Fecha de Nacimiento *</label>
+                        <input type="date" id="editMemberBirthdate" required>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label for="editMemberEmail">Email *</label>
+                    <input type="email" id="editMemberEmail" required>
+                </div>
+                <div class="form-field">
+                    <label for="editMemberPhone">Teléfono *</label>
+                    <input type="tel" id="editMemberPhone" required>
+                </div>
+                <div style="margin-top: 10px;">
+                    <button type="submit" id="saveEditMemberBtn" class="btn btn-success" style="width: 100%;">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT                                 -->
+    <!-- ========================================== -->
     <script type="module">
-        import { RPCWebAPIFetchPrivate, RPCWebAPIFetchPublic } from './js/api.js';
+        import { RPCWebAPIFetchPrivate } from './js/api.js';
+        import { formatDate, showMessage, getStatusBadge, handleLogout } from './js/helpers.js';
+        import { clearContainer } from './js/domUtils.js';
 
         if (!localStorage.getItem("accessToken")) {
             window.location.href = "login.html";
         }
-        // Variables globales para edicion 
-        let editingActivityId = null; // Guardará el ID si estamos editando (null si estamos creando)
-        let cachedActivities = [];    // Almacenará la lista de actividades para reutilizar sus datos
 
-        // ---------- Helpers ----------
-        function showMessage(message, isError = false) {
-            const resultDiv = document.getElementById("resultMessage");
-            resultDiv.style.display = "block";
-            resultDiv.className = isError ? "error" : "ok";
-            resultDiv.innerText = message;
+        // --- Elementos del DOM ---
+        const applicationsContainer = document.getElementById("applicationsContainer");
+        const activitiesContainer = document.getElementById("activitiesContainer");
+        const membersContainer = document.getElementById("membersContainer");
 
-            if (isError) console.error("[admin]", message);
-            else console.log("[admin]", message);
+        // --- Función auxiliar para crear celdas ---
+        function createCell(text, isStrong) {
+            var td = document.createElement("td");
+            if (isStrong) {
+                var strong = document.createElement("strong");
+                strong.textContent = text;
+                td.appendChild(strong);
+            } else {
+                td.textContent = text;
+            }
+            return td;
         }
 
-        function formatDate(dateString) {
-            if (!dateString) return "—";
-            const datePart = dateString.split(" ")[0];
-            const parts = datePart.split("-");
-            return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        // --- Función auxiliar para crear botones de acción ---
+        function createButton(text, className, dataAttributes) {
+            var btn = document.createElement("button");
+            btn.className = className;
+            btn.textContent = text;
+            if (dataAttributes) {
+                for (var key in dataAttributes) {
+                    btn.setAttribute(key, dataAttributes[key]);
+                }
+            }
+            return btn;
         }
 
-        function getStatusBadge(status) {
-            const labels = {
-                "ACTIVE": { text: "Activo", cls: "badge-active" },
-                "PENDINGFORPASSWORDCHANGE": { text: "Cambio de contraseña pendiente", cls: "badge-pending" },
-                "PENDINGFORAPPROBATION": { text: "Pendiente", cls: "badge-pending" },
-                "INACTIVE": { text: "Inactivo", cls: "badge-inactive" },
-                "REJECTED": { text: "Rechazado", cls: "badge-rejected" }
-            };
-            const label = labels[status] || { text: status || "—", cls: "badge-inactive" };
-            return `<span class="badge ${label.cls}">${label.text}</span>`;
-        }
-
-        // ---------- Tabs ----------
+        // ==========================================
+        // 1. CONFIGURACIÓN DE TABS
+        // ==========================================
         function setupTabs() {
             const tabs = document.querySelectorAll(".tab");
             const panels = document.querySelectorAll(".tab-panel");
-
+            
             tabs.forEach(function(tab) {
                 tab.addEventListener("click", function() {
                     tabs.forEach(function(t) { t.classList.remove("active"); });
                     panels.forEach(function(p) { p.classList.remove("active"); });
-                    
                     tab.classList.add("active");
-                    document.getElementById(`tab-${tab.dataset.tab}`).classList.add("active");
+                    document.getElementById("tab-" + tab.dataset.tab).classList.add("active");
                 });
             });
         }
 
-        // ---------- Solicitudes ----------
+        // ==========================================
+        // 2. TABLA DE SOLICITUDES
+        // ==========================================
         async function loadApplications() {
-            const container = document.getElementById("applicationsContainer");
+            clearContainer(applicationsContainer);
+
             try {
                 const response = await RPCWebAPIFetchPrivate("/listMembershipApplications", {});
                 const applications = response.data.applications || [];
 
                 if (applications.length === 0) {
-                    container.innerHTML = `<p class="empty-row">${response.data.message || "No hay solicitudes pendientes."}</p>`;
+                    var emptyP = document.createElement("p");
+                    emptyP.className = "empty-row";
+                    emptyP.textContent = response.data.message || "No hay solicitudes pendientes.";
+                    applicationsContainer.appendChild(emptyP);
                     return;
                 }
 
-                const rows = applications.map(function(app) {
-                    return `
-                        <tr>
-                            <td><strong>${app.name} ${app.surname}</strong></td>
-                            <td>${app.dni}</td>
-                            <td>${app.email}</td>
-                            <td>${app.phone}</td>
-                            <td>
-                                <div class="actions-cell">
-                                    <button class="btn btn-success action-btn" data-action="approve" data-id="${app.idUser}">Aprobar</button>
-                                    <button class="btn btn-danger action-btn" data-action="reject" data-id="${app.idUser}">Rechazar</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join("");
+                var table = document.createElement("table");
+                table.className = "data-table";
 
-                container.innerHTML = `
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Nombre y Apellido</th>
-                                <th>DNI</th>
-                                <th>Email</th>
-                                <th>Teléfono</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>${rows}</tbody>
-                    </table>
-                `;
+                var thead = document.createElement("thead");
+                var trHead = document.createElement("tr");
+                var headers = ["Nombre y Apellido", "DNI", "Email", "Teléfono", "Acciones"];
+                for (var h = 0; h < headers.length; h++) {
+                    var th = document.createElement("th");
+                    th.textContent = headers[h];
+                    trHead.appendChild(th);
+                }
+                thead.appendChild(trHead);
+                table.appendChild(thead);
+
+                var tbody = document.createElement("tbody");
+                for (var i = 0; i < applications.length; i++) {
+                    var app = applications[i];
+                    var tr = document.createElement("tr");
+
+                    tr.appendChild(createCell(app.name + " " + app.surname, true));
+                    tr.appendChild(createCell(app.dni, false));
+                    tr.appendChild(createCell(app.email, false));
+                    tr.appendChild(createCell(app.phone, false));
+
+                    var tdActions = document.createElement("td");
+                    var divActions = document.createElement("div");
+                    divActions.className = "actions-cell";
+
+                    divActions.appendChild(createButton("Aprobar", "btn btn-success action-btn", {
+                        "data-action": "approve",
+                        "data-id": app.idUser
+                    }));
+                    divActions.appendChild(createButton("Rechazar", "btn btn-danger action-btn", {
+                        "data-action": "reject",
+                        "data-id": app.idUser
+                    }));
+
+                    tdActions.appendChild(divActions);
+                    tr.appendChild(tdActions);
+                    tbody.appendChild(tr);
+                }
+                table.appendChild(tbody);
+                applicationsContainer.appendChild(table);
+
             } catch (error) {
-                container.innerHTML = `<p class="empty-row">Error al cargar solicitudes: ${error.message}</p>`;
-                console.error("[applications]", error);
+                var errP = document.createElement("p");
+                errP.className = "empty-row";
+                errP.textContent = "Error al cargar solicitudes: " + error.message;
+                applicationsContainer.appendChild(errP);
             }
         }
 
-        // --- Manejador de aprobar/rechazar solicitudes ---
         async function onApplicationActionClick(event) {
             const button = event.target.closest(".action-btn");
             if (!button) return;
@@ -223,237 +337,595 @@
             if (action === "approve") {
                 if (!confirm("¿Confirmás que querés aprobar esta solicitud?")) return;
                 button.disabled = true;
-                button.textContent = "Aprobando...";
                 try {
                     const response = await RPCWebAPIFetchPrivate("/approveMembershipApplication", { idUser: idUser });
-                    showMessage(response.data.message || "Solicitud aprobada.", false);
+                    showMessage("resultMessage", response.data.message, false);
                     loadApplications();
                 } catch (error) {
-                    showMessage("Error al aprobar: " + error.message, true);
+                    showMessage("resultMessage", "Error al aprobar: " + error.message, true);
                     button.disabled = false;
-                    button.textContent = "Aprobar";
                 }
-            } 
-            else if (action === "reject") {
+            } else if (action === "reject") {
                 if (!confirm("¿Confirmás que querés rechazar esta solicitud?")) return;
                 button.disabled = true;
-                button.textContent = "Rechazando...";
                 try {
                     const response = await RPCWebAPIFetchPrivate("/rejectMembershipApplication", { idUser: idUser });
-                    showMessage(response.data.message || "Solicitud rechazada.", false);
+                    showMessage("resultMessage", response.data.message, false);
                     loadApplications();
                 } catch (error) {
-                    showMessage("Error al rechazar: " + error.message, true);
+                    showMessage("resultMessage", "Error al rechazar: " + error.message, true);
                     button.disabled = false;
-                    button.textContent = "Rechazar";
                 }
             }
         }
 
-       // ---------- Lista las actividades ----------
+        // ==========================================
+        // 3. TABLA DE ACTIVIDADES
+        // ==========================================
         async function loadActivities() {
-            const container = document.getElementById("activitiesContainer");
+            clearContainer(activitiesContainer);
+
             try {
-                const response = await RPCWebAPIFetchPrivate("/listActivities", {});
-                
-                // Se guarda actividades en cache
-                cachedActivities = response.data.activities || [];
-                
-                // CORREGIDO: Evaluamos cachedActivities en lugar de activities
-                if (cachedActivities.length === 0) {
-                    container.innerHTML = `<p class="empty-row">${response.data.message || "No hay actividades cargadas todavía."}</p>`;
+                const response = await RPCWebAPIFetchPrivate("/listAllActivities", {});
+                const activities = response.data.activities || [];
+                window.globalActivitiesData = activities; 
+
+                if (activities.length === 0) {
+                    var emptyP = document.createElement("p");
+                    emptyP.className = "empty-row";
+                    emptyP.textContent = response.data.message || "No hay actividades cargadas.";
+                    activitiesContainer.appendChild(emptyP);
                     return;
                 }
 
-                const rows = cachedActivities.map(function(activity) {
-                    return `
-                        <tr>
-                            <td><strong>${activity.name}</strong></td>
-                            <td>${activity.trainingDays || "—"}</td>
-                            <td>${activity.trainingTime || "—"}</td>
-                            <td>${activity.instructor || "—"}</td>
-                            <td>${activity.description || "—"}</td>
-                            <td>
-                                <!-- CORREGIDO: Agregamos la clase edit-activity-btn -->
-                                <button class="btn btn-primary action-btn edit-activity-btn" data-id="${activity.idActivity}">Editar</button>
-                            </td>
-                        </tr>
-                    `;
-                }).join("");
+                var table = document.createElement("table");
+                table.className = "data-table";
 
-                container.innerHTML = `
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Día</th>
-                                <th>Horario</th>
-                                <th>Instructor</th>
-                                <th>Descripción</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>${rows}</tbody>
-                    </table>
-                `;
+                var thead = document.createElement("thead");
+                var trHead = document.createElement("tr");
+                var headers = ["Nombre", "Horarios", "Instructor", "Inscriptos", "Estado", "Acciones"];
+                for (var h = 0; h < headers.length; h++) {
+                    var th = document.createElement("th");
+                    th.textContent = headers[h];
+                    trHead.appendChild(th);
+                }
+                thead.appendChild(trHead);
+                table.appendChild(thead);
+
+                var tbody = document.createElement("tbody");
+                for (var i = 0; i < activities.length; i++) {
+                    var act = activities[i];
+                    var tr = document.createElement("tr");
+
+                    tr.appendChild(createCell(act.name, true));
+
+                    // Columna de Horarios (Múltiples líneas con <br>)
+                    var tdSchedules = document.createElement("td");
+                    for (var j = 0; j < act.schedules.length; j++) {
+                        var s = act.schedules[j];
+                        tdSchedules.appendChild(document.createTextNode(s.day + " " + s.startTime + "-" + s.endTime));
+                        if (j < act.schedules.length - 1) {
+                            tdSchedules.appendChild(document.createElement("br"));
+                        }
+                    }
+                    tr.appendChild(tdSchedules);
+
+                    tr.appendChild(createCell("Prof. " + (act.instructor || "—"), false));
+
+                    // Columna de Cupos
+                    var cupoTexto = "—";
+                    if (act.capacity) {
+                        var disponibles = (act.availablePlaces !== undefined && act.availablePlaces !== null) ? act.availablePlaces : act.capacity;
+                        var inscriptos = act.capacity - disponibles;
+                        cupoTexto = inscriptos + " / " + act.capacity;
+                    }
+                    tr.appendChild(createCell(cupoTexto, false));
+
+                    // Columna de Estado (Badge)
+                    var tdStatus = document.createElement("td");
+                    var badge = document.createElement("span");
+                    badge.className = act.status === "ACTIVE" ? "badge badge-active" : "badge badge-inactive";
+                    badge.textContent = act.status === "ACTIVE" ? "Activa" : "Inactiva";
+                    tdStatus.appendChild(badge);
+                    tr.appendChild(tdStatus);
+
+                    // Columna de Acciones
+                    var tdActions = document.createElement("td");
+                    var divActions = document.createElement("div");
+                    divActions.className = "actions-cell";
+
+                    divActions.appendChild(createButton("Ver Inscriptos", "btn btn-success view-registrations-btn", {
+                        "data-id": act.idActivity,
+                        "data-name": act.name
+                    }));
+                    divActions.appendChild(createButton("Editar", "btn btn-warning edit-btn", { "data-id": act.idActivity }));
+                    
+                    if (act.status === "ACTIVE") {
+                        divActions.appendChild(createButton("Dar de baja", "btn btn-danger deactivate-btn", { "data-id": act.idActivity }));
+                    } else {
+                        divActions.appendChild(createButton("Activar", "btn btn-success activate-btn", { "data-id": act.idActivity }));
+                    }
+
+                    tdActions.appendChild(divActions);
+                    tr.appendChild(tdActions);
+                    tbody.appendChild(tr);
+                }
+                table.appendChild(tbody);
+                activitiesContainer.appendChild(table);
+
             } catch (error) {
-                container.innerHTML = `<p class="empty-row">Error al cargar actividades: ${error.message}</p>`;
-                console.error("[activities]", error);
+                var errP = document.createElement("p");
+                errP.className = "empty-row";
+                errP.textContent = "Error al cargar actividades: " + error.message;
+                activitiesContainer.appendChild(errP);
             }
         }
 
+        async function onActivityActionClick(event) {
+            const viewBtn = event.target.closest(".view-registrations-btn");
+            const deactivateBtn = event.target.closest(".deactivate-btn");
+            const activateBtn = event.target.closest(".activate-btn");
+            const editBtn = event.target.closest(".edit-btn");
 
+            if (viewBtn) {
+                openRegistrationsModal(viewBtn.getAttribute("data-id"), viewBtn.getAttribute("data-name"));
+                return;
+            }
 
-        // ==========================================================
-        // 4. NUEVA FUNCIÓN: CARGA LOS DATOS AL FORMULARIO AL HACER CLIC
-        // ==========================================================
-        function onActivityContainerClick(event) {
-            const editBtn = event.target.closest(".edit-activity-btn");
-            if (!editBtn) return; // Si no hizo clic en el botón editar, no hace nada
+            if (deactivateBtn) {
+                if (!confirm("¿Estás seguro que querés dar de baja esta actividad?")) return;
+                deactivateBtn.disabled = true;
+                deactivateBtn.textContent = "Procesando...";
+                try {
+                    const response = await RPCWebAPIFetchPrivate("/deactivateActivity", { idActivity: deactivateBtn.getAttribute("data-id") });
+                    showMessage("resultMessage", response.data.message, false);
+                    loadActivities();
+                } catch (error) {
+                    showMessage("resultMessage", "Error al dar de baja: " + error.message, true);
+                    deactivateBtn.disabled = false;
+                    deactivateBtn.textContent = "Dar de baja";
+                }
+                return;
+            }
 
-            const id = parseInt(editBtn.getAttribute("data-id"), 10);
-            const activity = cachedActivities.find(a => a.idActivity === id);
-            if (!activity) return;
+            if (activateBtn) {
+                if (!confirm("¿Querés volver a activar esta actividad?")) return;
+                activateBtn.disabled = true;
+                activateBtn.textContent = "Procesando...";
+                try {
+                    const response = await RPCWebAPIFetchPrivate("/activateActivity", { idActivity: activateBtn.getAttribute("data-id") });
+                    showMessage("resultMessage", response.data.message, false);
+                    loadActivities();
+                } catch (error) {
+                    showMessage("resultMessage", "Error al activar: " + error.message, true);
+                    activateBtn.disabled = false;
+                    activateBtn.textContent = "Activar";
+                }
+                return;
+            }
 
-            // Rellenamos los inputs de arriba con los datos actuales
-            document.getElementById("activityName").value = activity.name || "";
-            document.getElementById("activityCapacity").value = activity.capacity || "";
-            document.getElementById("activityTrainingDays").value = activity.trainingDays || "";
-            document.getElementById("activityTrainingTime").value = activity.trainingTime || "";
-            document.getElementById("activityStartDate").value = activity.startDate || "";
-            document.getElementById("activityEndDate").value = activity.endDate || "";
-            document.getElementById("activityInstructor").value = activity.instructor || "";
-            document.getElementById("activityScope").value = activity.scope || "";
-            document.getElementById("activityDescription").value = activity.description || "";
-            
+            if (editBtn) {
+                const idActivity = parseInt(editBtn.getAttribute("data-id"), 10);
+                const activity = window.globalActivitiesData.find(function(a) { return a.idActivity === idActivity; });
+                if (!activity) return;
 
-            // Activamos el modo edición guardando el ID
-            editingActivityId = id;
+                document.getElementById("editActivityId").value = activity.idActivity;
+                document.getElementById("activityName").value = activity.name;
+                document.getElementById("activityInstructor").value = activity.instructor || "";
+                document.getElementById("activityCapacity").value = activity.capacity || "";
+                document.getElementById("activityScope").value = activity.scope || "General";
+                document.getElementById("activityDescription").value = activity.description || "";
+                document.getElementById("activityStartDate").value = activity.startDate || "";
+                document.getElementById("activityEndDate").value = activity.endDate || "";
 
-            // Cambiamos el diseño y texto del botón superior para indicar edición
-            const submitBtn = document.getElementById("submitActivityButton");
-            submitBtn.textContent = "Actualizar Actividad";
-            submitBtn.className = "btn btn-primary";
+                var container = document.getElementById("schedulesContainer");
+                clearContainer(container);
 
-            // Subimos la pantalla suavemente hacia el formulario
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+                if (activity.schedules && activity.schedules.length > 0) {
+                    for (var i = 0; i < activity.schedules.length; i++) {
+                        container.appendChild(createScheduleRow(activity.schedules[i]));
+                    }
+                }
+
+                document.getElementById("activityFormTitle").textContent = "Editando Actividad: " + activity.name;
+                document.getElementById("submitActivityButton").textContent = "Guardar Cambios";
+                document.getElementById("submitActivityButton").classList.remove("btn-success");
+                document.getElementById("submitActivityButton").classList.add("btn-warning");
+                document.getElementById("cancelEditBtn").style.display = "inline-block";
+                
+                document.querySelector(".tab-panel.active").scrollIntoView({ behavior: 'smooth' });
+            }
         }
 
-        // ---------- Crear/Actualizar Actividad ----------
+        // ==========================================
+        // 4. FORMULARIO DE ACTIVIDADES (Horarios)
+        // ==========================================
+        function createScheduleRow(schedule) {
+            var row = document.createElement("div");
+            row.className = "schedule-row";
+
+            var select = document.createElement("select");
+            select.className = "sched-day";
+            select.required = true;
+            var days = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+            var optEmpty = document.createElement("option");
+            optEmpty.value = "";
+            optEmpty.textContent = "Día...";
+            select.appendChild(optEmpty);
+            
+            for (var d = 0; d < days.length; d++) {
+                var opt = document.createElement("option");
+                opt.textContent = days[d];
+                if (schedule && schedule.day === days[d]) opt.selected = true;
+                select.appendChild(opt);
+            }
+            row.appendChild(select);
+
+            var inputStart = document.createElement("input");
+            inputStart.type = "time";
+            inputStart.className = "sched-start";
+            inputStart.required = true;
+            if (schedule && schedule.startTime) inputStart.value = schedule.startTime;
+            row.appendChild(inputStart);
+
+            var span = document.createElement("span");
+            span.textContent = "a";
+            row.appendChild(span);
+
+            var inputEnd = document.createElement("input");
+            inputEnd.type = "time";
+            inputEnd.className = "sched-end";
+            inputEnd.required = true;
+            if (schedule && schedule.endTime) inputEnd.value = schedule.endTime;
+            row.appendChild(inputEnd);
+
+            // Botón de eliminar (solo si no es la fila inicial)
+            var removeBtn = document.createElement("button");
+            removeBtn.type = "button";
+            removeBtn.className = "btn-remove";
+            removeBtn.textContent = "X";
+            removeBtn.onclick = function() { row.remove(); };
+            row.appendChild(removeBtn);
+
+            return row;
+        }
+
+        document.getElementById("addScheduleBtn").addEventListener("click", function() {
+            document.getElementById("schedulesContainer").appendChild(createScheduleRow(null));
+        });
+
         async function onCreateActivitySubmit(event) {
             event.preventDefault();
-
             const button = document.getElementById("submitActivityButton");
+            const editId = document.getElementById("editActivityId").value;
+            const isEditing = editId !== "";
+
+            const scheduleRows = document.querySelectorAll(".schedule-row");
+            const schedules = [];
+            
+            for (let i = 0; i < scheduleRows.length; i++) {
+                const row = scheduleRows[i];
+                const day = row.querySelector(".sched-day").value;
+                const start = row.querySelector(".sched-start").value;
+                const end = row.querySelector(".sched-end").value;
+                if (day && start && end) schedules.push({ day: day, startTime: start, endTime: end });
+            }
+
+            if (schedules.length === 0) {
+                showMessage("resultMessage", "Debes agregar al menos un horario válido.", true);
+                return;
+            }
+
             const payload = {
                 name: document.getElementById("activityName").value.trim(),
-                capacity: parseInt(document.getElementById("activityCapacity").value, 10),
-                trainingDays: document.getElementById("activityTrainingDays").value.trim(),
-                trainingTime: document.getElementById("activityTrainingTime").value.trim(),
-                startDate: document.getElementById("activityStartDate").value,
-                endDate: document.getElementById("activityEndDate").value,
                 instructor: document.getElementById("activityInstructor").value.trim() || null,
-                scope: document.getElementById("activityScope").value.trim() || null,
-                description: document.getElementById("activityDescription").value.trim() || null
+                capacity: document.getElementById("activityCapacity").value || null,
+                scope: document.getElementById("activityScope").value,
+                description: document.getElementById("activityDescription").value.trim() || null,
+                startDate: document.getElementById("activityStartDate").value || null,
+                endDate: document.getElementById("activityEndDate").value || null,
+                schedules: schedules
             };
 
+            if (isEditing) payload.idActivity = parseInt(editId, 10);
+
             button.disabled = true;
+            button.textContent = isEditing ? "Guardando..." : "Creando...";
 
             try {
-                // 5. EVALUAMOS SI ESTAMOS EDITANDO O CREANDO
-                if (editingActivityId) {
-                    // MODO EDICIÓN: Agregamos el ID al payload y llamamos a updateActivity
-                    payload.idActivity = editingActivityId;
-                    const response = await RPCWebAPIFetchPrivate("/updateActivity", payload);
-                    showMessage(response.data.message || "Actividad actualizada correctamente.", false);
-                    
-                    // Reseteamos el estado de edición
-                    editingActivityId = null;
-                    button.textContent = "Crear Actividad";
-                    button.className = "btn btn-success";
-                } else {
-                    // MODO CREACIÓN: Llamamos a createActivity de siempre
-                    const response = await RPCWebAPIFetchPrivate("/createActivity", payload);
-                    showMessage(response.data.message || "Actividad creada correctamente.", false);
-                }
-
-                document.getElementById("createActivityForm").reset();
-                loadActivities();
+                const endpoint = isEditing ? "/updateActivity" : "/createActivity";
+                const response = await RPCWebAPIFetchPrivate(endpoint, payload);
+                showMessage("resultMessage", response.data.message, false);
+                resetActivityForm(); 
+                loadActivities();     
             } catch (error) {
-                showMessage("Error: " + error.message, true);
+                showMessage("resultMessage", (isEditing ? "Error al actualizar: " : "Error al crear: ") + error.message, true);
             } finally {
                 button.disabled = false;
-                if (!editingActivityId) {
-                    button.textContent = "Crear Actividad";
-                    button.className = "btn btn-success";
-                }
             }
         }
-        // ---------- Lista los miembros ----------
+
+        function resetActivityForm() {
+            document.getElementById("createActivityForm").reset();
+            document.getElementById("editActivityId").value = "";
+            
+            document.getElementById("activityFormTitle").textContent = "Nueva Actividad";
+            document.getElementById("submitActivityButton").textContent = "Crear Actividad";
+            document.getElementById("submitActivityButton").classList.remove("btn-warning");
+            document.getElementById("submitActivityButton").classList.add("btn-success");
+            document.getElementById("cancelEditBtn").style.display = "none";
+
+            var container = document.getElementById("schedulesContainer");
+            clearContainer(container);
+            container.appendChild(createScheduleRow(null));
+        }
+
+        // ==========================================
+        // 5. TABLA DE MIEMBROS
+        // ==========================================
         async function loadMembers() {
-            const container = document.getElementById("membersContainer");
+            clearContainer(membersContainer);
+
             try {
                 const response = await RPCWebAPIFetchPrivate("/listMembers", {});
                 const members = response.data.members || [];
+                window.globalMembersData = members;
 
                 if (members.length === 0) {
-                    container.innerHTML = `<p class="empty-row">${response.data.message || "No hay miembros registrados todavía."}</p>`;
+                    var emptyP = document.createElement("p");
+                    emptyP.className = "empty-row";
+                    emptyP.textContent = response.data.message || "No hay miembros registrados.";
+                    membersContainer.appendChild(emptyP);
                     return;
                 }
 
-                const rows = members.map(function(member) {
-                    return `
-                        <tr>
-                            <td><strong>${member.name} ${member.surname}</strong></td>
-                            <td>${member.dni}</td>
-                            <td>${member.email}</td>
-                            <td>${member.phone}</td>
-                            <td>${getStatusBadge(member.status)}</td>
-                            <td>${formatDate(member.creationDate)}</td>
-                        </tr>
-                    `;
-                }).join("");
+                var table = document.createElement("table");
+                table.className = "data-table";
 
-                container.innerHTML = `
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Nombre y Apellido</th>
-                                <th>DNI</th>
-                                <th>Email</th>
-                                <th>Teléfono</th>
-                                <th>Estado</th>
-                                <th>Alta</th>
-                            </tr>
-                        </thead>
-                        <tbody>${rows}</tbody>
-                    </table>
-                `;
+                var thead = document.createElement("thead");
+                var trHead = document.createElement("tr");
+                var headers = ["Nombre y Apellido", "DNI", "Email", "Teléfono", "Estado", "Alta", "Acciones"];
+                for (var h = 0; h < headers.length; h++) {
+                    var th = document.createElement("th");
+                    th.textContent = headers[h];
+                    trHead.appendChild(th);
+                }
+                thead.appendChild(trHead);
+                table.appendChild(thead);
+
+                var tbody = document.createElement("tbody");
+                for (var i = 0; i < members.length; i++) {
+                    var m = members[i];
+                    var tr = document.createElement("tr");
+
+                    tr.appendChild(createCell(m.name + " " + m.surname, true));
+                    tr.appendChild(createCell(m.dni, false));
+                    tr.appendChild(createCell(m.email, false));
+                    tr.appendChild(createCell(m.phone, false));
+
+                    var tdStatus = document.createElement("td");
+                    tdStatus.innerHTML = getStatusBadge(m.status); // El helper devuelve HTML
+                    tr.appendChild(tdStatus);
+
+                    tr.appendChild(createCell(formatDate(m.creationDate), false));
+
+                    var tdActions = document.createElement("td");
+                    var divActions = document.createElement("div");
+                    divActions.className = "actions-cell";
+
+                    divActions.appendChild(createButton("Editar", "btn btn-warning edit-member-btn", { "data-id": m.idUser }));
+                    
+                    if (m.status === "INACTIVE") {
+                        divActions.appendChild(createButton("Reactivar", "btn btn-success activate-member-btn", { "data-id": m.idUser }));
+                    } else {
+                        divActions.appendChild(createButton("Dar de baja", "btn btn-danger deactivate-member-btn", { "data-id": m.idUser }));
+                    }
+
+                    tdActions.appendChild(divActions);
+                    tr.appendChild(tdActions);
+                    tbody.appendChild(tr);
+                }
+                table.appendChild(tbody);
+                membersContainer.appendChild(table);
+
             } catch (error) {
-                container.innerHTML = `<p class="empty-row">Error al cargar miembros: ${error.message}</p>`;
-                console.error("[members]", error);
+                var errP = document.createElement("p");
+                errP.className = "empty-row";
+                errP.textContent = "Error al cargar miembros: " + error.message;
+                membersContainer.appendChild(errP);
             }
         }
 
-        async function onLogoutClick() {
+        async function onMemberActionClick(event) {
+            const editBtn = event.target.closest(".edit-member-btn");
+            const deactivateBtn = event.target.closest(".deactivate-member-btn");
+            const activateBtn = event.target.closest(".activate-member-btn");
+
+            if (editBtn) {
+                const idUser = editBtn.getAttribute("data-id");
+                const member = window.globalMembersData.find(function(m) { return m.idUser == idUser; });
+                if (member) openEditMemberModal(member);
+                return;
+            }
+
+            if (deactivateBtn) {
+                if (!confirm("¿Estás seguro que querés dar de baja a este socio?")) return;
+                deactivateBtn.disabled = true;
+                deactivateBtn.textContent = "Procesando...";
+                try {
+                    const response = await RPCWebAPIFetchPrivate("/deactivateMember", { idUser: deactivateBtn.getAttribute("data-id") });
+                    showMessage("resultMessage", response.data.message || "Socio dado de baja.", false);
+                    loadMembers();
+                } catch (error) {
+                    showMessage("resultMessage", "Error al dar de baja: " + error.message, true);
+                    deactivateBtn.disabled = false;
+                    deactivateBtn.textContent = "Dar de baja";
+                }
+                return;
+            }
+
+            if (activateBtn) {
+                if (!confirm("¿Querés reactivar a este socio?")) return;
+                activateBtn.disabled = true;
+                activateBtn.textContent = "Procesando...";
+                try {
+                    const response = await RPCWebAPIFetchPrivate("/activateMember", { idUser: activateBtn.getAttribute("data-id") });
+                    showMessage("resultMessage", response.data.message || "Socio reactivado.", false);
+                    loadMembers();
+                } catch (error) {
+                    showMessage("resultMessage", "Error al reactivar: " + error.message, true);
+                    activateBtn.disabled = false;
+                    activateBtn.textContent = "Reactivar";
+                }
+                return;
+            }
+        }
+
+        function openEditMemberModal(member) {
+            document.getElementById("editMemberId").value = member.idUser;
+            document.getElementById("editMemberName").value = member.name;
+            document.getElementById("editMemberSurname").value = member.surname;
+            document.getElementById("editMemberDni").value = member.dni;
+            
+            // Cortamos la fecha por si viene con hora
+            var fechaNac = member.birthdate ? member.birthdate.split(" ")[0] : "";
+            document.getElementById("editMemberBirthdate").value = fechaNac;
+            
+            document.getElementById("editMemberEmail").value = member.email;
+            document.getElementById("editMemberPhone").value = member.phone;
+            
+            document.getElementById("editMemberTitle").textContent = "Editar Socio: " + member.name + " " + member.surname;
+            document.getElementById("editMemberModal").style.display = "flex";
+        }
+
+        async function onEditMemberSubmit(event) {
+            event.preventDefault();
+            const btn = document.getElementById("saveEditMemberBtn");
+            
+            const payload = {
+                idUser: parseInt(document.getElementById("editMemberId").value, 10),
+                name: document.getElementById("editMemberName").value.trim(),
+                surname: document.getElementById("editMemberSurname").value.trim(),
+                dni: document.getElementById("editMemberDni").value.trim(),
+                birthdate: document.getElementById("editMemberBirthdate").value,
+                email: document.getElementById("editMemberEmail").value.trim(),
+                phone: document.getElementById("editMemberPhone").value.trim()
+            };
+
+            btn.disabled = true;
+            btn.textContent = "Guardando...";
+
             try {
-                await RPCWebAPIFetchPrivate("/logout", {});
+                const response = await RPCWebAPIFetchPrivate("/updateMember", payload);
+                document.getElementById("editMemberModal").style.display = "none";
+                showMessage("resultMessage", response.data.message || "Socio actualizado correctamente.", false);
+                loadMembers();
             } catch (error) {
-                console.warn("Logout warning:", error.message);
+                showMessage("resultMessage", "Error al actualizar: " + error.message, true);
             } finally {
-                localStorage.removeItem("accessToken");
-                localStorage.removeItem("userRole");
-                window.location.href = "login.html";
+                btn.disabled = false;
+                btn.textContent = "Guardar Cambios";
             }
         }
 
+        // ==========================================
+        // 6. MODAL DE INSCRIPTOS
+        // ==========================================
+        async function openRegistrationsModal(idActivity, activityName) {
+            const modal = document.getElementById("registrationsModal");
+            const title = document.getElementById("modalTitle");
+            const tbody = document.getElementById("modalRegistrationsBody");
+            
+            title.textContent = "Inscriptos en: " + activityName;
+            clearContainer(tbody);
+
+            var loadingTr = document.createElement("tr");
+            var loadingTd = document.createElement("td");
+            loadingTd.setAttribute("colspan", "3");
+            loadingTd.style.textAlign = "center";
+            loadingTd.style.padding = "20px";
+            loadingTd.textContent = "Cargando...";
+            loadingTr.appendChild(loadingTd);
+            tbody.appendChild(loadingTr);
+
+            modal.style.display = "flex";
+
+            try {
+                const response = await RPCWebAPIFetchPrivate("/listRegistrationsByActivity", { idActivity: parseInt(idActivity, 10) });
+                const regs = response.data.registrations || [];
+                
+                clearContainer(tbody);
+
+                if (regs.length === 0) {
+                    var emptyTr = document.createElement("tr");
+                    var emptyTd = document.createElement("td");
+                    emptyTd.setAttribute("colspan", "3");
+                    emptyTd.style.textAlign = "center";
+                    emptyTd.style.padding = "20px";
+                    emptyTd.style.fontStyle = "italic";
+                    emptyTd.textContent = "No hay inscriptos aún.";
+                    emptyTr.appendChild(emptyTd);
+                    tbody.appendChild(emptyTr);
+                    return;
+                }
+
+                for (var i = 0; i < regs.length; i++) {
+                    var r = regs[i];
+                    var tr = document.createElement("tr");
+                    tr.appendChild(createCell(r.name + " " + r.surname, true));
+                    tr.appendChild(createCell(r.dni, false));
+                    tr.appendChild(createCell(r.email, false));
+                    tbody.appendChild(tr);
+                }
+            } catch (error) {
+                clearContainer(tbody);
+                var errTr = document.createElement("tr");
+                var errTd = document.createElement("td");
+                errTd.setAttribute("colspan", "3");
+                errTd.style.textAlign = "center";
+                errTd.style.color = "red";
+                errTd.style.padding = "20px";
+                errTd.textContent = "Error: " + error.message;
+                errTr.appendChild(errTd);
+                tbody.appendChild(errTr);
+            }
+        }
+
+        // ==========================================
+        // 7. INICIALIZACIÓN
+        // ==========================================
         function main() {
-            document.getElementById("logoutButton").onclick = onLogoutClick;
-            document.getElementById("applicationsContainer").onclick = onApplicationActionClick;
+            document.getElementById("logoutButton").onclick = function() { 
+                handleLogout(RPCWebAPIFetchPrivate); 
+            };
+            
+            applicationsContainer.onclick = onApplicationActionClick;
+            activitiesContainer.onclick = onActivityActionClick;
+            membersContainer.onclick = onMemberActionClick;
+            
             document.getElementById("createActivityForm").onsubmit = onCreateActivitySubmit;
-            document.getElementById("activitiesContainer").onclick = onActivityContainerClick;
+            document.getElementById("cancelEditBtn").onclick = resetActivityForm;
+
+            // Modales
+            document.getElementById("closeModalBtn").onclick = function() {
+                document.getElementById("registrationsModal").style.display = "none";
+            };
+            document.getElementById("registrationsModal").addEventListener("click", function(e) {
+                if (e.target === this) this.style.display = "none";
+            });
+
+            document.getElementById("editMemberForm").onsubmit = onEditMemberSubmit;
+            document.getElementById("closeEditMemberBtn").onclick = function() {
+                document.getElementById("editMemberModal").style.display = "none";
+            };
+            document.getElementById("editMemberModal").addEventListener("click", function(e) {
+                if (e.target === this) this.style.display = "none";
+            });
+
+            // Inicializar fila del formulario
+            resetActivityForm();
 
             setupTabs();
-
             loadApplications();
             loadActivities();
             loadMembers();
@@ -462,5 +934,4 @@
         window.onload = main;
     </script>
 </body>
-
 </html>

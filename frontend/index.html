@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,10 +8,11 @@
     <link rel="stylesheet" href="./css/index.css">
     <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.1.0/uicons-brands/css/uicons-brands.css'>
 </head>
-
 <body class="landing">
 
-    <!-- Header -->
+    <!-- ========================================== -->
+    <!-- HEADER                                     -->
+    <!-- ========================================== -->
     <header class="landing-header">
         <div class="landing-container landing-header-inner">
             <a href="#home" class="landing-logo">Comunidad Activa</a>
@@ -24,7 +24,9 @@
         </div>
     </header>
 
-    <!-- Hero Section -->
+    <!-- ========================================== -->
+    <!-- HERO SECTION                               -->
+    <!-- ========================================== -->
     <section id="home" class="landing-hero">
         <div class="landing-container">
             <h1>Bienvenido a Comunidad Activa Club</h1>
@@ -33,7 +35,9 @@
         </div>
     </section>
 
-    <!-- About Section -->
+    <!-- ========================================== -->
+    <!-- ABOUT SECTION                              -->
+    <!-- ========================================== -->
     <section class="landing-about">
         <div class="landing-container">
             <h2>Sobre el club</h2>
@@ -45,7 +49,9 @@
         </div>
     </section>
 
-    <!-- Activities Section -->
+    <!-- ========================================== -->
+    <!-- ACTIVITIES SECTION                         -->
+    <!-- ========================================== -->
     <section id="activities" class="landing-activities">
         <div class="landing-container">
             <h2>Actividades y horarios</h2>
@@ -56,7 +62,9 @@
         </div>
     </section>
 
-    <!-- Membership Form Section -->
+    <!-- ========================================== -->
+    <!-- MEMBERSHIP FORM SECTION                    -->
+    <!-- ========================================== -->
     <section id="membership" class="landing-membership">
         <div class="landing-container">
             <h2>Hacete socio</h2>
@@ -90,157 +98,162 @@
                 <button type="submit" class="landing-btn">Enviar Solicitud</button>
             </form>
 
-            <!-- Result Message -->
             <div id="resultMessage" class="landing-result"></div>
         </div>
     </section>
 
-    <!-- Footer -->
+    <!-- ========================================== -->
+    <!-- FOOTER                                     -->
+    <!-- ========================================== -->
     <footer class="landing-footer">
         <div class="landing-container footer-content">
-            
             <div class="footer-columns">
-                <!-- Left Column: Creators -->
                 <div class="footer-creators">
                     <p class="creators-title">Desarrollado por:</p>
                     <ul class="creators-list">
                         <li>
-                            <a href="https://github.com/sebaguaraz" target="_blank" title="GitHub de Sebastián">
-                                <i class="fi fi-brands-github"></i>
-                            </a>
+                            <a href="https://github.com/sebaguaraz" target="_blank"><i class="fi fi-brands-github"></i></a>
                             <span>GUARAZ, Sebastián</span>
                         </li>
                         <li>
-                            <a href="https://github.com/JainSilvina" target="_blank" title="GitHub de Silvina">
-                                <i class="fi fi-brands-github"></i>
-                            </a>
+                            <a href="https://github.com/JainSilvina" target="_blank"><i class="fi fi-brands-github"></i></a>
                             <span>JAIN, Silvina</span>
                         </li>
                         <li>
-                            <a href="https://github.com/VeroPapp" target="_blank" title="GitHub de Verónica">
-                                <i class="fi fi-brands-github"></i>
-                            </a>
+                            <a href="https://github.com/VeroPapp" target="_blank"><i class="fi fi-brands-github"></i></a>
                             <span>PAPP, Verónica</span>
                         </li>
                     </ul>
                 </div>
-
-                <!-- Right Column: Logo -->
                 <div class="footer-logo">
-                    <img src="https://isft151.edu.ar/_next/image?url=%2Fisft_Logo-Blue.webp&w=1920&q=75" alt="Logo del Instituto" class="instituto-logo">
+                    <a href="https://isft151.edu.ar/" target="_blank">
+                        <img src="https://isft151.edu.ar/_next/image?url=%2Fisft_Logo-Blue.webp&w=1920&q=75" alt="Logo del Instituto" class="instituto-logo">
+                    </a>
                 </div>
             </div>
-
-            <!-- Copyright -->
             <div class="footer-bottom">
                 <p>&copy; 2026 Comunidad Activa. Todos los derechos reservados.</p>
             </div>
-
         </div>
     </footer>
 
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT                                 -->
+    <!-- ========================================== -->
     <script type="module">
         import { RPCWebAPIFetchPublic } from "./js/api.js";
+        import { showMessage } from "./js/helpers.js";
+        import { clearContainer, createActivityCard } from "./js/domUtils.js";
 
-        // Muestra mensaje de error o éxito al enviar la solicitud de membresía
-        function showMessage(message, isError = false) {
-            const resultDiv = document.getElementById("resultMessage");
-            resultDiv.style.display = "block";
-            resultDiv.className = isError ? "landing-result landing-result-error" : "landing-result landing-result-ok";
-            resultDiv.innerText = message;
+        // --- Elementos del DOM ---
+        const membershipForm = document.getElementById("membershipForm");
+        const activitiesContainer = document.getElementById("activitiesContainer");
 
-            if (isError) console.error("[ERROR]", message);
-            else console.log("[OK]", message);
-        }
-
-        // Lista las actividades
+        // ==========================================
+        // 1. LISTAR ACTIVIDADES
+        // ==========================================
         async function loadActivities() {
-            const container = document.getElementById("activitiesContainer");
-            
+            // 1. Limpiamos el contenedor
+            clearContainer(activitiesContainer);
+
             try {
-                const response = await RPCWebAPIFetchPublic("/listActivities", {});
+                const response = await RPCWebAPIFetchPublic("/listActiveActivities", {});
                 const activities = response.data.activities || [];
 
+                // Si no hay actividades, mostramos el mensaje
                 if (activities.length === 0) {
-                    container.innerHTML = `<p class="landing-empty">${response.data.message || "No hay actividades cargadas todavía."}</p>`;
+                    var emptyP = document.createElement("p");
+                    emptyP.className = "landing-empty";
+                    emptyP.textContent = response.data.message || "No hay actividades cargadas todavía.";
+                    activitiesContainer.appendChild(emptyP);
                     return;
                 }
 
-                container.innerHTML = activities.map(activity => `
-                    <article class="activity-card">
-                        <h3>${activity.name}</h3>
-                        <p class="activity-day"><strong>${activity.trainingDays}</strong> · ${activity.trainingTime}
-                        ${activity.instructor ? `<p class="activity-instructor">Prof. ${activity.instructor}</p>` : ""}
-                        ${activity.description ? `<p class="activity-desc">${activity.description}</p>` : ""}
-                    </article>
-                `).join("");
+                // 2. Bucle tradicional para recorrer las actividades
+                for (var i = 0; i < activities.length; i++) {
+                    var card = createActivityCard(activities[i], {
+                        showEnrollButton: false,
+                        showCapacity: false
+                    });
+                    
+                    activitiesContainer.appendChild(card);
+                }
 
             } catch (error) {
-                container.innerHTML = `<p class="landing-empty">No se pudieron cargar las actividades: ${error.message}</p>`;
+                // Limpiamos por si quedó algo y mostramos el error
+                clearContainer(activitiesContainer);
+                var errorP = document.createElement("p");
+                errorP.className = "landing-empty";
+                errorP.textContent = "No se pudieron cargar las actividades: " + error.message;
+                activitiesContainer.appendChild(errorP);
                 console.error("[activities]", error);
             }
         }
 
-        // Manejador del form de la solicitud de membresía
+        // ==========================================
+        // 2. MANEJADOR DEL FORMULARIO DE MEMBRESÍA
+        // ==========================================
         async function onRegisterSubmit(event) {
             event.preventDefault();
 
-            // Validaciones de los campos
             const dniValue = document.getElementById("dni").value.trim();
             const birthdateValue = document.getElementById("birthdate").value;
 
-            // Validar DNI: exactamente 8 dígitos numéricos
+            // Validación de DNI
             if (!/^\d{8}$/.test(dniValue)) {
-                showMessage("El DNI debe tener exactamente 8 dígitos numéricos.", true);
+                showMessage("resultMessage", "El DNI debe tener exactamente 8 dígitos numéricos.", true);
                 return;
             }
 
-            // Validar que el año tenga exactamente 4 dígitos (por si el navegador deja escribir más)
+            // Validación de Fecha de Nacimiento (Año)
             const year = birthdateValue.split("-")[0];
             if (year.length !== 4) {
-                showMessage("El año de nacimiento debe tener 4 dígitos.", true);
+                showMessage("resultMessage", "El año de nacimiento debe tener 4 dígitos.", true);
                 return;
             }
 
-            // Validar que la fecha no sea en el futuro
+            // Validación de Fecha de Nacimiento (Futuro)
             const birthDateObj = new Date(birthdateValue + "T00:00:00");
             const today = new Date();
-            
             if (birthDateObj > today) {
-                showMessage("La fecha de nacimiento no puede ser una fecha futura.", true);
+                showMessage("resultMessage", "La fecha de nacimiento no puede ser una fecha futura.", true);
                 return;
             }
 
+            // Armado de Payload
             const payload = {
                 name: document.getElementById("name").value.trim(),
                 surname: document.getElementById("surname").value.trim(),
-                dni: document.getElementById("dni").value.trim(),
-                birthdate: document.getElementById("birthdate").value,
+                dni: dniValue,
+                birthdate: birthdateValue,
                 email: document.getElementById("email").value.trim(),
                 phone: document.getElementById("phone").value.trim()
             };
 
+            // Envío al backend
             try {
                 const response = await RPCWebAPIFetchPublic("/createMembershipApplication", payload);
-                
                 const successMessage = response.data.message || "¡Tu solicitud fue enviada con éxito! Pronto nos comunicaremos con vos vía mail.";
-                showMessage(successMessage, false);
                 
-                document.getElementById("membershipForm").reset();
-                
+                showMessage("resultMessage", successMessage, false);
+                membershipForm.reset();
             } catch (error) {
-                showMessage(error.message || "Hubo un error al enviar la solicitud.", true);
-                console.error("[membership]", error);
+                showMessage("resultMessage", error.message || "Hubo un error al enviar la solicitud.", true);
             }
         }
 
-        async function main() {
-            document.getElementById("membershipForm").onsubmit = onRegisterSubmit;
-            await loadActivities();
+        // ==========================================
+        // 3. INICIALIZACIÓN
+        // ==========================================
+        function main() {
+            // Atamos los eventos
+            membershipForm.onsubmit = onRegisterSubmit;
+            
+            // Cargamos los datos iniciales
+            loadActivities();
         }
 
         window.onload = main;
     </script>
 </body>
-
 </html>

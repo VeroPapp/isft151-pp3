@@ -1,7 +1,8 @@
 const { login, logout, changePassword } = require("../services/auth.js");
 const { createMembershipApplication, listMembershipApplications, approveMembershipApplication, rejectMembershipApplication } = require("../services/membership.js");
-const { listMembers, getMember, updateMember, removeMember, getMemberProfile, updateMemberProfile } = require("../services/user.js"); 
-const { listActivities, createActivity, updateActivity, registerMemberToActivity, cancelRegistration, getMyEnrollments } = require("../services/activity.js");
+const { listMembers, getMember, updateMember, deactivateMember, activateMember, getMemberProfile, updateMemberProfile } = require("../services/user.js"); 
+const { listAllActivities, listActiveActivities, createActivity, updateActivity, deactivateActivity, activateActivity } = require("../services/activity.js");
+const { registerMemberToActivity, cancelRegistration, listMemberRegistrations, listRegistrationsByActivity } = require("../services/activityRegistration.js");
 
 function router() {
     const routerMap = new Map();
@@ -27,62 +28,28 @@ function router() {
     routerMap.set('/rejectMembershipApplication', { method: rejectMembershipApplication, status: "private", roles: ["CLUB_ADMIN", "SUPER_ADMIN"], allowedStatuses: ["ACTIVE"] });
 
     // ----- MEMBER ROUTES -----
-
-    // * Faltan del MODULO Member Profile:
-    // * /getMemberActivities 
-    // * /getMemberActivityByID
     routerMap.set('/listMembers', { method: listMembers, status: "private", roles: ["CLUB_ADMIN", "SUPER_ADMIN"], allowedStatuses: ["ACTIVE"] });
     routerMap.set('/getMember', { method: getMember, status: "private", roles: ["CLUB_ADMIN", "SUPER_ADMIN"], allowedStatuses: ["ACTIVE"] });
     routerMap.set('/updateMember', { method: updateMember, status: "private", roles: ["CLUB_ADMIN", "SUPER_ADMIN"], allowedStatuses: ["ACTIVE"] });
-    routerMap.set('/removeMember', { method: removeMember, status: "private", roles: ["CLUB_ADMIN", "SUPER_ADMIN"], allowedStatuses: ["ACTIVE"] });
+    routerMap.set('/deactivateMember', { method: deactivateMember, status: "private", roles: ["CLUB_ADMIN", "SUPER_ADMIN"], allowedStatuses: ["ACTIVE"] });
+    routerMap.set('/activateMember', { method: activateMember, status: "private", roles: ["CLUB_ADMIN", "SUPER_ADMIN"], allowedStatuses: ["ACTIVE"] });
     routerMap.set('/getMemberProfile', { method: getMemberProfile, status: "private", roles: ["MEMBER"], allowedStatuses: ["ACTIVE"] });
     routerMap.set('/updateMemberProfile', { method: updateMemberProfile, status: "private", roles: ["MEMBER"], allowedStatuses: ["ACTIVE"] });
     
     // ----- ACTIVITIES ROUTES -----
-    // routerMap.set('/listActivities', { method: listActivities, status: "public" });
-    routerMap.set('/listActivities', { 
-        method: listActivities, 
-        status: "private", 
-        roles: ["MEMBER", "CLUB_ADMIN", "SUPER_ADMIN"], 
-        allowedStatuses: ["ACTIVE"] 
-    });
+    routerMap.set('/listActiveActivities', { method: listActiveActivities, status: "public" });
+    routerMap.set('/listAllActivities', { method: listAllActivities, status: "private", roles: ["CLUB_ADMIN", "SUPER_ADMIN"], allowedStatuses: ["ACTIVE"] });
+    routerMap.set('/createActivity', { method: createActivity, status: "private", roles: ["CLUB_ADMIN", "SUPER_ADMIN"], allowedStatuses: ["ACTIVE"] });
+    routerMap.set('/updateActivity', { method: updateActivity, status: "private", roles: ["CLUB_ADMIN", "SUPER_ADMIN"], allowedStatuses: ["ACTIVE"] });
+    routerMap.set('/deactivateActivity', { method: deactivateActivity, status: "private", roles: ["CLUB_ADMIN", "SUPER_ADMIN"], allowedStatuses: ["ACTIVE"] });
+    routerMap.set('/activateActivity', { method: activateActivity, status: "private", roles: ["CLUB_ADMIN", "SUPER_ADMIN"], allowedStatuses: ["ACTIVE"] });
+        
+    // ----- ACTIVITIES REGISTRATION ROUTES -----
+    routerMap.set('/registerMemberToActivity', { method: registerMemberToActivity, status: "private", roles: ["MEMBER"], allowedStatuses: ["ACTIVE"] });
+    routerMap.set('/cancelRegistration', { method: cancelRegistration, status: "private", roles: ["MEMBER"], allowedStatuses: ["ACTIVE"] });
+    routerMap.set('/listMemberRegistrations', { method: listMemberRegistrations, status: "private", roles: ["MEMBER"], allowedStatuses: ["ACTIVE"] });
+    routerMap.set('/listRegistrationsByActivity', { method: listRegistrationsByActivity, status: "private", roles: ["CLUB_ADMIN", "SUPER_ADMIN"], allowedStatuses: ["ACTIVE"] });
     
-    routerMap.set('/createActivity', { 
-        method: createActivity, 
-        status: "private", 
-        roles: ["CLUB_ADMIN", "SUPER_ADMIN"], 
-        allowedStatuses: ["ACTIVE"] 
-    });
-    
-    routerMap.set('/updateActivity', { 
-        method: updateActivity, 
-        status: "private", 
-        roles: ["CLUB_ADMIN", "SUPER_ADMIN"], 
-        allowedStatuses: ["ACTIVE"] 
-    });
-
-    routerMap.set('/registerMemberToActivity', { 
-        method: registerMemberToActivity, 
-        status: "private", 
-        roles: ["MEMBER"], 
-        allowedStatuses: ["ACTIVE"] 
-    });
-    
-    routerMap.set('/cancelRegistration', { 
-        method: cancelRegistration, 
-        status: "private", 
-        roles: ["MEMBER"], 
-        allowedStatuses: ["ACTIVE"] 
-    });
-
-    routerMap.set('/getMyEnrollments', { 
-        method: getMyEnrollments, 
-        status: "private", 
-        roles: ["MEMBER"], 
-        allowedStatuses: ["ACTIVE"] 
-});
-   //nuevo 24-10-26-----
-
     return routerMap;
 }
 

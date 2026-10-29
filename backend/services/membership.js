@@ -45,7 +45,6 @@ async function createMembershipApplication(request, response) {
     })
 }
 
-
 function listMembershipApplications(request, response) {
     try {
         const applications = listMembershipApplicationsDB();
@@ -140,7 +139,6 @@ function rejectMembershipApplication(request, response) {
         }
     });
 }
-
 
 module.exports = {
     createMembershipApplication,
