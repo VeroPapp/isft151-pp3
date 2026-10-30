@@ -5,7 +5,8 @@ const { InstanceRouter } = require("./router/router.js");
 const { sessionAuthorized } = require("./middlewares/auth.js")
 const { sendError, BadRequestError, UnauthorizedError } = require("./helpers/errorHandler.js");
 
-const base = `http://localhost:${instanceConfig.server.port}`;
+const ip = instanceConfig.server.ip || 'localhost'; 
+const base = `http://${ip}:${instanceConfig.server.port}`;
 
 async function requestDispatcher(request, response) {
 
@@ -79,4 +80,4 @@ function init() {
     console.log(`Servidor ejecutandose en ${base}`);
 }
 
-serverObject.listen(instanceConfig.server.port, init);
+serverObject.listen(instanceConfig.server.port, instanceConfig.server.ip, init);
