@@ -1,4 +1,4 @@
-import { RPCWebAPIFetchPrivate } from '../shared/api';
+import { RPCWebAPIFetchPrivate } from '../shared/api.js';
 
 export async function onDeactivateMembershipClick() {
     const confirmed = confirm("¿Estás seguro de que querés darte de baja del club?");

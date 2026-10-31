@@ -1,4 +1,4 @@
-import { RPCWebAPIFetchPrivate } from '../shared/api';
+import { RPCWebAPIFetchPrivate } from '../shared/api.js';
 
 const resultDiv = document.getElementById("resultMessage");
 const submitButton = document.getElementById("submitButton");
