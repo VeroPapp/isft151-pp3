@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="./css/base.css">
     <link rel="stylesheet" href="./css/profiles.css">
 </head>
+
 <body class="admin-page">
 
     <!-- ========================================== -->
@@ -49,7 +51,7 @@
                 <h2 id="activityFormTitle">Nueva Actividad</h2>
                 <form id="createActivityForm" class="form-grid">
                     <input type="hidden" id="editActivityId" value="">
-                    
+
                     <div class="form-row">
                         <div class="form-field">
                             <label for="activityName">Nombre *</label>
@@ -101,7 +103,8 @@
 
                     <div>
                         <button type="submit" id="submitActivityButton" class="btn btn-success">Crear Actividad</button>
-                        <button type="button" id="cancelEditBtn" class="btn btn-danger" style="display: none; margin-left: 10px;">Cancelar Edición</button>
+                        <button type="button" id="cancelEditBtn" class="btn btn-danger"
+                            style="display: none; margin-left: 10px;">Cancelar Edición</button>
                     </div>
                 </form>
             </div>
@@ -143,6 +146,7 @@
                             <th>Nombre y Apellido</th>
                             <th>DNI</th>
                             <th>Email</th>
+                            <th>Acción</th>
                         </tr>
                     </thead>
                     <tbody id="modalRegistrationsBody"></tbody>
@@ -191,7 +195,8 @@
                     <input type="tel" id="editMemberPhone" required>
                 </div>
                 <div style="margin-top: 10px;">
-                    <button type="submit" id="saveEditMemberBtn" class="btn btn-success" style="width: 100%;">Guardar Cambios</button>
+                    <button type="submit" id="saveEditMemberBtn" class="btn btn-success" style="width: 100%;">Guardar
+                        Cambios</button>
                 </div>
             </form>
         </div>
@@ -246,11 +251,11 @@
         function setupTabs() {
             const tabs = document.querySelectorAll(".tab");
             const panels = document.querySelectorAll(".tab-panel");
-            
-            tabs.forEach(function(tab) {
-                tab.addEventListener("click", function() {
-                    tabs.forEach(function(t) { t.classList.remove("active"); });
-                    panels.forEach(function(p) { p.classList.remove("active"); });
+
+            tabs.forEach(function (tab) {
+                tab.addEventListener("click", function () {
+                    tabs.forEach(function (t) { t.classList.remove("active"); });
+                    panels.forEach(function (p) { p.classList.remove("active"); });
                     tab.classList.add("active");
                     document.getElementById("tab-" + tab.dataset.tab).classList.add("active");
                 });
@@ -333,7 +338,7 @@
 
             const action = button.getAttribute("data-action");
             const idUser = button.getAttribute("data-id");
-            
+
             if (action === "approve") {
                 if (!confirm("¿Confirmás que querés aprobar esta solicitud?")) return;
                 button.disabled = true;
@@ -368,7 +373,7 @@
             try {
                 const response = await RPCWebAPIFetchPrivate("/listAllActivities", {});
                 const activities = response.data.activities || [];
-                window.globalActivitiesData = activities; 
+                window.globalActivitiesData = activities;
 
                 if (activities.length === 0) {
                     var emptyP = document.createElement("p");
@@ -439,7 +444,7 @@
                         "data-name": act.name
                     }));
                     divActions.appendChild(createButton("Editar", "btn btn-warning edit-btn", { "data-id": act.idActivity }));
-                    
+
                     if (act.status === "ACTIVE") {
                         divActions.appendChild(createButton("Dar de baja", "btn btn-danger deactivate-btn", { "data-id": act.idActivity }));
                     } else {
@@ -506,7 +511,7 @@
 
             if (editBtn) {
                 const idActivity = parseInt(editBtn.getAttribute("data-id"), 10);
-                const activity = window.globalActivitiesData.find(function(a) { return a.idActivity === idActivity; });
+                const activity = window.globalActivitiesData.find(function (a) { return a.idActivity === idActivity; });
                 if (!activity) return;
 
                 document.getElementById("editActivityId").value = activity.idActivity;
@@ -532,7 +537,7 @@
                 document.getElementById("submitActivityButton").classList.remove("btn-success");
                 document.getElementById("submitActivityButton").classList.add("btn-warning");
                 document.getElementById("cancelEditBtn").style.display = "inline-block";
-                
+
                 document.querySelector(".tab-panel.active").scrollIntoView({ behavior: 'smooth' });
             }
         }
@@ -552,7 +557,7 @@
             optEmpty.value = "";
             optEmpty.textContent = "Día...";
             select.appendChild(optEmpty);
-            
+
             for (var d = 0; d < days.length; d++) {
                 var opt = document.createElement("option");
                 opt.textContent = days[d];
@@ -584,13 +589,13 @@
             removeBtn.type = "button";
             removeBtn.className = "btn-remove";
             removeBtn.textContent = "X";
-            removeBtn.onclick = function() { row.remove(); };
+            removeBtn.onclick = function () { row.remove(); };
             row.appendChild(removeBtn);
 
             return row;
         }
 
-        document.getElementById("addScheduleBtn").addEventListener("click", function() {
+        document.getElementById("addScheduleBtn").addEventListener("click", function () {
             document.getElementById("schedulesContainer").appendChild(createScheduleRow(null));
         });
 
@@ -602,7 +607,7 @@
 
             const scheduleRows = document.querySelectorAll(".schedule-row");
             const schedules = [];
-            
+
             for (let i = 0; i < scheduleRows.length; i++) {
                 const row = scheduleRows[i];
                 const day = row.querySelector(".sched-day").value;
@@ -636,8 +641,8 @@
                 const endpoint = isEditing ? "/updateActivity" : "/createActivity";
                 const response = await RPCWebAPIFetchPrivate(endpoint, payload);
                 showMessage("resultMessage", response.data.message, false);
-                resetActivityForm(); 
-                loadActivities();     
+                resetActivityForm();
+                loadActivities();
             } catch (error) {
                 showMessage("resultMessage", (isEditing ? "Error al actualizar: " : "Error al crear: ") + error.message, true);
             } finally {
@@ -648,7 +653,7 @@
         function resetActivityForm() {
             document.getElementById("createActivityForm").reset();
             document.getElementById("editActivityId").value = "";
-            
+
             document.getElementById("activityFormTitle").textContent = "Nueva Actividad";
             document.getElementById("submitActivityButton").textContent = "Crear Actividad";
             document.getElementById("submitActivityButton").classList.remove("btn-warning");
@@ -714,7 +719,7 @@
                     divActions.className = "actions-cell";
 
                     divActions.appendChild(createButton("Editar", "btn btn-warning edit-member-btn", { "data-id": m.idUser }));
-                    
+
                     if (m.status === "INACTIVE") {
                         divActions.appendChild(createButton("Reactivar", "btn btn-success activate-member-btn", { "data-id": m.idUser }));
                     } else {
@@ -743,7 +748,7 @@
 
             if (editBtn) {
                 const idUser = editBtn.getAttribute("data-id");
-                const member = window.globalMembersData.find(function(m) { return m.idUser == idUser; });
+                const member = window.globalMembersData.find(function (m) { return m.idUser == idUser; });
                 if (member) openEditMemberModal(member);
                 return;
             }
@@ -786,14 +791,14 @@
             document.getElementById("editMemberName").value = member.name;
             document.getElementById("editMemberSurname").value = member.surname;
             document.getElementById("editMemberDni").value = member.dni;
-            
+
             // Cortamos la fecha por si viene con hora
             var fechaNac = member.birthdate ? member.birthdate.split(" ")[0] : "";
             document.getElementById("editMemberBirthdate").value = fechaNac;
-            
+
             document.getElementById("editMemberEmail").value = member.email;
             document.getElementById("editMemberPhone").value = member.phone;
-            
+
             document.getElementById("editMemberTitle").textContent = "Editar Socio: " + member.name + " " + member.surname;
             document.getElementById("editMemberModal").style.display = "flex";
         }
@@ -801,7 +806,7 @@
         async function onEditMemberSubmit(event) {
             event.preventDefault();
             const btn = document.getElementById("saveEditMemberBtn");
-            
+
             const payload = {
                 idUser: parseInt(document.getElementById("editMemberId").value, 10),
                 name: document.getElementById("editMemberName").value.trim(),
@@ -835,13 +840,13 @@
             const modal = document.getElementById("registrationsModal");
             const title = document.getElementById("modalTitle");
             const tbody = document.getElementById("modalRegistrationsBody");
-            
+
             title.textContent = "Inscriptos en: " + activityName;
             clearContainer(tbody);
 
             var loadingTr = document.createElement("tr");
             var loadingTd = document.createElement("td");
-            loadingTd.setAttribute("colspan", "3");
+            loadingTd.setAttribute("colspan", "4");
             loadingTd.style.textAlign = "center";
             loadingTd.style.padding = "20px";
             loadingTd.textContent = "Cargando...";
@@ -853,13 +858,13 @@
             try {
                 const response = await RPCWebAPIFetchPrivate("/listRegistrationsByActivity", { idActivity: parseInt(idActivity, 10) });
                 const regs = response.data.registrations || [];
-                
+
                 clearContainer(tbody);
 
                 if (regs.length === 0) {
                     var emptyTr = document.createElement("tr");
                     var emptyTd = document.createElement("td");
-                    emptyTd.setAttribute("colspan", "3");
+                    emptyTd.setAttribute("colspan", "4");
                     emptyTd.style.textAlign = "center";
                     emptyTd.style.padding = "20px";
                     emptyTd.style.fontStyle = "italic";
@@ -875,13 +880,28 @@
                     tr.appendChild(createCell(r.name + " " + r.surname, true));
                     tr.appendChild(createCell(r.dni, false));
                     tr.appendChild(createCell(r.email, false));
+
+                    var actionCell = document.createElement("td");
+
+                    var removeButton = createButton(
+                        "Quitar de actividad",
+                        "btn btn-danger remove-registration-btn",
+                        {
+                            "data-user-id": r.idUser,
+                            "data-activity-id": idActivity
+                        }
+                    );
+
+                    actionCell.appendChild(removeButton);
+                    tr.appendChild(actionCell);
+
                     tbody.appendChild(tr);
                 }
             } catch (error) {
                 clearContainer(tbody);
                 var errTr = document.createElement("tr");
                 var errTd = document.createElement("td");
-                errTd.setAttribute("colspan", "3");
+                errTd.setAttribute("colspan", "4");
                 errTd.style.textAlign = "center";
                 errTd.style.color = "red";
                 errTd.style.padding = "20px";
@@ -891,34 +911,86 @@
             }
         }
 
+        async function onRemoveMemberFromActivity(event) {
+            const button = event.target.closest(".remove-registration-btn");
+
+            if (!button) {
+                return;
+            }
+
+            const idUser = Number(button.getAttribute("data-user-id"));
+            const idActivity = Number(button.getAttribute("data-activity-id"));
+
+            const confirmed = confirm(
+                "¿Estás seguro de quitar a este socio de la actividad?"
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            button.disabled = true;
+            button.textContent = "Quitando...";
+
+            try {
+                const response = await RPCWebAPIFetchPrivate("/removeMemberFromActivity", { idUser: idUser, idActivity: idActivity });
+
+                showMessage(
+                    "resultMessage",
+                    response.data.message ||
+                    "Socio quitado de la actividad correctamente.",
+                    false
+                );
+
+                const activityName =
+                    document.getElementById("modalTitle")
+                        .textContent
+                        .replace("Inscriptos en: ", "");
+
+                await openRegistrationsModal(idActivity, activityName);
+
+            } catch (error) {
+                showMessage(
+                    "resultMessage",
+                    "Error al quitar al socio: " + error.message,
+                    true
+                );
+
+                button.disabled = false;
+                button.textContent = "Quitar de actividad";
+            }
+        }
+
         // ==========================================
         // 7. INICIALIZACIÓN
         // ==========================================
         function main() {
-            document.getElementById("logoutButton").onclick = function() { 
-                handleLogout(RPCWebAPIFetchPrivate); 
+            document.getElementById("logoutButton").onclick = function () {
+                handleLogout(RPCWebAPIFetchPrivate);
             };
-            
+
             applicationsContainer.onclick = onApplicationActionClick;
             activitiesContainer.onclick = onActivityActionClick;
             membersContainer.onclick = onMemberActionClick;
-            
+
             document.getElementById("createActivityForm").onsubmit = onCreateActivitySubmit;
             document.getElementById("cancelEditBtn").onclick = resetActivityForm;
 
             // Modales
-            document.getElementById("closeModalBtn").onclick = function() {
+            document.getElementById("closeModalBtn").onclick = function () {
                 document.getElementById("registrationsModal").style.display = "none";
             };
-            document.getElementById("registrationsModal").addEventListener("click", function(e) {
+            document.getElementById("registrationsModal").addEventListener("click", function (e) {
                 if (e.target === this) this.style.display = "none";
             });
 
+            document.getElementById("modalRegistrationsBody").onclick = onRemoveMemberFromActivity;
+
             document.getElementById("editMemberForm").onsubmit = onEditMemberSubmit;
-            document.getElementById("closeEditMemberBtn").onclick = function() {
+            document.getElementById("closeEditMemberBtn").onclick = function () {
                 document.getElementById("editMemberModal").style.display = "none";
             };
-            document.getElementById("editMemberModal").addEventListener("click", function(e) {
+            document.getElementById("editMemberModal").addEventListener("click", function (e) {
                 if (e.target === this) this.style.display = "none";
             });
 
@@ -934,4 +1006,5 @@
         window.onload = main;
     </script>
 </body>
+
 </html>

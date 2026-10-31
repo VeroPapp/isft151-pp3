@@ -1,7 +1,8 @@
 const { sendSuccess } = require("../helpers/responseHandler.js");
 const { sendError, BadRequestError, DomainError, UnauthorizedError } = require("../helpers/errorHandler.js");
 const { listRegistrationsByActivityDB, registerMemberToActivityDB, cancelRegistrationDB, listMemberRegistrationsDB, getActivityCapacityDB, countActiveRegistrationsDB, getUserRegistrationStatusDB } = require("../models/activityRegistration.js");
-
+const { getUserByIdDB} = require("../models/user.js");
+const { getRoleByIdDB } = require("../models/roles.js");
 // ==========================================
 // ADMINISTRADORES (CLUB_ADMIN / SUPER_ADMIN)
 // ==========================================
@@ -10,7 +11,7 @@ const { listRegistrationsByActivityDB, registerMemberToActivityDB, cancelRegistr
 function listRegistrationsByActivity(request, response) {
     let bodyRaw = "";
     request.on("data", chunk => bodyRaw += chunk.toString());
-    request.on("end", function() {
+    request.on("end", function () {
         try {
             const data = JSON.parse(bodyRaw);
             const { idActivity } = data;
@@ -27,6 +28,41 @@ function listRegistrationsByActivity(request, response) {
     });
 }
 
+function removeMemberFromActivity(request, response) {
+    let bodyRaw = "";
+    request.on("data", chunk => bodyRaw += chunk.toString());
+    request.on("end", function () {
+        try {
+            const data = JSON.parse(bodyRaw);
+            const { idUser, idActivity } = data;
+
+            if (!idUser || !idActivity) {
+                throw new BadRequestError("Falta el ID del usuario y actividad.");
+            }
+
+            const member = getUserByIdDB(idUser);
+            if (!member) {
+                throw new BadRequestError("Usuario no encontrado.");
+            }
+
+            const roleMember = getRoleByIdDB(member.idRole)
+            if (roleMember.nameRole !== "MEMBER") {
+                throw new DomainError("No se puede quitar de una actividad a un usuario que no tiene el rol MEMBER.");
+            }
+
+            const cancelled = cancelRegistrationDB(idUser, idActivity);
+            // Si devuelve false, es porque no tenía una inscripción activa
+            if (!cancelled) {
+                throw new DomainError("No se encontró una inscripción activa para cancelar asociado a ese usuario.");
+            }
+
+            sendSuccess(response, { message: "Inscripción cancelada correctamente." }, 200);
+
+        } catch (error) {
+            sendError(response, error);
+        }
+    });
+}
 
 // ==========================================
 // SOCIOS (MEMBER)
@@ -35,10 +71,10 @@ function listRegistrationsByActivity(request, response) {
 // inscribirse a una actividad
 function registerMemberToActivity(request, response) {
     let bodyRaw = "";
-    
+
     request.on("data", chunk => bodyRaw += chunk.toString());
-    
-    request.on("end", function() {
+
+    request.on("end", function () {
         try {
             const idUser = request.user ? request.user.IDuser : null;
             if (!idUser) {
@@ -60,11 +96,11 @@ function registerMemberToActivity(request, response) {
 
             if (activity.capacity) {
                 const currentEnrollments = countActiveRegistrationsDB(idActivity);
-                
+
                 // Si el cupo está lleno, verificamos si el usuario ya estaba dentro
                 if (currentEnrollments >= activity.capacity) {
                     const existingReg = getUserRegistrationStatusDB(idUser, idActivity);
-                    
+
                     // Si no está inscripto, o está cancelado, no puede entrar porque no hay cupo
                     if (!existingReg || existingReg.status !== 'ACTIVE') {
                         throw new DomainError("El cupo máximo de esta actividad ya está lleno.");
@@ -74,7 +110,7 @@ function registerMemberToActivity(request, response) {
 
             // ⭐ SI HAY CUPO (o ya estaba inscripto), PROCEDEMOS
             const result = registerMemberToActivityDB(idUser, idActivity);
-            
+
             if (!result) {
                 throw new DomainError("Ya estás inscripto en esta actividad.");
             }
@@ -92,8 +128,8 @@ function cancelRegistration(request, response) {
     let bodyRaw = "";
     
     request.on("data", chunk => bodyRaw += chunk.toString());
-    
-    request.on("end", function() {
+
+    request.on("end", function () {
         try {
             const idUser = request.user ? request.user.IDuser : null;
             if (!idUser) {
@@ -133,9 +169,9 @@ function listMemberRegistrations(request, response) {
         const enrollments = listMemberRegistrationsDB(idUser);
 
         if (!enrollments || enrollments.length === 0) {
-            return sendSuccess(response, { 
-                message: "No estás inscripto en ninguna actividad todavía.", 
-                enrollments: [] 
+            return sendSuccess(response, {
+                message: "No estás inscripto en ninguna actividad todavía.",
+                enrollments: []
             }, 200);
         }
 
@@ -146,9 +182,10 @@ function listMemberRegistrations(request, response) {
     }
 }
 
-module.exports = { 
+module.exports = {
     listRegistrationsByActivity,
+    removeMemberFromActivity,
     registerMemberToActivity,
-    cancelRegistration, 
+    cancelRegistration,
     listMemberRegistrations,
 };
