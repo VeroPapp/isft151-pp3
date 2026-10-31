@@ -1,6 +1,9 @@
 const { BadRequestError, DomainError, sendError } = require("../helpers/errorHandler.js")
 const { createMembershipApplicationDB, listMembershipApplicationsDB, approveMembershipApplicationDB, rejectMembershipApplicationDB } = require("../models/membership.js");
 const { sendSuccess } = require("../helpers/responseHandler.js")
+const { cancelAllMemberRegistrationsDB } = require("../models/activityRegistration.js");
+const { changeMemberStatusDB } = require("../models/user.js");
+
 
 async function createMembershipApplication(request, response) {
 
@@ -140,9 +143,35 @@ function rejectMembershipApplication(request, response) {
     });
 }
 
+function deactivateMyMembership(request, response) {
+    try {
+        const idUser = request.user.IDuser;
+        const INACTIVE = 5;
+
+        const result = changeMemberStatusDB(INACTIVE, idUser);
+        if (!result) {
+            throw new DomainError("No se pudo dar de baja la membresía.");
+        }
+
+        const registrationsAffected = cancelAllMemberRegistrationsDB(idUser);
+
+        if (registrationsAffected === 0) {
+            sendSuccess(response, { message: "No existen registros a Actividades a esta membresía." }, 200);
+            return
+
+        }
+        
+        sendSuccess(response, { message: "Tu membresía fue dada de baja correctamente." }, 200);
+
+    } catch (error) {
+        sendError(response, error);
+    }
+}
+
 module.exports = {
     createMembershipApplication,
     listMembershipApplications,
     approveMembershipApplication,
-    rejectMembershipApplication
+    rejectMembershipApplication,
+    deactivateMyMembership
 };

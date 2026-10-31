@@ -1,8 +1,9 @@
 const { sendSuccess } = require("../helpers/responseHandler.js");
 const { sendError, BadRequestError, UnauthorizedError, DomainError } = require("../helpers/errorHandler.js");
-const { getUserByIdDB, listMembersDB, updateMemberDB, updatePhoneDB, changeMemberStatusDB} = require("../models/user.js");
+const { getUserByIdDB, listMembersDB, updateMemberDB, updatePhoneDB, changeMemberStatusDB } = require("../models/user.js");
 const { getStatusByIdDB } = require("../models/status.js");
 const { getRoleByIdDB } = require("../models/roles.js");
+const { cancelAllMemberRegistrationsDB } = require("../models/activityRegistration.js");
 
 // ==========================================
 // ADMINISTRADORES (CLUB_ADMIN / SUPER_ADMIN)
@@ -155,6 +156,14 @@ function deactivateMember(request, response) {
                 throw new DomainError("No se pudo desactivar la membresía de un socio.");
             }
 
+            const registrationsAffected = cancelAllMemberRegistrationsDB(idUser);
+
+            if (registrationsAffected === 0) {
+                sendSuccess(response, { message: "No existen registros a Actividades a este usuario." }, 200);
+                return
+
+            }
+
             sendSuccess(response, { message: "Socio dado de baja correctamente." }, 200);
 
 
@@ -278,12 +287,12 @@ function updateMemberProfile(request, response) {
 
 }
 
-module.exports = { 
-    getMember, 
-    listMembers, 
-    updateMember, 
+module.exports = {
+    getMember,
+    listMembers,
+    updateMember,
     deactivateMember,
-    activateMember, 
-    getMemberProfile, 
-    updateMemberProfile 
+    activateMember,
+    getMemberProfile,
+    updateMemberProfile
 }

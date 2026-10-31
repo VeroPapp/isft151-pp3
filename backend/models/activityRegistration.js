@@ -45,7 +45,7 @@ function registerMemberToActivityDB(idUser, idActivity) {
         `;
         const stmt = objectDB.prepare(sql);
         const result = stmt.run(idUser, idActivity);
-        
+
         // Retorna true si insertó o reactivó una cancelada. 
         // Retorna false si ya estaba activo (el WHERE no se cumplió).
         return result.changes > 0;
@@ -94,7 +94,7 @@ function listMemberRegistrationsDB(idUser) {
 
         for (let i = 0; i < enrollments.length; i++) {
             enrollments[i].schedules = [];
-            
+
             for (let j = 0; j < allSchedules.length; j++) {
                 if (allSchedules[j].idActivity === enrollments[i].idActivity) {
                     enrollments[i].schedules.push(allSchedules[j]);
@@ -103,6 +103,25 @@ function listMemberRegistrationsDB(idUser) {
         }
 
         return enrollments;
+    } catch (error) {
+        throw error;
+    }
+}
+
+function cancelAllMemberRegistrationsDB(idUser) {
+    try {
+        const sql = `
+            UPDATE activityRegistrations
+            SET status = 'CANCELLED'
+            WHERE idUser = ?
+            AND status = 'ACTIVE'
+        `;
+
+        const stmt = objectDB.prepare(sql);
+        const result = stmt.run(idUser);
+
+        return result.changes;
+
     } catch (error) {
         throw error;
     }
@@ -145,12 +164,13 @@ function getUserRegistrationStatusDB(idUser, idActivity) {
     }
 }
 
-module.exports = { 
+module.exports = {
     listRegistrationsByActivityDB,
-    registerMemberToActivityDB, 
-    cancelRegistrationDB, 
+    registerMemberToActivityDB,
+    cancelRegistrationDB,
     listMemberRegistrationsDB,
     getActivityCapacityDB,
     countActiveRegistrationsDB,
-    getUserRegistrationStatusDB
+    getUserRegistrationStatusDB,
+    cancelAllMemberRegistrationsDB
 };

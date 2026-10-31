@@ -59,9 +59,19 @@ function listMembersDB() {
 }
 
 function changeMemberStatusDB(idStatus, idUser) {
-    const sql = `UPDATE users SET idStatus = ? WHERE idUser = ?`;
+    const sql = `
+        UPDATE users
+        SET idStatus = ?, sessionKey = ?
+        WHERE idUser = ?
+    `;
+
     const stmt = objectDB.prepare(sql);
-    const result = stmt.run(idStatus, idUser);
+
+    const result = stmt.run(
+        idStatus,
+        "NONE",
+        idUser
+    );
 
     if (result.changes === 0) {
         return null;

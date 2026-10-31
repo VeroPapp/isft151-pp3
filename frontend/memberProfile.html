@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="./css/base.css">
     <link rel="stylesheet" href="./css/profiles.css">
 </head>
+
 <body>
 
     <!-- ========================================== -->
@@ -17,6 +19,9 @@
         <div class="socio-header-actions">
             <a href="changePassword.html" class="btn btn-warning">Cambiar Contraseña</a>
             <button id="logoutButton" class="btn btn-danger">Cerrar Sesión</button>
+            <button id="deactivateMembershipButton" class="btn btn-danger">
+                Darme de baja del club
+            </button>
         </div>
     </div>
 
@@ -37,7 +42,8 @@
     <!-- ========================================== -->
     <section class="socio-section">
         <h2>Actividades del Club</h2>
-        <p style="color: #64748b; margin-top: -8px;">Estas son las actividades disponibles para inscribirse en el club.</p>
+        <p style="color: #64748b; margin-top: -8px;">Estas son las actividades disponibles para inscribirse en el club.
+        </p>
         <div id="activitiesContainer">
             <p class="empty-msg">Cargando actividades...</p>
         </div>
@@ -70,17 +76,49 @@
             window.location.href = "login.html";
         }
 
+        async function onDeactivateMembershipClick() {
+            const confirmed = confirm("¿Estás seguro de que querés darte de baja del club?");
+
+            if (!confirmed) {
+                return;
+            }
+
+            const button = document.getElementById("deactivateMembershipButton");
+
+            button.disabled = true;
+            button.textContent = "Procesando...";
+
+            try {
+                const response = await RPCWebAPIFetchPrivate("/deactivateMyMembership", {});
+
+                alert(response.data.message || "Tu membresía fue dada de baja correctamente.");
+
+                // Se elimina el token del navegador.
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("userRole");
+                
+                // Se redirige al login.
+                window.location.href = "login.html";
+
+            } catch (error) {
+                alert("No se pudo dar de baja la membresía: " + error.message);
+
+                button.disabled = false;
+                button.textContent = "Darme de baja del club";
+            }
+        }
+
         // Función auxiliar local para crear campos del perfil
         function createProfileField(labelText, valueText) {
             var field = document.createElement("div");
             field.className = "profile-field";
-            
+
             var label = document.createElement("label");
             label.textContent = labelText;
-            
+
             var span = document.createElement("span");
             span.textContent = valueText;
-            
+
             field.appendChild(label);
             field.appendChild(span);
             return field;
@@ -200,7 +238,7 @@
 
         async function onSavePhoneClick() {
             const newPhone = document.getElementById("phoneInput").value.trim();
-            
+
             if (!newPhone) {
                 alert("El teléfono no puede estar vacío.");
                 return;
@@ -319,7 +357,7 @@
             try {
                 const response = await RPCWebAPIFetchPrivate("/registerMemberToActivity", { idActivity: activityId });
                 alert(response.data.message || "¡Inscripción exitosa!");
-                
+
                 loadActivities();
                 loadEnrollments();
             } catch (error) {
@@ -346,7 +384,7 @@
             try {
                 const response = await RPCWebAPIFetchPrivate("/cancelRegistration", { idActivity: activityId });
                 alert(response.data.message || "Inscripción cancelada correctamente.");
-                
+
                 // Recargamos ambas listas (la inscripción desaparece y el cupo en la actividad vuelve a estar libre)
                 loadActivities();
                 loadEnrollments();
@@ -362,16 +400,18 @@
         // ==========================================
         function main() {
             // Botón de cerrar sesión
-            document.getElementById("logoutButton").onclick = function() { 
-                handleLogout(RPCWebAPIFetchPrivate); 
+            document.getElementById("logoutButton").onclick = function () {
+                handleLogout(RPCWebAPIFetchPrivate);
             };
+
+            document.getElementById("deactivateMembershipButton").onclick = onDeactivateMembershipClick;
 
             // Delegación de eventos para el botón "Inscribirme"
             activitiesContainer.onclick = onEnrollClick;
             enrollmentsContainer.onclick = onCancelEnrollmentClick;
 
             // Delegación de eventos para el botón "Editar" teléfono
-            profileContainer.onclick = function(event) {
+            profileContainer.onclick = function (event) {
                 if (event.target.id === "editPhoneBtn") {
                     onEditPhoneClick();
                 }
@@ -386,4 +426,5 @@
         window.onload = main;
     </script>
 </body>
+
 </html>
