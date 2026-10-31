@@ -6,6 +6,7 @@
     <title>Comunidad Activa - Club Social y Deportivo</title>
     <link rel="stylesheet" href="./css/base.css">
     <link rel="stylesheet" href="./css/index.css">
+    <link rel="icon" href="./assets/favicon.ico">
     <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.1.0/uicons-brands/css/uicons-brands.css'>
 </head>
 <body class="landing">
@@ -19,6 +20,7 @@
             <nav class="landing-nav">
                 <a href="#activities">Actividades</a>
                 <a href="#membership">Hacete Socio</a>
+                <a href="#contacto">Contacto</a>
                 <a href="login.html" class="landing-btn-outline">Iniciar Sesión</a>
             </nav>
         </div>
@@ -39,13 +41,23 @@
     <!-- ABOUT SECTION                              -->
     <!-- ========================================== -->
     <section class="landing-about">
-        <div class="landing-container">
-            <h2>Sobre el club</h2>
-            <p>
-                En Comunidad Activa creemos que el deporte y la vida en comunidad transforman personas.
-                Ofrecemos actividades para todas las edades, con profesores capacitados y un espacio
-                pensado para disfrutar, aprender y crecer juntos.
-            </p>
+        <div class="landing-container about-grid">
+            <div class="about-text">
+                <h2>Sobre el club</h2>
+                <p>
+                    En Comunidad Activa creemos que el deporte y la vida en comunidad transforman personas.
+                    Ofrecemos actividades para todas las edades, con profesores capacitados y un espacio
+                    pensado para disfrutar, aprender y crecer juntos.
+                </p>
+                <p>
+                    Nuestras instalaciones cuentan con canchas reglamentarias, salones climatizados y un equipo 
+                    humano dedicado a que cada socio se sienta parte de esta gran familia.
+                </p>
+            </div>
+            <div class="about-image">
+                <!-- Podés usar el link que tenías o una imagen local -->
+                <img src="https://acortar.link/0mHUF6" alt="Comunidad Activa - Deportes">
+            </div>
         </div>
     </section>
 
@@ -70,7 +82,7 @@
             <h2>Hacete socio</h2>
             <p>Completá el formulario y nos comunicaremos con vos por email.</p>
 
-            <form id="membershipForm" class="landing-form">
+            <form id="membershipForm" class="landing-form" onsubmit="event.preventDefault();">
                 <div>
                     <label for="name">Nombre</label>
                     <input id="name" required>
@@ -99,6 +111,60 @@
             </form>
 
             <div id="resultMessage" class="landing-result"></div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- CONTACT SECTION                            -->
+    <!-- ========================================== -->
+    <section id="contacto" class="landing-contact">
+        <div class="landing-container">
+            <h2>Contacto y Ubicación</h2>
+            <p>¿Tenés dudas? Escribinos o visitanos en nuestra sede.</p>
+            
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <span class="contact-icon">📍</span>
+                        <div>
+                            <h3>Dirección</h3>
+                            <p>Av. Siempre Viva 123, Mar del plata</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-icon">📞</span>
+                        <div>
+                            <h3>Teléfono</h3>
+                            <p>(223) 1234-5678</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-icon">✉️</span>
+                        <div>
+                            <h3>Email</h3>
+                            <p>info@comunidadactiva.com</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-icon">⏰</span>
+                        <div>
+                            <h3>Horarios de atención</h3>
+                            <p>Lunes a Viernes de 8:00 a 20:00<br>Sábados de 9:00 a 13:00</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="map-container">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d201169.3703193707!2d-57.76534385645508!3d-38.01745163505228!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9584d94d19d34209%3A0xdd9670804bfed126!2sMar%20del%20Plata%2C%20Provincia%20de%20Buenos%20Aires!5e0!3m2!1ses-419!2sar!4v1793421169112!5m2!1ses-419!2sar" 
+                        width="100%" 
+                        height="100%" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy">
+                    </iframe>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -138,6 +204,5 @@
     </footer>
 
     <script type="module" src="./js/index/main.js"></script>
-    
 </body>
 </html>
