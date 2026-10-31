@@ -86,23 +86,23 @@ function listMemberRegistrationsDB(idUser) {
             ORDER BY r.registrationDate DESC
         `;
         const stmt = objectDB.prepare(sqlRegistrations);
-        const enrollments = stmt.all(idUser);
+        const registrations = stmt.all(idUser);
 
         const sqlSchedules = `SELECT idActivity, day, startTime, endTime FROM activitySchedules`;
         const stmtSchedules = objectDB.prepare(sqlSchedules);
         const allSchedules = stmtSchedules.all();
 
-        for (let i = 0; i < enrollments.length; i++) {
-            enrollments[i].schedules = [];
+        for (let i = 0; i < registrations.length; i++) {
+            registrations[i].schedules = [];
 
             for (let j = 0; j < allSchedules.length; j++) {
-                if (allSchedules[j].idActivity === enrollments[i].idActivity) {
-                    enrollments[i].schedules.push(allSchedules[j]);
+                if (allSchedules[j].idActivity === registrations[i].idActivity) {
+                    registrations[i].schedules.push(allSchedules[j]);
                 }
             }
         }
 
-        return enrollments;
+        return registrations;
     } catch (error) {
         throw error;
     }

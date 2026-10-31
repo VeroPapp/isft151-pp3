@@ -41,14 +41,14 @@ export function createActivityCard(activity, options) {
     card.className = "activity-card";
 
     // Le damos flexbox si vamos a ponerle botones abajo (socio)
-    if (options.showEnrollButton || options.isEnrolled) {
+    if (options.showRegisterButton || options.isRegistered) {
         card.style.display = "flex";
         card.style.flexDirection = "column";
         card.style.justifyContent = "space-between";
     }
 
     // Si es una inscripción, le ponemos el borde verde
-    if (options.isEnrolled) {
+    if (options.isRegistered) {
         card.style.borderLeft = "4px solid var(--success-text)";
     }
 
@@ -64,7 +64,7 @@ export function createActivityCard(activity, options) {
     headerDiv.appendChild(title);
 
     // El alcance solo lo mostramos si existe y no es una tarjeta de "inscripto"
-    if (activity.scope && !options.isEnrolled) {
+    if (activity.scope && !options.isRegistered) {
         var scope = document.createElement("span");
         scope.className = "activity-scope-badge";
         scope.textContent = activity.scope;
@@ -118,17 +118,17 @@ export function createActivityCard(activity, options) {
 
     // 3. BOTONES (Inscribirme o Cancelar Inscripción)
     
-    if (options.showEnrollButton) {
+    if (options.showRegisterButton) {
         // --- BOTÓN INSCRIBIRME (para actividades disponibles) ---
-        var enrollBtn = document.createElement("button");
-        enrollBtn.className = "btn btn-success enroll-btn";
-        enrollBtn.setAttribute("data-id", activity.idActivity);
-        enrollBtn.style.marginTop = "15px";
-        enrollBtn.style.width = "100%";
-        enrollBtn.textContent = "Inscribirme";
-        card.appendChild(enrollBtn);
+        var registerBtn = document.createElement("button");
+        registerBtn.className = "btn btn-success register-btn";
+        registerBtn.setAttribute("data-id", activity.idActivity);
+        registerBtn.style.marginTop = "15px";
+        registerBtn.style.width = "100%";
+        registerBtn.textContent = "Inscribirme";
+        card.appendChild(registerBtn);
 
-    } else if (options.isEnrolled) {
+    } else if (options.isRegistered) {
         // --- CARTEL "INSCRIPTO" + BOTÓN CANCELAR (para mis inscripciones) ---
         var bottomWrap = document.createElement("div");
         bottomWrap.style.marginTop = "15px";
@@ -144,7 +144,7 @@ export function createActivityCard(activity, options) {
 
         // Botón de cancelar
         var cancelBtn = document.createElement("button");
-        cancelBtn.className = "btn btn-danger cancel-enrollment-btn";
+        cancelBtn.className = "btn btn-danger cancel-register-btn";
         cancelBtn.setAttribute("data-id", activity.idActivity);
         cancelBtn.style.width = "100%";
         cancelBtn.textContent = "Cancelar Inscripción";
@@ -154,4 +154,30 @@ export function createActivityCard(activity, options) {
     }
 
     return card;
+}
+
+// 4. Crear una celda de tabla (para el admin)
+export function createCell(text, isStrong) {
+    const td = document.createElement("td");
+    if (isStrong) {
+        const strong = document.createElement("strong");
+        strong.textContent = text;
+        td.appendChild(strong);
+    } else {
+        td.textContent = text;
+    }
+    return td;
+}
+
+// 5. Crear un botón con atributos (para el admin)
+export function createButton(text, className, dataAttributes) {
+    const btn = document.createElement("button");
+    btn.className = className;
+    btn.textContent = text;
+    if (dataAttributes) {
+        for (const key in dataAttributes) {
+            btn.setAttribute(key, dataAttributes[key]);
+        }
+    }
+    return btn;
 }

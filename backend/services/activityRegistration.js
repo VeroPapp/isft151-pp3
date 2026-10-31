@@ -95,10 +95,10 @@ function registerMemberToActivity(request, response) {
             }
 
             if (activity.capacity) {
-                const currentEnrollments = countActiveRegistrationsDB(idActivity);
+                const currentRegistrations = countActiveRegistrationsDB(idActivity);
 
                 // Si el cupo está lleno, verificamos si el usuario ya estaba dentro
-                if (currentEnrollments >= activity.capacity) {
+                if (currentRegistrations >= activity.capacity) {
                     const existingReg = getUserRegistrationStatusDB(idUser, idActivity);
 
                     // Si no está inscripto, o está cancelado, no puede entrar porque no hay cupo
@@ -202,16 +202,16 @@ function listMemberRegistrations(request, response) {
             throw new UnauthorizedError("No se pudo identificar al usuario en la sesión.");
         }
 
-        const enrollments = listMemberRegistrationsDB(idUser);
+        const registrations = listMemberRegistrationsDB(idUser);
 
-        if (!enrollments || enrollments.length === 0) {
+        if (!registrations || registrations.length === 0) {
             return sendSuccess(response, {
                 message: "No estás inscripto en ninguna actividad todavía.",
-                enrollments: []
+                registrations: []
             }, 200);
         }
 
-        sendSuccess(response, { enrollments }, 200);
+        sendSuccess(response, { registrations }, 200);
 
     } catch (error) {
         sendError(response, error);
