@@ -127,9 +127,9 @@ function cancelAllMemberRegistrationsDB(idUser) {
     }
 }
 
-// ==========================================
+// ========================================================
 // VALIDACIONES DE CUPO ANTES DE INSCRIBIRSE A UNA ACTIVIDAD
-// ==========================================
+// ========================================================
 
 // 1. Obtener la capacidad de la actividad
 function getActivityCapacityDB(idActivity) {
@@ -164,6 +164,39 @@ function getUserRegistrationStatusDB(idUser, idActivity) {
     }
 }
 
+
+// =================================================================================
+// VALIDACIONES DE SUPERPOSICIÓN ENTRE HORARIOS ANTES DE INSCRIBIRSE A UNA ACTIVIDAD
+// =================================================================================
+
+// 1. Obtener los horarios de las actividades en las que el usuario ya está inscripto
+function getUserActiveSchedulesDB(idUser) {
+    const sql = `
+        SELECT 
+            a.name AS activityName,
+            s.day,
+            s.startTime,
+            s.endTime
+        FROM activityRegistrations r
+        INNER JOIN activities a ON r.idActivity = a.idActivity
+        INNER JOIN activitySchedules s ON a.idActivity = s.idActivity
+        WHERE r.idUser = ? AND r.status = 'ACTIVE' AND a.status = 'ACTIVE'
+    `;
+    const stmt = objectDB.prepare(sql);
+    return stmt.all(idUser);
+}
+
+// 2. Obtener los horarios de una actividad específica
+function getActivitySchedulesDB(idActivity) {
+    const sql = `
+        SELECT day, startTime, endTime
+        FROM activitySchedules
+        WHERE idActivity = ?
+    `;
+    const stmt = objectDB.prepare(sql);
+    return stmt.all(idActivity);
+}
+
 module.exports = {
     listRegistrationsByActivityDB,
     registerMemberToActivityDB,
@@ -172,5 +205,8 @@ module.exports = {
     getActivityCapacityDB,
     countActiveRegistrationsDB,
     getUserRegistrationStatusDB,
-    cancelAllMemberRegistrationsDB
+    cancelAllMemberRegistrationsDB,
+    getUserRegistrationStatusDB,
+    getUserActiveSchedulesDB,
+    getActivitySchedulesDB
 };

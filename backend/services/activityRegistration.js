@@ -1,6 +1,6 @@
 const { sendSuccess } = require("../helpers/responseHandler.js");
 const { sendError, BadRequestError, DomainError, UnauthorizedError } = require("../helpers/errorHandler.js");
-const { listRegistrationsByActivityDB, registerMemberToActivityDB, cancelRegistrationDB, listMemberRegistrationsDB, getActivityCapacityDB, countActiveRegistrationsDB, getUserRegistrationStatusDB } = require("../models/activityRegistration.js");
+const { listRegistrationsByActivityDB, registerMemberToActivityDB, cancelRegistrationDB, listMemberRegistrationsDB, getActivityCapacityDB, countActiveRegistrationsDB, getUserRegistrationStatusDB, getUserActiveSchedulesDB, getActivitySchedulesDB } = require("../models/activityRegistration.js");
 const { getUserByIdDB} = require("../models/user.js");
 const { getRoleByIdDB } = require("../models/roles.js");
 // ==========================================
@@ -88,7 +88,7 @@ function registerMemberToActivity(request, response) {
                 throw new BadRequestError("Falta el ID de la actividad.");
             }
 
-            // ⭐ VALIDACIÓN DE CUPO
+            // ---------- VALIDACIÓN DE CUPO ----------
             const activity = getActivityCapacityDB(idActivity);
             if (!activity) {
                 throw new BadRequestError("La actividad no existe.");
@@ -108,7 +108,43 @@ function registerMemberToActivity(request, response) {
                 }
             }
 
-            // ⭐ SI HAY CUPO (o ya estaba inscripto), PROCEDEMOS
+            // ----------  VALIDACIÓN DE SUPERPOSICIÓN DE HORARIOS ----------
+            const existingReg = getUserRegistrationStatusDB(idUser, idActivity);
+            
+            if (existingReg && existingReg.status === 'ACTIVE') {
+                throw new DomainError("Ya estás inscripto en esta actividad.");
+            }
+            
+            const newSchedules = getActivitySchedulesDB(idActivity);
+            const userSchedules = getUserActiveSchedulesDB(idUser);
+
+            for (let i = 0; i < newSchedules.length; i++) {
+                const newSched = newSchedules[i];
+
+                for (let j = 0; j < userSchedules.length; j++) {
+                    const userSched = userSchedules[j];
+
+                    // Comparar solo si es el mismo día
+                    if (newSched.day === userSched.day) {
+                        // Hay choque si: start1 < end2 Y start2 < end1
+                        const hayChoque = 
+                            newSched.startTime < userSched.endTime &&
+                            userSched.startTime < newSched.endTime;
+
+                        if (hayChoque) {
+                            throw new DomainError(
+                                "No podés inscribirte, el horario (" + 
+                                newSched.day + " " + newSched.startTime + "-" + newSched.endTime + 
+                                ") choca con tu inscripción en '" + userSched.activityName + 
+                                "' (" + userSched.day + " " + userSched.startTime + "-" + userSched.endTime + ")."
+                            );
+                        }
+                    }
+                }
+            }
+
+
+            // ---------- SI PASA TODO, INSCRIBIR ----------
             const result = registerMemberToActivityDB(idUser, idActivity);
 
             if (!result) {
