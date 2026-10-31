@@ -17,6 +17,7 @@ INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, em
 VALUES (3, 3, 'adminClub', 'asdd', '123456', '1999-09-09', 'adminclub@email.com', '1125689',
         '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92');
 
+
 -- ==========================================
 -- SOLICITUDES DE MEMBRESÍA PENDIENTES
 -- ==========================================
@@ -36,13 +37,14 @@ INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, em
 VALUES (1, 1, 'Pedro', 'Lopez', '33333333', '1998-02-14', 'pedro.lopez@email.com', '1199887766',
         '9a8b7c6d5e4f3g2h1i0j9k8l7m6n5o4p3q2r1s0t9u8v7w6x5y4z3a2b1c0d9e8f');
 
+
 -- ==========================================
 -- ACTIVIDADES DE PRUEBA Y SUS HORARIOS
 -- ==========================================
 
--- 1. Fútbol (2 horarios) - Alcance: General
+-- 1. Fútbol (2 horarios)
 INSERT OR IGNORE INTO activities (name, description, startDate, endDate, instructor, capacity, scope) 
-VALUES ('Fútbol', 'Entrenamiento mixto para todas las edades', '2026-03-01', '2026-12-15', 'Martín', 20, 'General');
+VALUES ('Fútbol', 'Para chicos de 6 a 12 años. Iniciación deportiva, trabajo en equipo y diversión.', '2026-03-01', '2026-12-15', 'Martín', 20, 'Solo Socios');
 
 INSERT OR IGNORE INTO activitySchedules (idActivity, day, startTime, endTime) 
 SELECT idActivity, 'Martes', '10:00', '12:00' FROM activities WHERE name = 'Fútbol';
@@ -50,16 +52,16 @@ SELECT idActivity, 'Martes', '10:00', '12:00' FROM activities WHERE name = 'Fút
 INSERT OR IGNORE INTO activitySchedules (idActivity, day, startTime, endTime) 
 SELECT idActivity, 'Jueves', '15:00', '16:00' FROM activities WHERE name = 'Fútbol';
 
--- 2. Básquet (1 horario) - Alcance: Solo Socios
+-- 2. Básquet (1 horario)
 INSERT OR IGNORE INTO activities (name, description, startDate, endDate, instructor, capacity, scope) 
-VALUES ('Básquet', 'Juveniles y adultos', '2026-03-01', '2026-12-15', 'Laura', 15, 'Solo Socios');
+VALUES ('Básquet', 'Para adolescentes y adultos (mayores de 15 años). Nivel intermedio, se juegan partidos amistosos.', '2026-03-01', '2026-12-15', 'Laura', 15, 'Solo Socios');
 
 INSERT OR IGNORE INTO activitySchedules (idActivity, day, startTime, endTime) 
 SELECT idActivity, 'Lunes', '18:00', '20:00' FROM activities WHERE name = 'Básquet';
 
--- 3. Yoga (2 horarios) - Alcance: General
+-- 3. Yoga (2 horarios)
 INSERT OR IGNORE INTO activities (name, description, startDate, endDate, instructor, capacity, scope) 
-VALUES ('Yoga', 'Para todas las edades, traer mat', '2026-03-01', '2026-12-15', 'Carolina', 30, 'General');
+VALUES ('Yoga', 'Para todas las edades (adultos). Clases de relajación y estiramiento, ideal para principiantes.', '2026-03-01', '2026-12-15', 'Carolina', 30, 'Solo Socios');
 
 INSERT OR IGNORE INTO activitySchedules (idActivity, day, startTime, endTime) 
 SELECT idActivity, 'Miércoles', '09:00', '10:30' FROM activities WHERE name = 'Yoga';
@@ -67,9 +69,9 @@ SELECT idActivity, 'Miércoles', '09:00', '10:30' FROM activities WHERE name = '
 INSERT OR IGNORE INTO activitySchedules (idActivity, day, startTime, endTime) 
 SELECT idActivity, 'Viernes', '09:00', '10:30' FROM activities WHERE name = 'Yoga';
 
--- 4. Natación (1 horario) - Alcance: Invitados
+-- 4. Natación (1 horario)
 INSERT OR IGNORE INTO activities (name, description, startDate, endDate, instructor, capacity, scope) 
-VALUES ('Natación', 'Principiantes y avanzados', '2026-03-01', '2026-12-15', 'Sofía', 12, 'Invitados');
+VALUES ('Natación', 'Para niños y jóvenes (de 8 a 18 años). Clases de iniciación y perfeccionamiento en el agua.', '2026-03-01', '2026-12-15', 'Sofía', 12, 'Solo Socios');
 
 INSERT OR IGNORE INTO activitySchedules (idActivity, day, startTime, endTime) 
 SELECT idActivity, 'Sábado', '10:00', '12:00' FROM activities WHERE name = 'Natación';
