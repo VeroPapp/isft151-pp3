@@ -25,8 +25,10 @@ function listActiveActivities(request, response) {
 
 function createActivity(request, response) {
     let bodyRaw = "";
-    request.on("data", chunk => bodyRaw += chunk.toString());
-    request.on("end", () => {
+    request.on("data", function(chunk) {
+        bodyRaw += chunk.toString();
+    });
+    request.on("end", function() {
         try {
             const data = JSON.parse(bodyRaw);
             const { name, description, startDate, endDate, instructor, capacity, scope, schedules } = data;
@@ -45,8 +47,10 @@ function createActivity(request, response) {
 
 function updateActivity(request, response) {
     let bodyRaw = "";
-    request.on("data", chunk => bodyRaw += chunk.toString());
-    request.on("end", () => {
+    request.on("data", function(chunk) {
+        bodyRaw += chunk.toString();
+    });
+    request.on("end", function() {
         try {
             const data = JSON.parse(bodyRaw);
             const { idActivity, name, description, startDate, endDate, instructor, capacity, scope, schedules } = data;
@@ -70,9 +74,11 @@ function updateActivity(request, response) {
 
 function deactivateActivity(request, response) {
     let bodyRaw = "";
-    request.on("data", chunk => bodyRaw += chunk.toString());
-    request.on("end", () => {
-        try {
+    request.on("data", function(chunk) {
+        bodyRaw += chunk.toString();
+    });
+    request.on("end", function() {
+              try {
             const data = JSON.parse(bodyRaw);
             const { idActivity } = data;
 
@@ -90,8 +96,10 @@ function deactivateActivity(request, response) {
 
 function activateActivity(request, response) {
     let bodyRaw = "";
-    request.on("data", chunk => bodyRaw += chunk.toString());
-    request.on("end", () => {
+    request.on("data", function(chunk) {
+        bodyRaw += chunk.toString();
+    });
+    request.on("end", function() {
         try {
             const data = JSON.parse(bodyRaw);
             const { idActivity } = data;

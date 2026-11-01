@@ -9,11 +9,11 @@ async function createMembershipApplication(request, response) {
 
     let body = ""
 
-    request.on("data", chunk => {
+    request.on("data", function(chunk) {
         body += chunk.toString()
     })
 
-    request.on("end", async () => {
+    request.on("end", async function() {
         try {
 
             let data;
@@ -70,11 +70,11 @@ function listMembershipApplications(request, response) {
 function approveMembershipApplication(request, response) {
     let bodyRaw = "";
 
-    request.on("data", chunk => {
+    request.on("data", function(chunk) {
         bodyRaw += chunk.toString();
     });
 
-    request.on("end", () => {
+    request.on("end", async function() {
         try {
             let data;
             try {
@@ -108,11 +108,11 @@ function approveMembershipApplication(request, response) {
 function rejectMembershipApplication(request, response) {
     let bodyRaw = "";
 
-    request.on("data", chunk => {
+    request.on("data", function(chunk) {
         bodyRaw += chunk.toString();
     });
 
-    request.on("end", () => {
+    request.on("end", function() {
         try {
             let data;
             try {

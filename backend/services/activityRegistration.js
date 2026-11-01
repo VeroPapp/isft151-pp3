@@ -10,8 +10,10 @@ const { getRoleByIdDB } = require("../models/roles.js");
 // listar socios inscriptos por actividad
 function listRegistrationsByActivity(request, response) {
     let bodyRaw = "";
-    request.on("data", chunk => bodyRaw += chunk.toString());
-    request.on("end", function () {
+    request.on("data", function(chunk) {
+        bodyRaw += chunk.toString();
+    });
+    request.on("end", function() {
         try {
             const data = JSON.parse(bodyRaw);
             const { idActivity } = data;
@@ -30,8 +32,10 @@ function listRegistrationsByActivity(request, response) {
 
 function removeMemberFromActivity(request, response) {
     let bodyRaw = "";
-    request.on("data", chunk => bodyRaw += chunk.toString());
-    request.on("end", function () {
+    request.on("data", function(chunk) {
+        bodyRaw += chunk.toString();
+    });
+    request.on("end", function() {
         try {
             const data = JSON.parse(bodyRaw);
             const { idUser, idActivity } = data;
@@ -72,7 +76,9 @@ function removeMemberFromActivity(request, response) {
 function registerMemberToActivity(request, response) {
     let bodyRaw = "";
 
-    request.on("data", chunk => bodyRaw += chunk.toString());
+    request.on("data", function(chunk) {
+        bodyRaw += chunk.toString();
+    });
 
     request.on("end", function () {
         try {
@@ -163,8 +169,9 @@ function registerMemberToActivity(request, response) {
 function cancelRegistration(request, response) {
     let bodyRaw = "";
     
-    request.on("data", chunk => bodyRaw += chunk.toString());
-
+    request.on("data", function(chunk) {
+        bodyRaw += chunk.toString();
+    });
     request.on("end", function () {
         try {
             const idUser = request.user ? request.user.IDuser : null;

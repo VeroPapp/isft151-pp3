@@ -2,18 +2,42 @@ import { RPCWebAPIFetchPrivate } from '../shared/api.js';
 
 const resultDiv = document.getElementById("resultMessage");
 const submitButton = document.getElementById("submitButton");
+const formView = document.getElementById("formView");
+const successView = document.getElementById("successView");
+
 let isSubmitting = false;
 
-export function setupBackLink() {
+export function setupView() {
     const backLink = document.getElementById("backLink");
+    const pageTitle = document.getElementById("pageTitle");
+    const pageSubtitle = document.getElementById("pageSubtitle");
+    const noticeDiv = document.getElementById("passwordNotice");
+    
     const urlParams = new URLSearchParams(window.location.search);
     const isMandatory = urlParams.get('mandatory') === 'true';
 
-    // Ocultar el botón de "Volver" si el cambio es obligatorio
     if (isMandatory) {
+        // Configuración para PRIMER INICIO (Obligatorio)
+        pageTitle.textContent = "Cambio de contraseña obligatorio";
+        pageSubtitle.textContent = "Estás usando una contraseña temporal. Elegí una nueva para continuar.";
+        
+        noticeDiv.className = "password-notice mandatory";
+        noticeDiv.innerHTML = "<strong>🔒 Primera sesión</strong>" +
+            "Tu cuenta fue creada con una contraseña temporal. " +
+            "Por seguridad, debés cambiarla antes de acceder al sistema. " +
+            "Al guardar los cambios, vas a ser redirigido al inicio de sesión para ingresar con tu nueva contraseña.";
+        
         backLink.style.display = "none";
     } else {
-        // Configurar el enlace de "Volver" según el rol
+        // Configuración para CAMBIO VOLUNTARIO
+        pageTitle.textContent = "Cambiar contraseña";
+        pageSubtitle.textContent = "Ingresá tu contraseña actual y elegí una nueva.";
+        
+        noticeDiv.className = "password-notice voluntary";
+        noticeDiv.innerHTML = "<strong>ℹ️ Cierre de sesión al finalizar</strong>" +
+            "Una vez que cambies tu contraseña, se cerrará tu sesión actual. " +
+            "Vas a ser redirigido al inicio de sesión para ingresar con tu nueva contraseña.";
+        
         const role = localStorage.getItem("userRole");
         if (role === "CLUB_ADMIN" || role === "SUPER_ADMIN") {
             backLink.href = "adminProfile.html";
@@ -63,6 +87,34 @@ function validatePasswordStrength(password) {
     if (!/[0-9]/.test(password)) return "La nueva contraseña debe incluir al menos un número.";
     if (!/[!@#$%^&*(),.?":{}|<>_+\-=]/.test(password)) return "La nueva contraseña debe incluir al menos un carácter especial.";
     return null;
+}
+
+function showSuccessView() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isMandatory = urlParams.get('mandatory') === 'true';
+    const successTitle = document.getElementById("successTitle");
+    const successMessage = document.getElementById("successMessage");
+
+    if (isMandatory) {
+        successTitle.textContent = "¡Contraseña actualizada!";
+        successMessage.textContent = "Tu contraseña temporal fue reemplazada correctamente. Ahora podés ingresar al sistema con tu nueva contraseña.";
+    } else {
+        successTitle.textContent = "¡Contraseña cambiada!";
+        successMessage.textContent = "Tu contraseña fue actualizada con éxito. Por seguridad, cerraremos tu sesión actual.";
+    }
+
+    // Ocultar form, mostrar éxito
+    formView.classList.add("hidden");
+    successView.classList.remove("hidden");
+
+    // Limpiar tokens
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("userRole");
+
+    // Redirigir después de 2.5 segundos
+    setTimeout(function () {
+        window.location.replace("login.html");
+    }, 2500);
 }
 
 export async function onChangePasswordSubmit(event) {
@@ -123,10 +175,8 @@ export async function onChangePasswordSubmit(event) {
             confirmPassword: confirmPassword
         });
 
-        // Si sale bien, deslogueamos y mandamos al login
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("userRole");
-        window.location.replace("login.html");
+        // Mostrar vista de éxito en lugar de redirigir de inmediato
+        showSuccessView();
 
     } catch (error) {
         let errorMessage;

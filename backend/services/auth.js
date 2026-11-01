@@ -15,7 +15,7 @@ const { calcularHashSHA256 } = require("../helpers/hash.js");
 function login(request, response) {
     let bodyRaw = "";
 
-    request.on('data', chunk => {
+    request.on("data", function(chunk) {
         bodyRaw += chunk.toString();
     });
 
@@ -121,7 +121,7 @@ function logout(request, response) {
 function changePassword(request, response) {
     let bodyRaw = "";
 
-    request.on("data", chunk => {
+    request.on("data", function(chunk) {
         bodyRaw += chunk.toString();
     });
 

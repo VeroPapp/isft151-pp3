@@ -206,3 +206,63 @@ body.password-page {
 }
 
 .login-back:hover { color: var(--primary); }
+
+/* ---------- Mensaje segun si es primer inicio o no ---------- */
+
+.password-notice {
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    border-left: 4px solid;
+}
+
+.password-notice.mandatory {
+    background: #fef3c7;
+    color: #92400e;
+    border-left-color: #f59e0b;
+}
+
+.password-notice.voluntary {
+    background: #eff6ff;
+    color: #1e40af;
+    border-left-color: #3b82f6;
+}
+
+.password-notice strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+/* Vista de éxito */
+.success-panel {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.success-panel .icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+}
+
+.success-panel h2 {
+    margin: 0 0 12px;
+    color: var(--success-text);
+    font-size: 1.25rem;
+}
+
+.success-panel p {
+    margin: 0 0 8px;
+    color: var(--text);
+    font-size: 0.95rem;
+}
+
+.success-panel .redirect-msg {
+    margin-top: 16px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-style: italic;
+}
+
+.hidden { display: none !important; }
