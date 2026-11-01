@@ -228,20 +228,67 @@ export async function onCreateActivitySubmit(event) {
     const editId = document.getElementById("editActivityId").value;
     const isEditing = editId !== "";
 
+    const startDateInput = document.getElementById("activityStartDate");
+    const endDateInput = document.getElementById("activityEndDate");
+    const startDate = startDateInput.value;
+    const endDate = endDateInput.value;
+
+    startDateInput.classList.remove("input-error");
+    endDateInput.classList.remove("input-error");
+
+    if (startDate && endDate && startDate > endDate) {
+        showMessage("resultMessage", "La fecha de fin (" + endDate + ") no puede ser anterior a la fecha de inicio (" + startDate + ").", true);
+        
+        startDateInput.classList.add("input-error");
+        endDateInput.classList.add("input-error");
+        
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+    }
+
     const scheduleRows = document.querySelectorAll(".schedule-row");
     const schedules = [];
+
+    scheduleRows.forEach(function(row) {
+        row.querySelector(".sched-start").classList.remove("input-error");
+        row.querySelector(".sched-end").classList.remove("input-error");
+    });
 
     for (let i = 0; i < scheduleRows.length; i++) {
         const row = scheduleRows[i];
         const day = row.querySelector(".sched-day").value;
         const start = row.querySelector(".sched-start").value;
         const end = row.querySelector(".sched-end").value;
-        if (day && start && end) schedules.push({ day: day, startTime: start, endTime: end });
+
+        if (day && start && end) {
+            if (start >= end) {
+                const msg = "La hora de fin (" + end + ") debe ser posterior a la hora de inicio (" + start + ") el día " + day + ".";
+                showMessage("resultMessage", msg, true);
+
+                row.querySelector(".sched-start").classList.add("input-error");
+                row.querySelector(".sched-end").classList.add("input-error");
+
+                window.scrollTo({ top: 0, behavior: "smooth" });
+
+                return;
+            }
+
+            schedules.push({ day: day, startTime: start, endTime: end });
+        }
     }
 
     if (schedules.length === 0) {
         showMessage("resultMessage", "Debes agregar al menos un horario válido.", true);
         return;
+    }
+
+    for (let i = 0; i < schedules.length; i++) {
+        const sched = schedules[i];
+        
+        if (sched.startTime >= sched.endTime) {
+            showMessage("resultMessage", "La hora de fin debe ser posterior a la hora de inicio en el día " + sched.day + ".", true);
+            return;
+        }
     }
 
     const payload = {

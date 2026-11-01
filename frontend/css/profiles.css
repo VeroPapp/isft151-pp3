@@ -221,6 +221,60 @@
     background: rgba(26, 127, 79, 0.05);
 }
 
+/* ------ ESTILOS PARA ERRORES DESTACADOS ------ */
+
+/* 1. Inputs con error (borde rojo grueso) */
+.input-error {
+    border: 2px solid var(--danger) !important;
+    background-color: #fef2f2 !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2) !important;
+}
+
+/* 2. El cartel de error con marco y sombra */
+#resultMessage.error {
+    background-color: var(--error-bg);
+    color: var(--error-text);
+    border: 2px solid var(--danger);
+    border-left: 8px solid var(--danger); /* Borde izquierdo más grueso */
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    animation: shake 0.4s ease-in-out;
+}
+
+/* Icono de advertencia antes del texto */
+#resultMessage.error::before {
+    content: "⚠️";
+    font-size: 1.5rem;
+}
+
+/* Para los mensajes de éxito */
+#resultMessage.ok {
+    background-color: var(--success-bg);
+    color: var(--success-text);
+    border: 2px solid var(--success-border);
+    border-left: 8px solid var(--success-border);
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+#resultMessage.ok::before {
+    content: "✅";
+    font-size: 1.5rem;
+}
+
 /* ---------- Modal de Inscriptos ---------- */
 
 .modal-overlay {

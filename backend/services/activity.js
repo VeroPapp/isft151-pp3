@@ -37,6 +37,16 @@ function createActivity(request, response) {
                 throw new BadRequestError("El nombre y al menos un horario son obligatorios.");
             }
 
+            if (startDate && endDate && startDate > endDate) {
+                throw new DomainError("La fecha de fin no puede ser anterior a la fecha de inicio.");
+            }
+
+            for (let i = 0; i < schedules.length; i++) {
+                if (schedules[i].startTime >= schedules[i].endTime) {
+                    throw new DomainError("La hora de fin (" + schedules[i].endTime + ") debe ser posterior a la hora de inicio (" + schedules[i].startTime + ") el día " + schedules[i].day + ".");
+                }
+            }
+
             createActivityDB({ name, description, startDate, endDate, instructor, capacity, scope }, schedules);
             sendSuccess(response, { message: "Actividad creada correctamente." }, 201);
         } catch (error) {
@@ -57,6 +67,16 @@ function updateActivity(request, response) {
 
             if (!idActivity || !name || !schedules || schedules.length === 0) {
                 throw new BadRequestError("Faltan campos obligatorios (ID, nombre y al menos un horario).");
+            }
+
+            if (startDate && endDate && startDate > endDate) {
+                throw new DomainError("La fecha de fin no puede ser anterior a la fecha de inicio.");
+            }
+
+            for (let i = 0; i < schedules.length; i++) {
+                if (schedules[i].startTime >= schedules[i].endTime) {
+                    throw new DomainError("La hora de fin (" + schedules[i].endTime + ") debe ser posterior a la hora de inicio (" + schedules[i].startTime + ") el día " + schedules[i].day + ".");
+                }
             }
 
             const changes = updateActivityDB(idActivity, { name, description, startDate, endDate, instructor, capacity, scope }, schedules);
