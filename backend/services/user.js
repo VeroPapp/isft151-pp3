@@ -151,7 +151,7 @@ function deactivateMember(request, response) {
 
             // cambia el estado a "INACTIVE"
             const INACTIVE = 5
-            const result = changeMemberStatusDB(INACTIVE, idUser);
+            const result = changeMemberStatusDB(INACTIVE, idUser, true);
             if (!result) {
                 throw new DomainError("No se pudo desactivar la membresía de un socio.");
             }
@@ -207,7 +207,7 @@ function activateMember(request, response) {
 
             // Cambia el estado a "ACTIVE" (3)
             const ACTIVE = 3
-            const result = changeMemberStatusDB(ACTIVE, idUser); // Reutilizamos la función que ya hace el UPDATE
+            const result = changeMemberStatusDB(ACTIVE, idUser, false); // Reutilizamos la función que ya hace el UPDATE
             if (!result) {
                 throw new DomainError("No se pudo reactivar la membresía del socio.");
             }

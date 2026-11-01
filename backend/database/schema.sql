@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS users (
         idUser INTEGER PRIMARY KEY AUTOINCREMENT,
         idRole INTEGER  NOT NULL DEFAULT 1,  -- * Por defecto el ID 1 es 'NONE'
         idStatus INTEGER NOT NULL DEFAULT 1, -- * Por defecto el ID 1 es 'PENDINGFORAPPROBATION'
+        previousStatus INTEGER DEFAULT NULL,
         name TEXT NOT NULL,
         surname TEXT NOT NULL,
         dni TEXT NOT NULL UNIQUE,

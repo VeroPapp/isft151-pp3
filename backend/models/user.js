@@ -58,26 +58,27 @@ function listMembersDB() {
     return members; // Si está vacío, devuelve [], lo cual es correcto
 }
 
-function changeMemberStatusDB(idStatus, idUser) {
-    const sql = `
-        UPDATE users
-        SET idStatus = ?, sessionKey = ?
-        WHERE idUser = ?
-    `;
-
-    const stmt = objectDB.prepare(sql);
-
-    const result = stmt.run(
-        idStatus,
-        "NONE",
-        idUser
-    );
-
-    if (result.changes === 0) {
-        return null;
+function changeMemberStatusDB(idStatus, idUser, savePreviousStatus) {
+    let sql;
+    
+    if (savePreviousStatus) {
+        sql = `UPDATE users SET previousStatus = idStatus, idStatus = ? WHERE idUser = ?`;
+    } else {
+        sql = `UPDATE users SET idStatus = COALESCE(previousStatus, ?), previousStatus = NULL WHERE idUser = ?`;
     }
 
-    return { idUser: idUser };
+    try {
+        const stmt = objectDB.prepare(sql);
+        const result = stmt.run(idStatus, idUser);
+
+        if (result.changes === 0) {
+            return null;
+        }
+
+        return { idUser: idUser };
+    } catch (error) {
+        throw error;
+    }
 }
 
 function updateMemberDB(name, surname, dni, birthdate, phone, email, idUser) {
