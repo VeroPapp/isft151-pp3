@@ -19,7 +19,6 @@ export function setupView() {
     if (isMandatory) {
         // Configuración para PRIMER INICIO (Obligatorio)
         pageTitle.textContent = "Cambio de contraseña obligatorio";
-        pageSubtitle.textContent = "Estás usando una contraseña temporal. Elegí una nueva para continuar.";
         
         noticeDiv.className = "password-notice mandatory";
         noticeDiv.innerHTML = "<strong>🔒 Primera sesión</strong>" +
