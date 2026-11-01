@@ -346,7 +346,7 @@ async function openRegistrationsModal(idActivity, activityName) {
 
     const loadingTr = document.createElement("tr");
     const loadingTd = document.createElement("td");
-    loadingTd.setAttribute("colspan", "4");
+    loadingTd.setAttribute("colspan", "3"); 
     loadingTd.style.textAlign = "center";
     loadingTd.style.padding = "20px";
     loadingTd.textContent = "Cargando...";
@@ -364,7 +364,7 @@ async function openRegistrationsModal(idActivity, activityName) {
         if (regs.length === 0) {
             const emptyTr = document.createElement("tr");
             const emptyTd = document.createElement("td");
-            emptyTd.setAttribute("colspan", "4");
+            emptyTd.setAttribute("colspan", "3");
             emptyTd.style.textAlign = "center";
             emptyTd.style.padding = "20px";
             emptyTd.style.fontStyle = "italic";
@@ -377,9 +377,11 @@ async function openRegistrationsModal(idActivity, activityName) {
         for (let i = 0; i < regs.length; i++) {
             const r = regs[i];
             const tr = document.createElement("tr");
+
+            const memberNumber = "#" + String(r.idUser).padStart(4, "0");
+            tr.appendChild(createCell(memberNumber, false));
+
             tr.appendChild(createCell(r.name + " " + r.surname, true));
-            tr.appendChild(createCell(r.dni, false));
-            tr.appendChild(createCell(r.email, false));
 
             const actionCell = document.createElement("td");
             const removeButton = createButton("Quitar de actividad", "btn btn-danger remove-registration-btn", {
@@ -389,13 +391,14 @@ async function openRegistrationsModal(idActivity, activityName) {
 
             actionCell.appendChild(removeButton);
             tr.appendChild(actionCell);
+
             tbody.appendChild(tr);
         }
     } catch (error) {
         clearContainer(tbody);
         const errTr = document.createElement("tr");
         const errTd = document.createElement("td");
-        errTd.setAttribute("colspan", "4");
+        errTd.setAttribute("colspan", "3");
         errTd.style.textAlign = "center";
         errTd.style.color = "red";
         errTd.style.padding = "20px";

@@ -25,7 +25,7 @@ export async function loadMembers() {
 
         const thead = document.createElement("thead");
         const trHead = document.createElement("tr");
-        const headers = ["Nombre y Apellido", "DNI", "Email", "Teléfono", "Estado", "Alta", "Acciones"];
+        const headers = ["Socio", "Nombre y Apellido", "DNI", "Email", "Teléfono", "Estado", "Alta", "Acciones"];
         for (let h = 0; h < headers.length; h++) {
             const th = document.createElement("th");
             th.textContent = headers[h];
@@ -38,7 +38,9 @@ export async function loadMembers() {
         for (let i = 0; i < localMembersData.length; i++) {
             const m = localMembersData[i];
             const tr = document.createElement("tr");
+            const numberMember = "#" + String(m.idUser).padStart(4, "0");
 
+            tr.appendChild(createCell(numberMember, false)); 
             tr.appendChild(createCell(m.name + " " + m.surname, true));
             tr.appendChild(createCell(m.dni, false));
             tr.appendChild(createCell(m.email, false));
@@ -123,6 +125,10 @@ export async function onMemberActionClick(event) {
 }
 
 export function openEditMemberModal(member) {
+    const numberMember = "#" + String(member.idUser).padStart(4, "0");
+
+    document.getElementById("editMemberTitle").textContent = "Editar Socio: " + numberMember + " - " + member.name + " " + member.surname;
+    
     document.getElementById("editMemberId").value = member.idUser;
     document.getElementById("editMemberName").value = member.name;
     document.getElementById("editMemberSurname").value = member.surname;
@@ -134,11 +140,9 @@ export function openEditMemberModal(member) {
     document.getElementById("editMemberEmail").value = member.email;
     document.getElementById("editMemberPhone").value = member.phone;
 
-    document.getElementById("editMemberTitle").textContent = "Editar Socio: " + member.name + " " + member.surname;
     document.getElementById("editMemberModal").style.display = "flex";
 }
 
-// Recibe el evento directamente
 export async function onEditMemberSubmit(event) {
     event.preventDefault();
     const btn = document.getElementById("saveEditMemberBtn");

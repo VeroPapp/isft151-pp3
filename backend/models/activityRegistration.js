@@ -11,9 +11,7 @@ function listRegistrationsByActivityDB(idActivity) {
             SELECT 
                 u.idUser, 
                 u.name, 
-                u.surname, 
-                u.dni, 
-                u.email
+                u.surname
             FROM activityRegistrations r
             INNER JOIN users u ON r.idUser = u.idUser
             WHERE r.idActivity = ? AND r.status = 'ACTIVE'

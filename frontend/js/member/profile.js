@@ -2,7 +2,6 @@ import { RPCWebAPIFetchPrivate } from '../shared/api.js';
 import { formatDate } from '../shared/helpers.js';
 import { clearContainer } from '../shared/domUtils.js';
 
-// Función auxiliar local para crear campos del perfil
 function createProfileField(labelText, valueText) {
     const field = document.createElement("div");
     field.className = "profile-field";
@@ -31,13 +30,15 @@ export async function loadProfile() {
         const grid = document.createElement("div");
         grid.className = "profile-grid";
 
+        const numberMember = "#" + String(profile.idUser).padStart(4, "0");
+        grid.appendChild(createProfileField("Socio", numberMember));
+
         grid.appendChild(createProfileField("Nombre", profile.name));
         grid.appendChild(createProfileField("Apellido", profile.surname));
         grid.appendChild(createProfileField("DNI", profile.dni));
         grid.appendChild(createProfileField("Fecha Nac.", formatDate(profile.birthdate)));
         grid.appendChild(createProfileField("Email", profile.email));
 
-        // --- Campo Teléfono con botón de Editar ---
         const phoneField = document.createElement("div");
         phoneField.className = "profile-field";
         phoneField.id = "phoneField";
@@ -57,7 +58,7 @@ export async function loadProfile() {
         const editBtn = document.createElement("button");
         editBtn.id = "editPhoneBtn";
         editBtn.className = "btn btn-warning phone-edit-btn";
-        editBtn.textContent = "Editar";
+        editBtn.innerHTML = '<i class="fi fi-rr-edit"></i>'; 
 
         phoneWrap.appendChild(phoneSpan);
         phoneWrap.appendChild(editBtn);
@@ -102,19 +103,30 @@ export function onEditPhoneClick() {
     input.value = currentPhone;
     input.className = "phone-edit-input";
 
+    const btnGroup = document.createElement("div");
+    btnGroup.style.display = "flex";
+    btnGroup.style.flexDirection = "column";
+    btnGroup.style.gap = "4px";
+
     const saveBtn = document.createElement("button");
     saveBtn.id = "savePhoneBtn";
     saveBtn.className = "btn btn-success phone-edit-btn";
-    saveBtn.textContent = "Guardar";
+    saveBtn.innerHTML = '<i class="fi fi-rr-check"></i>'
+    saveBtn.title = "Guardar";
+    saveBtn.setAttribute("aria-label", "Guardar teléfono");
 
     const cancelBtn = document.createElement("button");
     cancelBtn.id = "cancelPhoneBtn";
     cancelBtn.className = "btn btn-danger phone-edit-btn";
-    cancelBtn.textContent = "Cancelar";
+    cancelBtn.innerHTML = '<i class="fi fi-rr-cross-small"></i>';
+    cancelBtn.title = "Cancelar";
+    cancelBtn.setAttribute("aria-label", "Cancelar edición");
+
+    btnGroup.appendChild(saveBtn);
+    btnGroup.appendChild(cancelBtn);
 
     wrap.appendChild(input);
-    wrap.appendChild(saveBtn);
-    wrap.appendChild(cancelBtn);
+    wrap.appendChild(btnGroup);
     phoneField.appendChild(wrap);
 
     saveBtn.onclick = onSavePhoneClick;
