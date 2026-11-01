@@ -84,6 +84,7 @@ export async function onMemberActionClick(event) {
     const deactivateBtn = event.target.closest(".deactivate-member-btn");
     const activateBtn = event.target.closest(".activate-member-btn");
 
+    // --- EDITAR ---
     if (editBtn) {
         const idUser = editBtn.getAttribute("data-id");
         const member = localMembersData.find(function (m) { return m.idUser == idUser; });
@@ -91,32 +92,38 @@ export async function onMemberActionClick(event) {
         return;
     }
 
+    // --- DAR DE BAJA ---
     if (deactivateBtn) {
-        if (!confirm("¿Estás seguro que querés dar de baja a este socio?")) return;
+        if (!confirm("¿Estás seguro que querés dar de baja a este socio? El usuario ya no podrá iniciar sesión.")) return;
+        
         deactivateBtn.disabled = true;
         deactivateBtn.textContent = "Procesando...";
+        
         try {
             const response = await RPCWebAPIFetchPrivate("/deactivateMember", { idUser: deactivateBtn.getAttribute("data-id") });
-            showMessage("resultMessage", response.data.message || "Socio dado de baja.", false);
+            alert(response.data.message || "Socio dado de baja correctamente.");
             loadMembers();
         } catch (error) {
-            showMessage("resultMessage", "Error al dar de baja: " + error.message, true);
+            alert("Error al dar de baja: " + error.message);
             deactivateBtn.disabled = false;
             deactivateBtn.textContent = "Dar de baja";
         }
         return;
     }
 
+    // --- REACTIVAR ---
     if (activateBtn) {
-        if (!confirm("¿Querés reactivar a este socio?")) return;
+        if (!confirm("¿Querés reactivar a este socio? Volverá a poder iniciar sesión.")) return;
+        
         activateBtn.disabled = true;
         activateBtn.textContent = "Procesando...";
+        
         try {
             const response = await RPCWebAPIFetchPrivate("/activateMember", { idUser: activateBtn.getAttribute("data-id") });
-            showMessage("resultMessage", response.data.message || "Socio reactivado.", false);
+            alert(response.data.message || "Socio reactivado correctamente.");
             loadMembers();
         } catch (error) {
-            showMessage("resultMessage", "Error al reactivar: " + error.message, true);
+            alert("Error al reactivar: " + error.message);
             activateBtn.disabled = false;
             activateBtn.textContent = "Reactivar";
         }

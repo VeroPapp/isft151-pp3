@@ -310,7 +310,7 @@ export async function onCreateActivitySubmit(event) {
     try {
         const endpoint = isEditing ? "/updateActivity" : "/createActivity";
         const response = await RPCWebAPIFetchPrivate(endpoint, payload);
-        showMessage("resultMessage", response.data.message, false);
+        
         resetActivityForm();
         loadActivities();
     } catch (error) {
@@ -422,13 +422,14 @@ export async function onRemoveMemberFromActivity(event) {
 
     try {
         const response = await RPCWebAPIFetchPrivate("/removeMemberFromActivity", { idUser: idUser, idActivity: idActivity });
-        showMessage("resultMessage", response.data.message || "Socio quitado de la actividad correctamente.", false);
+        
+        alert(response.data.message || "Socio quitado de la actividad correctamente.");
         
         const activityName = document.getElementById("modalTitle").textContent.replace("Inscriptos en: ", "");
         await openRegistrationsModal(idActivity, activityName);
 
     } catch (error) {
-        showMessage("resultMessage", "Error al quitar al socio: " + error.message, true);
+        alert("Error al quitar al socio: " + error.message);
         button.disabled = false;
         button.textContent = "Quitar de actividad";
     }

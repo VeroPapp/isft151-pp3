@@ -227,7 +227,6 @@ body.landing {
     box-shadow: 0 20px 40px rgba(0,0,0,0.2);
 }
 
-/* Hacemos que el formulario tenga 2 columnas en PC */
 .landing-form .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -260,7 +259,35 @@ body.landing {
 .landing-form .landing-btn { 
     width: 100%; 
     margin-top: 10px; 
-    grid-column: 1 / -1; /* Ocupa las dos columnas */
+    grid-column: 1 / -1;
+}
+
+/* ---------- Mensaje de resultado del formulario de membresía ---------- */
+
+.landing-result {
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 8px;
+}
+
+.landing-result:empty {
+    display: none;
+}
+
+.landing-result-error {
+    background: var(--error-bg);
+    color: var(--error-text);
+    border: 1px solid var(--error-border);
+    border-left: 5px solid var(--danger);
+    padding: 12px 16px;
+}
+
+.landing-result-ok {
+    background: var(--success-bg);
+    color: var(--success-text);
+    border: 1px solid var(--success-border);
+    border-left: 5px solid #16a34a;
+    padding: 12px 16px;
 }
 
 /* ---------- Contacto ---------- */
@@ -272,7 +299,7 @@ body.landing {
 .contact-grid {
     display: grid;
     grid-template-columns: 1fr 1.2fr;
-    gap: 0; /* Sin gap para que el mapa y el info se toquen */
+    gap: 0; 
     background: var(--bg);
     border-radius: 16px;
     border: 1px solid var(--border);
@@ -332,7 +359,6 @@ body.landing {
     border-top: 4px solid var(--accent); 
 }
 
-/* El resto de tu footer actual está perfecto */
 .footer-content { display: flex; flex-direction: column; gap: 24px; }
 .footer-columns { display: flex; justify-content: space-around; align-items: center; width: 100%; }
 .footer-creators { text-align: left; }
@@ -347,6 +373,7 @@ body.landing {
 .footer-logo img:hover{ transform: scale(1.10); transition: transform 0.3s ease; }
 .footer-bottom { margin-top: 16px; padding-top: 24px; border-top: 1px solid rgba(255, 255, 255, 0.1); width: 100%; text-align: center; }
 .footer-bottom p { margin: 0; font-size: 0.85rem; color: #94a3b8; }
+
 
 /* ---------- Responsive ---------- */
 @media (max-width: 900px) {

@@ -1,6 +1,6 @@
 import { RPCWebAPIFetchPrivate } from '../shared/api.js';
 import { clearContainer, createActivityCard } from '../shared/domUtils.js';
-import { loadRegistrations } from './registrations.js'; // Para recargar las inscripciones al inscribirse
+import { loadRegistrations } from './registrations.js';
 
 export async function loadActivities() {
     const container = document.getElementById("activitiesContainer");

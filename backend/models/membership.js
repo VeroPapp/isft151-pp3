@@ -1,6 +1,6 @@
 const { objectDB } = require("../database/connectDB.js")
 const { DomainError } = require("../helpers/errorHandler.js")
-const { calcularHashSHA256 } = require("../helpers/hash.js")
+const { calculateHashSHA256 } = require("../helpers/hash.js")
 
 
 function createMembershipApplicationDB(name, surname, dni, birthdate, email, phone) {
@@ -21,7 +21,7 @@ function createMembershipApplicationDB(name, surname, dni, birthdate, email, pho
             return false
         }
 
-        const passwordHash = calcularHashSHA256(dni)
+        const passwordHash = calculateHashSHA256(dni)
 
         // Crear usuario con estado PENDING,
         // sin rol y con contraseña temporal

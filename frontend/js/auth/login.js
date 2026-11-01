@@ -24,31 +24,31 @@ export async function onLoginSubmit(event) {
     button.innerText = "Ingresando...";
 
     try {
-        const response = await RPCWebAPIFetchPublic("/login", { email: email, password: password });
+        const response = await RPCWebAPIFetchPublic("/login", { email, password });
         const user = response.data.user;
         
-        // Guardamos el rol para las redirecciones y la UX del frontend
         localStorage.setItem("userRole", user.role || "");
 
-        // Si es primer inicio, va a cambiar la contraseña
         if (response.data.redirectToChangePassword) {
             window.location.href = "changePassword.html?mandatory=true";
             return;
         }
 
-        // Redirección según el rol
         if (user.role === "CLUB_ADMIN" || user.role === "SUPER_ADMIN") {
             window.location.href = "adminProfile.html";
         } else {
             window.location.href = "memberProfile.html";
         }
 
+
     } catch (error) {
         showMessage("resultMessage", error.message || "Los datos ingresados son incorrectos.", true);
+        
         emailInput.value = "";
         passwordInput.value = "";
+        emailInput.focus(); 
+        
         button.disabled = false;
         button.innerText = "Ingresar";
-        emailInput.focus(); 
     }
 }

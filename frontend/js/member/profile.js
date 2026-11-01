@@ -136,9 +136,9 @@ export function onEditPhoneClick() {
 
 async function onSavePhoneClick() {
     const newPhone = document.getElementById("phoneInput").value.trim();
-    
-    if (!newPhone) {
-        alert("El teléfono no puede estar vacío.");
+
+    if (!/^\d{8,13}$/.test(newPhone)) {
+        alert("El teléfono debe contener entre 8 y 13 dígitos numéricos (sin espacios ni guiones).");
         return;
     }
 
@@ -153,7 +153,7 @@ async function onSavePhoneClick() {
     } catch (error) {
         alert("Error al actualizar el teléfono: " + error.message);
         saveBtn.disabled = false;
-        saveBtn.innerText = "Guardar";
+        saveBtn.innerHTML = '<i class="fi fi-rr-check"></i>';
     }
 }
 

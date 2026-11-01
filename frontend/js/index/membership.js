@@ -9,6 +9,7 @@ export async function onRegisterSubmit(event) {
 
     const dniValue = document.getElementById("dni").value.trim();
     const birthdateValue = document.getElementById("birthdate").value;
+    const phoneValue = document.getElementById("phone").value.trim();
 
     // Validación de DNI
     if (!/^\d{8}$/.test(dniValue)) {
@@ -31,6 +32,16 @@ export async function onRegisterSubmit(event) {
         return;
     }
 
+    // Validación de número de teléfono (8 a 13 dígitos, solo números)
+    if (!/^\d{8,13}$/.test(phoneValue)) {
+        showMessage(
+            "resultMessage",
+            "El teléfono debe tener entre 8 y 13 dígitos numéricos (sin espacios ni guiones).",
+            true
+        );
+        return;
+    }
+
     // Armado de Payload
     const payload = {
         name: document.getElementById("name").value.trim(),
@@ -45,9 +56,10 @@ export async function onRegisterSubmit(event) {
     try {
         const response = await RPCWebAPIFetchPublic("/createMembershipApplication", payload);
         const successMessage = response.data.message || "¡Tu solicitud fue enviada con éxito! Pronto nos comunicaremos con vos vía mail.";
-        
-        showMessage("resultMessage", successMessage, false);
+
+        alert(successMessage);
         form.reset();
+
     } catch (error) {
         showMessage("resultMessage", error.message || "Hubo un error al enviar la solicitud.", true);
     }

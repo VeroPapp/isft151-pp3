@@ -204,7 +204,6 @@ module.exports = {
     countActiveRegistrationsDB,
     getUserRegistrationStatusDB,
     cancelAllMemberRegistrationsDB,
-    getUserRegistrationStatusDB,
     getUserActiveSchedulesDB,
     getActivitySchedulesDB
 };

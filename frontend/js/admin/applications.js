@@ -1,5 +1,4 @@
 import { RPCWebAPIFetchPrivate } from '../shared/api.js';
-import { showMessage } from '../shared/helpers.js';
 import { clearContainer, createCell, createButton } from '../shared/domUtils.js';
 
 export async function loadApplications() {
@@ -71,7 +70,6 @@ export async function loadApplications() {
     }
 }
 
-// Ahora solo recibe el evento (e) para cumplir con la firma de onclick
 export async function onApplicationActionClick(event) {
     const button = event.target.closest(".action-btn");
     if (!button) return;
@@ -81,25 +79,33 @@ export async function onApplicationActionClick(event) {
 
     if (action === "approve") {
         if (!confirm("¿Confirmás que querés aprobar esta solicitud?")) return;
+        
         button.disabled = true;
+        button.textContent = "Aprobando...";
+
         try {
             const response = await RPCWebAPIFetchPrivate("/approveMembershipApplication", { idUser: idUser });
-            showMessage("resultMessage", response.data.message, false);
-            loadApplications(); // Llama a la función sin argumentos
+            alert(response.data.message || "Solicitud aprobada correctamente.");
+            loadApplications(); // Recarga la tabla
         } catch (error) {
-            showMessage("resultMessage", "Error al aprobar: " + error.message, true);
+            alert("Error al aprobar: " + error.message);
             button.disabled = false;
+            button.textContent = "Aprobar";
         }
     } else if (action === "reject") {
         if (!confirm("¿Confirmás que querés rechazar esta solicitud?")) return;
+        
         button.disabled = true;
+        button.textContent = "Rechazando...";
+
         try {
             const response = await RPCWebAPIFetchPrivate("/rejectMembershipApplication", { idUser: idUser });
-            showMessage("resultMessage", response.data.message, false);
-            loadApplications();
+            alert(response.data.message || "Solicitud rechazada correctamente.");
+            loadApplications(); // Recarga la tabla
         } catch (error) {
-            showMessage("resultMessage", "Error al rechazar: " + error.message, true);
+            alert("Error al rechazar: " + error.message);
             button.disabled = false;
+            button.textContent = "Rechazar";
         }
     }
 }

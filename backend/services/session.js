@@ -1,4 +1,4 @@
-const { calcularHashSHA256 } = require("../helpers/hash.js");
+const { calculateHashSHA256 } = require("../helpers/hash.js");
 
 class UserSession {
     constructor() {
@@ -11,7 +11,7 @@ class UserSession {
 
     setHash(idUser, email) {
         let cadena = `${idUser}:${email}`;
-        const result = calcularHashSHA256(cadena);
+        const result = calculateHashSHA256(cadena);
         this.hash = result;
         this.userEmail = email;
         this.userId = idUser;

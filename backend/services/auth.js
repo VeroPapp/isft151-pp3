@@ -4,11 +4,11 @@ const { BadRequestError, UnauthorizedError, DomainError, sendError } = require("
 const { authenticateDB } = require("../models/auth.js");
 const { getStatusByIdDB } = require("../models/status.js");
 const { getRoleByIdDB } = require("../models/roles.js");
-const { getUserByIdDB, updateSessionKeyDB, updatePasswordStatusSessionDB } = require("../models/user.js");
+const { getMemberByIdDB, updateSessionKeyDB, updatePasswordStatusSessionDB } = require("../models/member.js");
 
 const { UserSession } = require("../services/session.js");
 const { validateChangePassword } = require("../helpers/validateChangePassword.js");
-const { calcularHashSHA256 } = require("../helpers/hash.js");
+const { calculateHashSHA256 } = require("../helpers/hash.js");
 
 
 
@@ -102,7 +102,7 @@ function login(request, response) {
 
 function logout(request, response) {
     try {
-        const idUser = request.user.IDuser
+        const idUser = request.user.idUser
         if (!idUser) {
             throw new BadRequestError("No se pudo identificar al usuario en la sesión.");
         }
@@ -127,7 +127,7 @@ function changePassword(request, response) {
 
     request.on("end", function () {
         try {
-            const idUser = request.user.IDuser;
+            const idUser = request.user.idUser;
 
             let data;
             try {
@@ -151,19 +151,19 @@ function changePassword(request, response) {
                 throw new BadRequestError("La contraseña debe tener al menos 8 caracteres e incluir una letra mayúscula, una letra minúscula, un número y un carácter especial.");
             }
 
-            const userExists = getUserByIdDB(idUser);
+            const userExists = getMemberByIdDB(idUser);
             if (!userExists) {
                 throw new UnauthorizedError("El usuario no está registrado en la base de datos.");
             }
 
             // Verificar contraseña actual
-            const currentPasswordHash = calcularHashSHA256(currentPassword);
+            const currentPasswordHash = calculateHashSHA256(currentPassword);
             if (userExists.password !== currentPasswordHash) {
                 throw new BadRequestError("La contraseña actual ingresada es incorrecta.");
             }
 
             // Validar que la nueva contraseña no sea igual a datos sensibles o a la anterior
-            const newPasswordHash = calcularHashSHA256(newPassword);
+            const newPasswordHash = calculateHashSHA256(newPassword);
             if (userExists.dni == newPassword || userExists.email == newPassword) {
                 throw new BadRequestError("La contraseña no puede ser igual a tu DNI o Email.");
             }

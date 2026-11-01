@@ -4,7 +4,7 @@ const { objectDB } = require("../database/connectDB.js");
 // ADMINISTRADORES (CLUB_ADMIN / SUPER_ADMIN)
 // ==========================================
 
-function getUserBySessionKeyDB(sessionKey) {
+function getMemberBySessionKeyDB(sessionKey) {
     const sql = `SELECT idUser, idRole, idStatus FROM users WHERE sessionKey = ?`;
     const stmt = objectDB.prepare(sql);
     const userExists = stmt.get(sessionKey);
@@ -14,10 +14,10 @@ function getUserBySessionKeyDB(sessionKey) {
     }
 
     const { idUser, idRole, idStatus } = userExists;
-    return { IDuser: idUser, IDrole: idRole, IDstatus: idStatus };
+    return { idUser: idUser, IDrole: idRole, IDstatus: idStatus };
 }
 
-function getUserByIdDB(IDuser) {
+function getMemberByIdDB(idUser) {
     const sql = `
         SELECT
             idUser, name, surname, dni, birthdate, email, phone, password, sessionKey, idRole, idStatus
@@ -25,7 +25,7 @@ function getUserByIdDB(IDuser) {
         WHERE idUser = ?
     `;
     const stmt = objectDB.prepare(sql);
-    const userExists = stmt.get(IDuser);
+    const userExists = stmt.get(idUser);
 
     if (!userExists) {
         return null;
@@ -50,7 +50,7 @@ function listMembersDB() {
         INNER JOIN userStatus 
             ON users.idStatus = userStatus.idStatus
         WHERE users.idRole = 2
-        ORDER BY users.surname ASC
+        ORDER BY users.idUser ASC
     `;
     const stmt = objectDB.prepare(sql);
     const members = stmt.all();
@@ -90,7 +90,7 @@ function updateMemberDB(name, surname, dni, birthdate, phone, email, idUser) {
         return null;
     }
 
-    return { IDuser: idUser };
+    return { idUser: idUser };
 }
 
 function updateSessionKeyDB(sessionKey, idUser) {
@@ -102,7 +102,7 @@ function updateSessionKeyDB(sessionKey, idUser) {
         return null;
     }
 
-    return { IDuser: idUser };
+    return { idUser: idUser };
 }
 
 function updatePasswordStatusSessionDB(password, idStatus, sessionKey, idUser) {
@@ -114,7 +114,7 @@ function updatePasswordStatusSessionDB(password, idStatus, sessionKey, idUser) {
         return null;
     }
 
-    return { IDuser: idUser };
+    return { idUser: idUser };
 }
 
 // ==========================================
@@ -130,13 +130,13 @@ function updatePhoneDB(phone, idUser) {
         return null;
     }
 
-    return { IDuser: idUser };
+    return { idUser: idUser };
 }
 
 
 module.exports = {
-    getUserBySessionKeyDB,
-    getUserByIdDB,
+    getMemberBySessionKeyDB,
+    getMemberByIdDB,
     listMembersDB,
     updateMemberDB,
     updateSessionKeyDB,

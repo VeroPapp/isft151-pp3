@@ -1,5 +1,5 @@
 const { objectDB } = require("../database/connectDB.js");
-const { calcularHashSHA256 } = require("../helpers/hash.js");
+const { calculateHashSHA256 } = require("../helpers/hash.js");
 
 function authenticateDB(emailUser, password) {
     const sql = `
@@ -17,7 +17,7 @@ function authenticateDB(emailUser, password) {
     try {
         const stmt = objectDB.prepare(sql);
 
-        const hashedPassword = calcularHashSHA256(password);
+        const hashedPassword = calculateHashSHA256(password);
 
         const userExists = stmt.get(emailUser, hashedPassword);
 

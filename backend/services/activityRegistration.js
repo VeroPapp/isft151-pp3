@@ -1,7 +1,7 @@
 const { sendSuccess } = require("../helpers/responseHandler.js");
 const { sendError, BadRequestError, DomainError, UnauthorizedError } = require("../helpers/errorHandler.js");
 const { listRegistrationsByActivityDB, registerMemberToActivityDB, cancelRegistrationDB, listMemberRegistrationsDB, getActivityCapacityDB, countActiveRegistrationsDB, getUserRegistrationStatusDB, getUserActiveSchedulesDB, getActivitySchedulesDB } = require("../models/activityRegistration.js");
-const { getUserByIdDB} = require("../models/user.js");
+const { getMemberByIdDB} = require("../models/member.js");
 const { getRoleByIdDB } = require("../models/roles.js");
 // ==========================================
 // ADMINISTRADORES (CLUB_ADMIN / SUPER_ADMIN)
@@ -44,7 +44,7 @@ function removeMemberFromActivity(request, response) {
                 throw new BadRequestError("Falta el ID del usuario y actividad.");
             }
 
-            const member = getUserByIdDB(idUser);
+            const member = getMemberByIdDB(idUser);
             if (!member) {
                 throw new BadRequestError("Usuario no encontrado.");
             }
@@ -82,7 +82,7 @@ function registerMemberToActivity(request, response) {
 
     request.on("end", function () {
         try {
-            const idUser = request.user ? request.user.IDuser : null;
+            const idUser = request.user ? request.user.idUser : null;
             if (!idUser) {
                 throw new UnauthorizedError("No se pudo identificar al usuario en la sesión.");
             }
@@ -99,23 +99,17 @@ function registerMemberToActivity(request, response) {
             if (!activity) {
                 throw new BadRequestError("La actividad no existe.");
             }
+            
+            const existingReg = getUserRegistrationStatusDB(idUser, idActivity);
 
             if (activity.capacity) {
                 const currentRegistrations = countActiveRegistrationsDB(idActivity);
-
-                // Si el cupo está lleno, verificamos si el usuario ya estaba dentro
-                if (currentRegistrations >= activity.capacity) {
-                    const existingReg = getUserRegistrationStatusDB(idUser, idActivity);
-
-                    // Si no está inscripto, o está cancelado, no puede entrar porque no hay cupo
-                    if (!existingReg || existingReg.status !== 'ACTIVE') {
-                        throw new DomainError("El cupo máximo de esta actividad ya está lleno.");
-                    }
+                if (currentRegistrations >= activity.capacity && (!existingReg || existingReg.status !== 'ACTIVE')) {
+                    throw new DomainError("El cupo máximo de esta actividad ya está lleno.");
                 }
             }
 
             // ----------  VALIDACIÓN DE SUPERPOSICIÓN DE HORARIOS ----------
-            const existingReg = getUserRegistrationStatusDB(idUser, idActivity);
             
             if (existingReg && existingReg.status === 'ACTIVE') {
                 throw new DomainError("Ya estás inscripto en esta actividad.");
@@ -174,7 +168,7 @@ function cancelRegistration(request, response) {
     });
     request.on("end", function () {
         try {
-            const idUser = request.user ? request.user.IDuser : null;
+            const idUser = request.user ? request.user.idUser : null;
             if (!idUser) {
                 throw new UnauthorizedError("No se pudo identificar al usuario en la sesión.");
             }
@@ -204,7 +198,7 @@ function cancelRegistration(request, response) {
 // listar las actividades inscriptas
 function listMemberRegistrations(request, response) {
     try {
-        const idUser = request.user ? request.user.IDuser : null;
+        const idUser = request.user ? request.user.idUser : null;
         if (!idUser) {
             throw new UnauthorizedError("No se pudo identificar al usuario en la sesión.");
         }

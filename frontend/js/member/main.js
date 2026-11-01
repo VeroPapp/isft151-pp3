@@ -23,7 +23,7 @@ function main() {
 
     // 3. Evento para el botón de editar teléfono (Delegación)
     document.getElementById("profileContainer").onclick = function (event) {
-        if (event.target.id === "editPhoneBtn") {
+        if (event.target.closest("#editPhoneBtn")) {
             onEditPhoneClick();
         }
     };

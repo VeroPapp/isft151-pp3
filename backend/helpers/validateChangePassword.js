@@ -30,9 +30,4 @@ function validateChangePassword(password) {
     return tieneMayuscula && tieneMinuscula && tieneNumero && tieneEspecial;
 }
 
-
-// Ejemplo de uso:
-// * console.log(validarContrasenaSencilla("Abc1234!")); // true
-// * console.log(validarContrasenaSencilla("solonumeros123")); // false
-
 module.exports = { validateChangePassword }

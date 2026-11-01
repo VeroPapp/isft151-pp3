@@ -91,29 +91,21 @@ function validatePasswordStrength(password) {
 function showSuccessView() {
     const urlParams = new URLSearchParams(window.location.search);
     const isMandatory = urlParams.get('mandatory') === 'true';
-    const successTitle = document.getElementById("successTitle");
-    const successMessage = document.getElementById("successMessage");
-
+    
+    let mensaje = "";
     if (isMandatory) {
-        successTitle.textContent = "¡Contraseña actualizada!";
-        successMessage.textContent = "Tu contraseña temporal fue reemplazada correctamente. Ahora podés ingresar al sistema con tu nueva contraseña.";
+        mensaje = "¡Contraseña actualizada!\n\nTu contraseña temporal fue reemplazada correctamente. Ahora podés ingresar al sistema con tu nueva contraseña.";
     } else {
-        successTitle.textContent = "¡Contraseña cambiada!";
-        successMessage.textContent = "Tu contraseña fue actualizada con éxito. Por seguridad, cerraremos tu sesión actual.";
+        mensaje = "¡Contraseña cambiada!\n\nTu contraseña fue actualizada con éxito. Por seguridad, cerraremos tu sesión actual.";
     }
 
-    // Ocultar form, mostrar éxito
-    formView.classList.add("hidden");
-    successView.classList.remove("hidden");
+    alert(mensaje);
 
     // Limpiar tokens
     localStorage.removeItem("accessToken");
     localStorage.removeItem("userRole");
 
-    // Redirigir después de 2.5 segundos
-    setTimeout(function () {
-        window.location.replace("login.html");
-    }, 2500);
+    window.location.replace("login.html");
 }
 
 export async function onChangePasswordSubmit(event) {
@@ -178,16 +170,27 @@ export async function onChangePasswordSubmit(event) {
         showSuccessView();
 
     } catch (error) {
-        let errorMessage;
-        if (error.detail === "NetworkError") {
-            errorMessage = "No se pudo conectar con el servidor. Verificá que el backend esté corriendo.";
-        } else {
-            errorMessage = error.message || "No se pudo cambiar la contraseña.";
-        }
-
-        showError(errorMessage);
         isSubmitting = false;
         submitButton.disabled = false;
         submitButton.textContent = "Cambiar contraseña";
+
+        if (error.detail === "NetworkError") {
+            showError("No se pudo conectar con el servidor. Verificá que el backend esté corriendo.", null);
+            return;
+        }
+
+        const message = error.message || "No se pudo cambiar la contraseña.";
+        const lower = message.toLowerCase();
+
+        let fieldId = null;
+        if (lower.includes("actual")) {
+            fieldId = "currentPassword";
+        } else if (lower.includes("coinciden") || lower.includes("confirmaci")) {
+            fieldId = "confirmPassword";
+        } else if (lower.includes("nueva") || lower.includes("caracteres") || lower.includes("dni") || lower.includes("email")) {
+            fieldId = "newPassword";
+        }
+
+        showError(message, fieldId);
     }
 }

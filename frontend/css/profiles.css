@@ -50,6 +50,18 @@
     padding: 24px;
 }
 
+/* ---------- Contenedor miembros ---------- */
+
+#membersContainer .actions-cell .btn {
+    min-width: 110px;
+    text-align: center;
+}
+
+#membersContainer .data-table .badge {
+    min-width: 100%;
+    text-align: center;
+}
+
 /* ---------- Cards / secciones ---------- */
 
 .socio-section,

@@ -1,13 +1,10 @@
 const { sendSuccess } = require("../helpers/responseHandler.js");
 const { sendError, BadRequestError, UnauthorizedError, DomainError } = require("../helpers/errorHandler.js");
-const { getUserByIdDB, listMembersDB, updateMemberDB, updatePhoneDB, changeMemberStatusDB } = require("../models/user.js");
+const { getMemberByIdDB, listMembersDB, updateMemberDB, changeMemberStatusDB } = require("../models/member.js");
 const { getStatusByIdDB } = require("../models/status.js");
 const { getRoleByIdDB } = require("../models/roles.js");
 const { cancelAllMemberRegistrationsDB } = require("../models/activityRegistration.js");
 
-// ==========================================
-// ADMINISTRADORES (CLUB_ADMIN / SUPER_ADMIN)
-// ==========================================
 
 function getMember(request, response) {
     let bodyRaw = "";
@@ -28,10 +25,10 @@ function getMember(request, response) {
 
             const { idUser } = data
             if (!idUser) {
-                throw new BadRequestError("Se require un ID usuario.")
+                throw new BadRequestError("Se requiere un ID usuario.")
             }
 
-            const member = getUserByIdDB(idUser);
+            const member = getMemberByIdDB(idUser);
             if (!member) {
                 throw new BadRequestError("Usuario no encontrado.");
             }
@@ -88,10 +85,10 @@ function updateMember(request, response) {
             const { idUser, name, surname, dni, birthdate, phone, email } = data
 
             if (!idUser || !name || !surname || !dni || !birthdate || !phone || !email) {
-                throw new BadRequestError("Se requiren campos obligatorios.")
+                throw new BadRequestError("Se requieren campos obligatorios.")
             }
 
-            const member = getUserByIdDB(idUser);
+            const member = getMemberByIdDB(idUser);
             if (!member) {
                 throw new BadRequestError("Usuario no encontrado.");
             }
@@ -136,10 +133,10 @@ function deactivateMember(request, response) {
             const { idUser } = data
 
             if (!idUser) {
-                throw new BadRequestError("Se require campo obligatorio.")
+                throw new BadRequestError("Se requiere campo obligatorio.")
             }
 
-            const member = getUserByIdDB(idUser);
+            const member = getMemberByIdDB(idUser);
             if (!member) {
                 throw new BadRequestError("Usuario no encontrado.");
             }
@@ -159,9 +156,8 @@ function deactivateMember(request, response) {
             const registrationsAffected = cancelAllMemberRegistrationsDB(idUser);
 
             if (registrationsAffected === 0) {
-                sendSuccess(response, { message: "No existen registros a Actividades a este usuario." }, 200);
+                sendSuccess(response, { message: "Socio dado de baja correctamente (no tenía actividades inscriptas)." });                
                 return
-
             }
 
             sendSuccess(response, { message: "Socio dado de baja correctamente." }, 200);
@@ -195,7 +191,7 @@ function activateMember(request, response) {
                 throw new BadRequestError("Se requiere el ID del usuario.");
             }
 
-            const member = getUserByIdDB(idUser);
+            const member = getMemberByIdDB(idUser);
             if (!member) {
                 throw new BadRequestError("Usuario no encontrado.");
             }
@@ -220,79 +216,10 @@ function activateMember(request, response) {
     })
 }
 
-
-// ==========================================
-// SOCIOS (MEMBER)
-// ==========================================
-
-function getMemberProfile(request, response) {
-    try {
-
-        const member = getUserByIdDB(request.user.IDuser);
-        if (!member) {
-            throw new BadRequestError("Usuario no encontrado.");
-        }
-
-        const { password, sessionKey, idRole, idStatus, ...profile } = member;
-
-        sendSuccess(response, { profile: profile }, 200);
-
-    } catch (error) {
-        sendError(response, error);
-    }
-
-}
-
-function updateMemberProfile(request, response) {
-
-    let bodyRaw = "";
-
-    request.on('data', chunk => {
-        bodyRaw += chunk.toString();
-    });
-
-    request.on("end", async function () {
-        try {
-
-            let data;
-            try {
-                data = JSON.parse(bodyRaw);
-            } catch (error) {
-                throw new BadRequestError("El cuerpo de la petición debe contener un JSON válido.");
-            }
-
-            const { phone } = data
-
-            if (!phone) {
-                throw new BadRequestError("Se require campo obligatorio.")
-            }
-
-            const member = getUserByIdDB(request.user.IDuser);
-            if (!member) {
-                throw new BadRequestError("Usuario no encontrado.");
-            }
-
-            const result = updatePhoneDB(phone, request.user.IDuser);
-            if (!result) {
-                throw new DomainError("No se pudo actualizar el miembro en el sistema.");
-            }
-
-            sendSuccess(response, { message: "Perfil actualizado correctamente." }, 200);
-
-
-        } catch (error) {
-            sendError(response, error);
-        }
-    })
-
-}
-
 module.exports = {
     getMember,
     listMembers,
     updateMember,
     deactivateMember,
     activateMember,
-    getMemberProfile,
-    updateMemberProfile
 }

@@ -1,9 +1,9 @@
 const crypto = require("node:crypto");
 
-function calcularHashSHA256(cadena) {
+function calculateHashSHA256(cadena) {
 
     return crypto.createHash("sha256").update(cadena).digest("hex");
     
 }
 
-module.exports = { calcularHashSHA256 };
+module.exports = { calculateHashSHA256 };
