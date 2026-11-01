@@ -1,4 +1,7 @@
-body.landing { line-height: 1.6; }
+body.landing { 
+    line-height: 1.6; 
+    background-color: var(--bg);
+}
 
 .landing-container {
     max-width: 1100px;
@@ -10,25 +13,26 @@ body.landing { line-height: 1.6; }
 .landing-header { 
     position: sticky; 
     top: 0; 
-    background: rgba(255, 255, 255, 0.95); 
-    backdrop-filter: blur(8px); 
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border); 
-    z-index: 10; 
+    z-index: 100; 
+    transition: all 0.3s ease;
 }
 
 .landing-header-inner { 
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
-    padding-top: 16px; 
-    padding-bottom: 16px; 
+    padding: 16px 0; 
 }
 
 .landing-logo { 
-    font-weight: 700; 
-    font-size: 1.25rem; 
+    font-weight: 800; 
+    font-size: 1.4rem; 
     color: var(--primary-dark); 
     text-decoration: none; 
+    letter-spacing: -0.5px;
 }
 
 .landing-nav { 
@@ -42,36 +46,50 @@ body.landing { line-height: 1.6; }
     text-decoration: none; 
     font-weight: 500; 
     transition: color 0.2s;
+    position: relative;
 }
 
-.landing-nav a:hover { 
-    color: var(--primary); 
+.landing-nav a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background-color: var(--primary);
+    transition: width 0.3s ease;
 }
 
-/* ---------- Botones landing ---------- */
+.landing-nav a:hover::after { width: 100%; }
+.landing-nav a:hover { color: var(--primary); }
+.landing-nav a.landing-btn-outline::after {display: none;}
+
+/* ---------- Botones ---------- */
 .landing-btn { 
     display: inline-block; 
     background: var(--primary); 
     color: white; 
-    padding: 12px 24px; 
+    padding: 12px 28px; 
     border-radius: 8px; 
     text-decoration: none; 
     font-weight: 600; 
     border: none; 
     cursor: pointer; 
     font-size: 1rem; 
-    font-family: inherit; 
-    transition: background 0.2s; 
+    transition: all 0.3s ease; 
 }
 
 .landing-btn:hover { 
     background: var(--primary-dark); 
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(26, 127, 79, 0.3);
 }
 
 .landing-btn-outline { 
     border: 2px solid var(--primary); 
     color: var(--primary) !important; 
-    padding: 10px 22px !important; 
+    background: transparent;
+    padding: 8px 20px !important; 
     border-radius: 8px; 
     font-weight: 600 !important; 
 }
@@ -82,78 +100,93 @@ body.landing { line-height: 1.6; }
 
 /* ---------- Hero ---------- */
 .landing-hero { 
-    padding: 160px 0;
-    background: linear-gradient(135deg, #1a7f4f 0%, #16a34a 100%); 
+    padding: 120px 0; 
+    background-image: linear-gradient(135deg, rgba(26, 127, 79, 0.85) 0%, rgba(15, 90, 55, 0.9) 100%);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     color: white; 
     text-align: center; 
-    border-bottom: 4px solid var(--accent); 
+    border-bottom: 6px solid var(--accent); 
 }
 
 .landing-hero h1 { 
-    font-size: 3.5rem; 
+    font-size: clamp(2.5rem, 5vw, 4rem);
     margin: 0 0 16px; 
-    text-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    text-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    font-weight: 800;
+    letter-spacing: -1px;
 }
 
 .landing-hero p  { 
-    font-size: 1.4rem; 
+    font-size: clamp(1.1rem, 2vw, 1.4rem); 
     margin: 0 0 40px; 
     opacity: 0.95; 
+    font-weight: 400;
 }
 
 .landing-hero .landing-btn { 
     background: var(--accent); 
+    font-size: 1.1rem;
+    padding: 14px 32px;
 }
 
 .landing-hero .landing-btn:hover { 
     background: #d97706; 
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
 }
 
 /* ---------- About ---------- */
 .landing-about { 
-    padding: 80px 0; 
-    background-color: transparent; 
+    padding: 100px 0; 
+    background-color: white; 
 }
 
 .about-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 40px;
+    gap: 60px;
     align-items: center;
 }
 
 .about-text h2 { 
-    font-size: 2rem; 
-    margin: 0 0 16px; 
-    color: var(--text);
+    font-size: 2.2rem; 
+    margin: 0 0 20px; 
+    color: var(--primary-dark);
 }
 
 .about-text p { 
     color: var(--muted); 
     font-size: 1.05rem; 
-    margin-bottom: 16px;
-    line-height: 1.7;
+    margin-bottom: 20px;
+    line-height: 1.8;
 }
 
 .about-image img {
     width: 100%;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    box-shadow: -15px 15px 30px rgba(0, 0, 0, 0.1); /* Sombra desplazada */
     object-fit: cover;
     height: 100%;
-    max-height: 400px;
+    max-height: 450px;
+    transition: transform 0.3s;
+}
+
+.about-image img:hover {
+    transform: scale(1.02);
 }
 
 /* ---------- Actividades ---------- */
 .landing-activities { 
-    padding: 80px 0; 
-    background: white; 
+    padding: 100px 0; 
+    background: var(--bg); 
 }
 
 .landing-activities h2, .landing-membership h2, .landing-contact h2 { 
-    font-size: 2rem; 
+    font-size: 2.2rem; 
     text-align: center; 
     margin: 0 0 16px; 
+    color: var(--primary-dark);
 }
 
 .landing-activities > .landing-container > p, 
@@ -161,75 +194,21 @@ body.landing { line-height: 1.6; }
 .landing-contact > .landing-container > p { 
     text-align: center; 
     color: var(--muted); 
-    margin: 0 0 40px; 
+    margin: 0 0 48px; 
+    font-size: 1.1rem;
 }
 
 .landing-activities-grid { 
     display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-    gap: 24px; 
-}
-
-.landing-empty { 
-    grid-column: 1 / -1; 
-    text-align: center; 
-    color: var(--muted); 
-    padding: 40px; 
-    font-style: italic; 
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+    gap: 30px; 
 }
 
 /* ---------- Form socio ---------- */
 .landing-membership { 
-    padding: 80px 0; 
-    background-color: #1a7f4f;
-}
-
-.landing-form { 
-    max-width: 500px; 
-    margin: 0 auto; 
-    background: white; 
-    padding: 32px; 
-    border-radius: 12px; 
-    border: 1px solid var(--border); 
-    display: grid; 
-    gap: 16px; 
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-.landing-form label { 
-    font-weight: 500; 
-    display: block; 
-    margin-bottom: 4px; 
-}
-
-.landing-form input { 
-    width: 100%; 
-    padding: 10px 12px; 
-    border: 1px solid var(--border); 
-    border-radius: 6px; 
-    font-size: 1rem; 
-    font-family: inherit; 
-}
-
-.landing-form input:focus { 
-    outline: none; 
-    border-color: var(--primary); 
-    box-shadow: 0 0 0 3px rgba(26, 127, 79, 0.1); 
-}
-
-.landing-form .landing-btn { 
-    width: 100%; 
-    margin-top: 8px; 
-}
-
-/* Resultado de la solicitud */
-.landing-result { 
-    max-width: 500px; 
-    margin: 20px auto 0; 
-    padding: 16px;
-    border-radius: 8px; 
-    text-align: center; 
-    font-weight: 500; 
+    padding: 100px 0; 
+    /* Degradado radial moderno */
+    background: radial-gradient(circle at top right, #1e9a5e, #0f5a37);
 }
 
 .landing-membership h2,
@@ -237,51 +216,101 @@ body.landing { line-height: 1.6; }
     color: white;
 }
 
-.landing-result:empty { display: none; }
-.landing-result-ok { background: var(--success-bg); color: var(--success-text); border: 1px solid var(--success-border); }
-.landing-result-error { background: var(--error-bg); color: var(--error-text); border: 1px solid var(--error-border); }
+.landing-form { 
+    max-width: 650px; 
+    margin: 0 auto; 
+    background: white; 
+    padding: 40px; 
+    border-radius: 16px; 
+    display: grid; 
+    gap: 20px; 
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+/* Hacemos que el formulario tenga 2 columnas en PC */
+.landing-form .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.landing-form label { 
+    font-weight: 600; 
+    display: block; 
+    margin-bottom: 6px; 
+    color: var(--text);
+    font-size: 0.9rem;
+}
+
+.landing-form input { 
+    width: 100%; 
+    padding: 12px; 
+    border: 1px solid var(--border); 
+    border-radius: 8px; 
+    font-size: 1rem; 
+    transition: all 0.2s;
+}
+
+.landing-form input:focus { 
+    outline: none; 
+    border-color: var(--primary); 
+    box-shadow: 0 0 0 4px rgba(26, 127, 79, 0.15); 
+}
+
+.landing-form .landing-btn { 
+    width: 100%; 
+    margin-top: 10px; 
+    grid-column: 1 / -1; /* Ocupa las dos columnas */
+}
 
 /* ---------- Contacto ---------- */
 .landing-contact {
-    padding: 80px 0;
+    padding: 100px 0;
     background: white;
 }
 
 .contact-grid {
     display: grid;
-    grid-template-columns: 1fr 1.5fr;
-    gap: 40px;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 0; /* Sin gap para que el mapa y el info se toquen */
     background: var(--bg);
-    border-radius: 12px;
+    border-radius: 16px;
     border: 1px solid var(--border);
     overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
 
 .contact-info {
-    padding: 40px;
+    padding: 48px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 32px;
 }
 
 .contact-item {
     display: flex;
-    gap: 16px;
+    gap: 20px;
     align-items: flex-start;
 }
 
 .contact-icon {
     font-size: 1.5rem;
     background: white;
-    padding: 10px;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    color: var(--primary);
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    flex-shrink: 0;
 }
 
 .contact-item h3 {
-    margin: 0 0 4px;
+    margin: 0 0 6px;
     font-size: 1.1rem;
-    color: var(--primary-dark);
+    color: var(--text);
 }
 
 .contact-item p {
@@ -290,31 +319,24 @@ body.landing { line-height: 1.6; }
 }
 
 .map-container {
-    min-height: 400px;
+    min-height: 450px;
     width: 100%;
+    height: 100%;
 }
 
 /* ---------- Footer ---------- */
 .landing-footer { 
-    padding: 50px 0 30px 0; 
-    background: var(--primary-dark); 
+    padding: 60px 0 30px 0; 
+    background: var(--primary-dark);
     color: white; 
     border-top: 4px solid var(--accent); 
 }
 
+/* El resto de tu footer actual está perfecto */
 .footer-content { display: flex; flex-direction: column; gap: 24px; }
 .footer-columns { display: flex; justify-content: space-around; align-items: center; width: 100%; }
 .footer-creators { text-align: left; }
-
-.creators-title {
-    margin: 0 0 12px 0; 
-    font-size: 0.9rem; 
-    text-transform: uppercase; 
-    letter-spacing: 0.05em; 
-    color: #94a3b8; 
-    font-weight: 600; 
-}
-
+.creators-title { margin: 0 0 12px 0; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 600; }
 .creators-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
 .creators-list li { display: flex; align-items: center; gap: 10px; font-weight: 500; font-size: 1rem; }
 .creators-list a { color: #cbd5e1; display: flex; align-items: center; text-decoration: none; transition: color 0.2s, transform 0.2s; }
@@ -328,21 +350,22 @@ body.landing { line-height: 1.6; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 900px) {
-    .about-grid { grid-template-columns: 1fr; }
-    .about-image { order: -1; } /* La imagen va arriba del texto en celular */
+    .about-grid { grid-template-columns: 1fr; gap: 30px; }
+    .about-image { order: -1; } 
     .contact-grid { grid-template-columns: 1fr; }
     .map-container { height: 300px; min-height: 300px; }
+    .landing-form .form-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
     .footer-columns { flex-direction: column; gap: 32px; }
     .footer-creators { text-align: center; }
     .creators-list li { justify-content: center; }
+    .landing-hero { padding: 120px 0; background-attachment: scroll; }
 }
 
 @media (max-width: 640px) {
-    .landing-hero h1 { font-size: 2rem; }
-    .landing-nav { gap: 12px; font-size: 0.9rem; }
     .landing-nav a:not(.landing-btn-outline) { display: none; }
     .contact-info { padding: 24px; }
+    .landing-form { padding: 24px; }
 }

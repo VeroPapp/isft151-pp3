@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="./css/index.css">
     <link rel="icon" href="./assets/favicon.ico">
     <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.1.0/uicons-brands/css/uicons-brands.css'>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
 </head>
 <body class="landing">
 
@@ -27,13 +28,13 @@
     </header>
 
     <!-- ========================================== -->
-    <!-- HERO SECTION                               -->
+    <!-- HERO SECTION        -->
     <!-- ========================================== -->
     <section id="home" class="landing-hero">
-        <div class="landing-container">
-            <h1>Bienvenido a Comunidad Activa Club</h1>
+        <div class="landing-container hero-content">
+            <h1>Bienvenido a <br> Comunidad Activa Club</h1>
             <p>Un club para toda la familia. Deporte, cultura y comunidad.</p>
-            <a href="#membership" class="landing-btn">Quiero ser socio</a>
+            <a href="#membership" class="landing-btn hero-btn">Quiero ser socio</a>
         </div>
     </section>
 
@@ -82,29 +83,31 @@
             <p>Completá el formulario y nos comunicaremos con vos por email.</p>
 
             <form id="membershipForm" class="landing-form" onsubmit="event.preventDefault();">
-                <div>
-                    <label for="name">Nombre</label>
-                    <input id="name" required>
-                </div>
-                <div>
-                    <label for="surname">Apellido</label>
-                    <input id="surname" required>
-                </div>
-                <div>
-                    <label for="dni">DNI (solo números)</label>
-                    <input type="text" id="dni" required minlength="8" maxlength="8" pattern="\d{8}">
-                </div>
-                <div>
-                    <label for="birthdate">Fecha de nacimiento</label>
-                    <input type="date" id="birthdate" required min="1900-01-01" max="2026-12-31">
-                </div>
-                <div>
-                    <label for="email">Email</label>
-                    <input type="email" id="email" required>
-                </div>
-                <div>
-                    <label for="phone">Teléfono (código de área + número sin el 15)</label>
-                    <input type="tel" id="phone" required placeholder="223 123456">
+                <div class="form-grid">
+                    <div>
+                        <label for="name">Nombre</label>
+                        <input id="name" required>
+                    </div>
+                    <div>
+                        <label for="surname">Apellido</label>
+                        <input id="surname" required>
+                    </div>
+                    <div>
+                        <label for="dni">DNI (solo números)</label>
+                        <input type="text" id="dni" required minlength="8" maxlength="8" pattern="\d{8}">
+                    </div>
+                    <div>
+                        <label for="birthdate">Fecha de nacimiento</label>
+                        <input type="date" id="birthdate" required min="1900-01-01" max="2026-12-31">
+                    </div>
+                    <div>
+                        <label for="email">Email</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div>
+                        <label for="phone">Teléfono</label>
+                        <input type="tel" id="phone" required placeholder="223 123456">
+                    </div>
                 </div>
                 <button type="submit" class="landing-btn">Enviar Solicitud</button>
             </form>
@@ -124,31 +127,31 @@
             <div class="contact-grid">
                 <div class="contact-info">
                     <div class="contact-item">
-                        <span class="contact-icon">📍</span>
+                        <span class="contact-icon"><i class="fi fi-rr-marker"></i></span>
                         <div>
                             <h3>Dirección</h3>
-                            <p>Av. Siempre Viva 123, Mar del plata</p>
+                            <p>Av. Siempre Viva 123, Mar del Plata</p>
                         </div>
                     </div>
                     <div class="contact-item">
-                        <span class="contact-icon">📞</span>
+                        <span class="contact-icon"><i class="fi fi-rr-phone-call"></i></span>
                         <div>
                             <h3>Teléfono</h3>
                             <p>(223) 1234-5678</p>
                         </div>
                     </div>
                     <div class="contact-item">
-                        <span class="contact-icon">✉️</span>
+                        <span class="contact-icon"><i class="fi fi-rr-envelope"></i></span>
                         <div>
                             <h3>Email</h3>
                             <p>info@comunidadactiva.com</p>
                         </div>
                     </div>
                     <div class="contact-item">
-                        <span class="contact-icon">⏰</span>
+                        <span class="contact-icon"><i class="fi fi-rr-time-fast"></i></span>
                         <div>
-                            <h3>Horarios de atención</h3>
-                            <p>Lunes a Viernes de 8:00 a 20:00<br>Sábados de 9:00 a 13:00</p>
+                            <h3>Horarios</h3>
+                            <p>Lun a Vie: 8:00 a 20:00<br>Sábados: 9:00 a 13:00</p>
                         </div>
                     </div>
                 </div>
