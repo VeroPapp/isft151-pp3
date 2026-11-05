@@ -7,15 +7,16 @@
     align-items: center;
     background: white;
     border-bottom: 1px solid var(--border);
+    
+    /* Magia: alinea el contenido con el contenedor de 1100px */
+    padding: 16px max(16px, calc((100vw - 1100px) / 2 + 24px));
 }
 
 .socio-header {
-    padding: 16px 20px;
-    margin-bottom: 24px;
+    /* Le quitamos el margin-bottom porque ahora el padding lo maneja el admin-container */
 }
 
 .admin-header {
-    padding: 16px 24px;
     position: sticky;
     top: 0;
     z-index: 10;
@@ -166,7 +167,6 @@
     gap: 4px;
     border-bottom: 2px solid var(--border);
     margin-bottom: 24px;
-    overflow-x: auto;
 }
 
 .tab {
@@ -402,10 +402,6 @@
     .data-table th,
     .data-table td {
         padding: 8px 6px;
-    }
-
-    .socio-header {
-        padding: 16px;
     }
 
     .socio-header h1 {
