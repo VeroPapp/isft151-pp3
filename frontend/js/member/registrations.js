@@ -1,6 +1,6 @@
 import { RPCWebAPIFetchPrivate } from '../shared/api.js';
 import { clearContainer, createActivityCard } from '../shared/domUtils.js';
-import { loadActivities } from './activities.js'; // Para recargar los cupos al cancelar
+import { loadActivities } from './activities.js'; 
 
 export async function loadRegistrations() {
     const container = document.getElementById("registrationsContainer");

@@ -1,29 +1,29 @@
-// 1. Formatear fecha de YYYY-MM-DD a DD/MM/YYYY (para tablas)
+
 export function formatDate(dateString) {
     if (!dateString) return "—";
-    const datePart = dateString.split(" ")[0]; // Por si viene con hora
+    const datePart = dateString.split(" ")[0]; 
     const parts = datePart.split("-");
     if (parts.length !== 3) return dateString;
     return `${parts[2]}/${parts[1]}/${parts[0]}`;
 }
 
-// 2. Formatear fecha para HTML (devuelve ? si está vacía)
+
 export function formatDateForHTML(dateString) {
     if (!dateString) return "?";
     return dateString.split("-").reverse().join("/");
 }
 
-// 3. Mostrar cartel de éxito o error
+
 export function showMessage(containerId, message, isError = false) {
     const resultDiv = document.getElementById(containerId);
     if (!resultDiv) return;
 
     resultDiv.style.display = "block";
     
-    // Clases base
+    
     let classes = isError ? "error" : "ok";
     
-    // Clases específicas para el login (que tiene su propio diseño)
+    
     if (containerId === "resultMessage" && document.body.classList.contains("login-page")) {
         classes = isError ? "login-result login-result-error shake" : "login-result login-result-ok";
         if (isError) {
@@ -42,7 +42,7 @@ export function showMessage(containerId, message, isError = false) {
     else console.log("[OK]", message);
 }
 
-// 4. Configurar el botón "ojito" para mostrar/ocultar contraseña
+
 export function setupPasswordToggle() {
     const toggleButtons = document.querySelectorAll(".toggle-password");
     
@@ -59,7 +59,7 @@ export function setupPasswordToggle() {
     });
 }
 
-// 5. Generar HTML de los badges de estado
+
 export function getStatusBadge(status) {
     const labels = {
         "ACTIVE": { text: "Activo", cls: "badge-active" },
@@ -72,7 +72,7 @@ export function getStatusBadge(status) {
     return `<span class="badge ${label.cls}">${label.text}</span>`;
 }
 
-// 6. Manejar el Logout (compartido entre admin y socio)
+
 export async function handleLogout(RPCWebAPIFetchPrivate) {
     try {
         await RPCWebAPIFetchPrivate("/logout", {});

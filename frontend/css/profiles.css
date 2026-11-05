@@ -1,4 +1,4 @@
-/* ---------- Headers ---------- */
+
 
 .socio-header,
 .admin-header {
@@ -43,7 +43,7 @@
     align-items: center;
 }
 
-/* ---------- Contenedor admin ---------- */
+
 
 .admin-container {
     max-width: 1100px;
@@ -51,7 +51,7 @@
     padding: 24px;
 }
 
-/* ---------- Contenedor miembros ---------- */
+
 
 #membersContainer .actions-cell .btn {
     min-width: 110px;
@@ -63,7 +63,7 @@
     text-align: center;
 }
 
-/* ---------- Cards / secciones ---------- */
+
 
 .socio-section,
 .section-card {
@@ -88,7 +88,7 @@
     font-size: 1.15rem;
 }
 
-/* ---------- Perfil (socio) ---------- */
+
 
 .profile-grid {
     display: grid;
@@ -141,7 +141,7 @@
     justify-content: center;
 }
 
-/* ---------- Grilla de Actividades (Socio) ---------- */
+
 
 .activities-grid {
     display: grid;
@@ -160,7 +160,7 @@
     display: inline-block;
 }
 
-/* ---------- Tabs (admin) ---------- */
+
 
 .tabs {
     display: flex;
@@ -202,7 +202,7 @@
     display: block;
 }
 
-/* ---------- Constructor de Horarios (Admin) ---------- */
+
 
 .schedule-row {
     display: flex;
@@ -247,9 +247,9 @@
     background: rgba(26, 127, 79, 0.05);
 }
 
-/* ------ ESTILOS PARA ERRORES DESTACADOS ------ */
 
-/* 1. Inputs con error (borde rojo grueso) */
+
+
 .input-error {
     border: 2px solid var(--danger) !important;
     background-color: #fef2f2 !important;
@@ -257,12 +257,12 @@
     box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2) !important;
 }
 
-/* 2. El cartel de error con marco y sombra */
+
 #resultMessage.error {
     background-color: var(--error-bg);
     color: var(--error-text);
     border: 2px solid var(--danger);
-    border-left: 8px solid var(--danger); /* Borde izquierdo más grueso */
+    border-left: 8px solid var(--danger); 
     padding: 16px 20px;
     border-radius: 8px;
     font-weight: 600;
@@ -275,13 +275,13 @@
     animation: shake 0.4s ease-in-out;
 }
 
-/* Icono de advertencia antes del texto */
+
 #resultMessage.error::before {
     content: "⚠️";
     font-size: 1.5rem;
 }
 
-/* Para los mensajes de éxito */
+
 #resultMessage.ok {
     background-color: var(--success-bg);
     color: var(--success-text);
@@ -301,7 +301,7 @@
     font-size: 1.5rem;
 }
 
-/* ---------- Modal de Inscriptos ---------- */
+
 
 .modal-overlay {
     display: none; 
@@ -342,16 +342,16 @@
     color: var(--primary-dark);
 }
 
-/* ---------- Zona de Peligro ---------- */
+
 
 .danger-zone {
-    border: 1px solid #fca5a5; /* Borde rojo suave */
-    background-color: #fef2f2; /* Fondo rojo muy pálido */
-    margin-top: 40px; /* Separación grande del contenido de arriba */
+    border: 1px solid #fca5a5; 
+    background-color: #fef2f2; 
+    margin-top: 40px; 
 }
 
 .danger-zone h2 {
-    color: var(--danger); /* El título en rojo */
+    color: var(--danger); 
 }
 
 .danger-text {
@@ -360,7 +360,7 @@
     margin-bottom: 20px;
 }
 
-/* Botón de baja: contorno rojo en vez de fondo rojo full */
+
 .btn-danger-outline {
     background-color: transparent;
     color: var(--danger);
@@ -379,7 +379,7 @@
 }
 
 
-/* ---------- Responsive ---------- */
+
 
 @media (max-width: 700px) {
     .form-row {

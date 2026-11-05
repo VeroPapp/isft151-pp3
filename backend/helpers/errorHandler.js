@@ -1,4 +1,3 @@
-// * Error interno del servidor
 class InternServerError {
     constructor(message = "Error interno del servidor") {
         this.code = 500;
@@ -19,7 +18,6 @@ class InternServerError {
     }
 }
 
-// * Error de peticion invalida o especificacion
 class BadRequestError {
     constructor(message = "Petición incorrecta") {
         this.code = 400;
@@ -40,7 +38,6 @@ class BadRequestError {
     }
 }
 
-// * Error no autenticado o sin permisos 
 class UnauthorizedError {
     constructor(message = "No autenticado o sin permisos") {
         this.code = 401;
@@ -61,7 +58,6 @@ class UnauthorizedError {
     }
 }
 
-//* Error Dominio
 class DomainError {
     constructor(message = "La operación no cumple con las reglas del negocio") {
         this.code = 422;

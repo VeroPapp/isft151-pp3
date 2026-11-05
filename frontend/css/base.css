@@ -40,7 +40,7 @@ body {
     line-height: 1.6;
 }
 
-/* ---------- Botones ---------- */
+
 
 .btn {
     display: inline-block;
@@ -69,7 +69,7 @@ body {
 .btn-warning { background: var(--accent); color: white; }
 .btn-warning:hover:not(:disabled) { background: #d97706; }
 
-/* ---------- Badges de estado ---------- */
+
 
 .badge {
     display: inline-block;
@@ -86,7 +86,7 @@ body {
 .badge-inactive { background: #f1f5f9;            color: var(--muted); }
 .badge-rejected { background: var(--error-bg);   color: var(--error-text); }
 
-/* ---------- Formularios ---------- */
+
 
 .form-grid { display: grid; gap: 14px; }
 
@@ -129,7 +129,7 @@ body {
     box-shadow: 0 0 0 3px rgba(26, 127, 79, 0.1);
 }
 
-/* ---------- Mensaje de resultado (#resultado) ---------- */
+
 
 #resultado {
     padding: 12px 16px;
@@ -153,7 +153,7 @@ body {
     border: 1px solid var(--error-border);
 }
 
-/* ---------- Estados vacíos / placeholders ---------- */
+
 
 .empty-msg {
     color: var(--muted);
@@ -178,7 +178,7 @@ body {
     font-size: 0.9rem;
 }
 
-/* ---------- Tablas ---------- */
+
 
 .data-table {
     width: 100%;
@@ -215,7 +215,7 @@ body {
     flex-wrap: wrap;
 }
 
-/* ---------- Tarjetas de Actividades (Compartido) ---------- */
+
 .activity-card {
     background: var(--bg);
     border: 1px solid var(--border);
@@ -280,7 +280,7 @@ body {
     font-size: 0.95rem; 
 }
 
-/* ---------- Utilidades ---------- */
+
 
 .hidden { display: none !important; }
 

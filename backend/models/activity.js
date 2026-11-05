@@ -1,10 +1,5 @@
 const { objectDB } = require("../database/connectDB.js");
 
-// ==========================================
-// ADMINISTRADORES (CLUB_ADMIN / SUPER_ADMIN)
-// ==========================================
-
-// listar todas las actividades
 function listAllActivitiesDB() {
     try {
         let sql = `
@@ -41,7 +36,6 @@ function listAllActivitiesDB() {
     }
 }
 
-// crear una nueva actividad (administrador)
 function createActivityDB(activityData, schedulesData) {
     try {
         const sqlActivity = `INSERT INTO activities (name, description, startDate, endDate, instructor, capacity, scope) VALUES (?, ?, ?, ?, ?, ?, ?)`;
@@ -60,7 +54,6 @@ function createActivityDB(activityData, schedulesData) {
         const newActivityId = result.lastInsertRowid;
 
         if (schedulesData && schedulesData.length > 0) {
-            // Usamos INSERT OR IGNORE para saltear horarios idénticos
             const sqlSchedule = `INSERT OR IGNORE INTO activitySchedules (idActivity, day, startTime, endTime) VALUES (?, ?, ?, ?)`;
             const stmtSchedule = objectDB.prepare(sqlSchedule);
             
@@ -76,10 +69,8 @@ function createActivityDB(activityData, schedulesData) {
     }
 }
 
-// Actualizar una actividad existente (administrador)
 function updateActivityDB(idActivity, activityData, schedulesData) {
     try {
-        // Actualizamos solo los datos generales de la actividad
         const sqlUpdate = `
             UPDATE activities 
             SET name = ?, description = ?, startDate = ?, endDate = ?, instructor = ?, capacity = ?, scope = ?
@@ -98,19 +89,15 @@ function updateActivityDB(idActivity, activityData, schedulesData) {
             idActivity
         );
 
-        // Si no hubo cambios en la actividad o no se encontró, cortamos acá
         if (result.changes === 0) {
             return 0;
         }
 
-        // Si nos mandaron horarios, actualizamos la tabla de horarios
         if (schedulesData && schedulesData.length > 0) {
-            // Borramos los horarios viejos
             const sqlDeleteSchedules = `DELETE FROM activitySchedules WHERE idActivity = ?`;
             const stmtDeleteSchedules = objectDB.prepare(sqlDeleteSchedules);
             stmtDeleteSchedules.run(idActivity);
 
-            // Insertamos los nuevos (ignorando duplicados si los hubiera)
             const sqlInsertSchedule = `INSERT OR IGNORE INTO activitySchedules (idActivity, day, startTime, endTime) VALUES (?, ?, ?, ?)`;
             const stmtInsertSchedule = objectDB.prepare(sqlInsertSchedule);
 
@@ -126,7 +113,6 @@ function updateActivityDB(idActivity, activityData, schedulesData) {
     }
 }
 
-// Función para dar de baja (Cambia el estado a INACTIVE)
 function deactivateActivityDB(idActivity) {
     try {
         const sql = `UPDATE activities SET status = 'INACTIVE' WHERE idActivity = ?`;
@@ -149,14 +135,8 @@ function activateActivityDB(idActivity) {
     }
 }
 
-// ==========================================
-// SOCIOS (MEMBER)
-// ==========================================
-
-// Listar solo las actividades activas (socio e index)
 function listActiveActivitiesDB() {
     try {
-        // 1. Traemos todas las actividades activas con sus cupos calculados
         const sql = `
             SELECT 
                 a.idActivity,
@@ -176,12 +156,10 @@ function listActiveActivitiesDB() {
         const stmt = objectDB.prepare(sql);
         const activities = stmt.all();
 
-        // 2. Traemos todos los horarios
         const sqlSchedules = `SELECT idActivity, day, startTime, endTime FROM activitySchedules`;
         const stmtSchedules = objectDB.prepare(sqlSchedules);
         const allSchedules = stmtSchedules.all();
 
-        // 3. Combinamos actividades con sus horarios
         for (let i = 0; i < activities.length; i++) {
             activities[i].schedules = []; 
             

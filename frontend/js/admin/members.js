@@ -84,7 +84,7 @@ export async function onMemberActionClick(event) {
     const deactivateBtn = event.target.closest(".deactivate-member-btn");
     const activateBtn = event.target.closest(".activate-member-btn");
 
-    // --- EDITAR ---
+    
     if (editBtn) {
         const idUser = editBtn.getAttribute("data-id");
         const member = localMembersData.find(function (m) { return m.idUser == idUser; });
@@ -92,7 +92,7 @@ export async function onMemberActionClick(event) {
         return;
     }
 
-    // --- DAR DE BAJA ---
+    
     if (deactivateBtn) {
         if (!confirm("¿Estás seguro que querés dar de baja a este socio? El usuario ya no podrá iniciar sesión.")) return;
         
@@ -111,7 +111,7 @@ export async function onMemberActionClick(event) {
         return;
     }
 
-    // --- REACTIVAR ---
+    
     if (activateBtn) {
         if (!confirm("¿Querés reactivar a este socio? Volverá a poder iniciar sesión.")) return;
         

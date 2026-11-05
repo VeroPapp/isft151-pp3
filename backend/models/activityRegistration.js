@@ -1,10 +1,5 @@
 const { objectDB } = require("../database/connectDB.js");
 
-// ==========================================
-// ADMINISTRADORES (CLUB_ADMIN / SUPER_ADMIN)
-// ==========================================
-
-// Listar los inscriptos de una actividad específica
 function listRegistrationsByActivityDB(idActivity) {
     try {
         const sql = `
@@ -24,11 +19,6 @@ function listRegistrationsByActivityDB(idActivity) {
     }
 }
 
-// ==========================================
-// SOCIOS (MEMBER)
-// ==========================================
-
-// Registrar un socio en una actividad
 function registerMemberToActivityDB(idUser, idActivity) {
     try {
         const sql = `
@@ -44,15 +34,12 @@ function registerMemberToActivityDB(idUser, idActivity) {
         const stmt = objectDB.prepare(sql);
         const result = stmt.run(idUser, idActivity);
 
-        // Retorna true si insertó o reactivó una cancelada. 
-        // Retorna false si ya estaba activo (el WHERE no se cumplió).
         return result.changes > 0;
     } catch (error) {
         throw error;
     }
 }
 
-// Cancelar inscripción de un socio (Baja lógica)
 function cancelRegistrationDB(idUser, idActivity) {
     try {
         const sql = `
@@ -62,13 +49,12 @@ function cancelRegistrationDB(idUser, idActivity) {
         `;
         const stmt = objectDB.prepare(sql);
         const result = stmt.run(idUser, idActivity);
-        return result.changes > 0; // Retorna true si canceló algo, false si no encontró la inscripción
+        return result.changes > 0; 
     } catch (error) {
         throw error;
     }
 }
 
-// Obtener las inscripciones activas de un usuario
 function listMemberRegistrationsDB(idUser) {
     try {
         const sqlRegistrations = `
@@ -125,11 +111,6 @@ function cancelAllMemberRegistrationsDB(idUser) {
     }
 }
 
-// ========================================================
-// VALIDACIONES DE CUPO ANTES DE INSCRIBIRSE A UNA ACTIVIDAD
-// ========================================================
-
-// 1. Obtener la capacidad de la actividad
 function getActivityCapacityDB(idActivity) {
     const sql = `SELECT capacity FROM activities WHERE idActivity = ?`;
     try {
@@ -140,7 +121,6 @@ function getActivityCapacityDB(idActivity) {
     }
 }
 
-// 2. Contar cuántos inscriptos activos hay en una actividad
 function countActiveRegistrationsDB(idActivity) {
     const sql = `SELECT COUNT(*) as total FROM activityRegistrations WHERE idActivity = ? AND status = 'ACTIVE'`;
     try {
@@ -151,7 +131,6 @@ function countActiveRegistrationsDB(idActivity) {
     }
 }
 
-// 3. Verificar si el usuario ya está inscripto (para saber si está cancelado)
 function getUserRegistrationStatusDB(idUser, idActivity) {
     const sql = `SELECT status FROM activityRegistrations WHERE idUser = ? AND idActivity = ?`;
     try {
@@ -163,11 +142,6 @@ function getUserRegistrationStatusDB(idUser, idActivity) {
 }
 
 
-// =================================================================================
-// VALIDACIONES DE SUPERPOSICIÓN ENTRE HORARIOS ANTES DE INSCRIBIRSE A UNA ACTIVIDAD
-// =================================================================================
-
-// 1. Obtener los horarios de las actividades en las que el usuario ya está inscripto
 function getUserActiveSchedulesDB(idUser) {
     const sql = `
         SELECT 
@@ -184,7 +158,6 @@ function getUserActiveSchedulesDB(idUser) {
     return stmt.all(idUser);
 }
 
-// 2. Obtener los horarios de una actividad específica
 function getActivitySchedulesDB(idActivity) {
     const sql = `
         SELECT day, startTime, endTime

@@ -2,7 +2,7 @@ import { RPCWebAPIFetchPrivate } from '../shared/api.js';
 import { clearContainer, createCell, createButton } from '../shared/domUtils.js';
 
 export async function loadApplications() {
-    // El módulo busca su propio contenedor
+    
     const container = document.getElementById("applicationsContainer");
     clearContainer(container);
 
@@ -86,7 +86,7 @@ export async function onApplicationActionClick(event) {
         try {
             const response = await RPCWebAPIFetchPrivate("/approveMembershipApplication", { idUser: idUser });
             alert(response.data.message || "Solicitud aprobada correctamente.");
-            loadApplications(); // Recarga la tabla
+            loadApplications(); 
         } catch (error) {
             alert("Error al aprobar: " + error.message);
             button.disabled = false;
@@ -101,7 +101,7 @@ export async function onApplicationActionClick(event) {
         try {
             const response = await RPCWebAPIFetchPrivate("/rejectMembershipApplication", { idUser: idUser });
             alert(response.data.message || "Solicitud rechazada correctamente.");
-            loadApplications(); // Recarga la tabla
+            loadApplications(); 
         } catch (error) {
             alert("Error al rechazar: " + error.message);
             button.disabled = false;

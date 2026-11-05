@@ -1,8 +1,6 @@
 const { objectDB } = require("../database/connectDB.js");
 
-// ==========================================
-// ADMINISTRADORES (CLUB_ADMIN / SUPER_ADMIN)
-// ==========================================
+
 
 function getMemberBySessionKeyDB(sessionKey) {
     const sql = `SELECT idUser, idRole, idStatus FROM users WHERE sessionKey = ?`;
@@ -55,7 +53,7 @@ function listMembersDB() {
     const stmt = objectDB.prepare(sql);
     const members = stmt.all();
 
-    return members; // Si está vacío, devuelve [], lo cual es correcto
+    return members; 
 }
 
 function changeMemberStatusDB(idStatus, idUser, savePreviousStatus) {
@@ -117,9 +115,7 @@ function updatePasswordStatusSessionDB(password, idStatus, sessionKey, idUser) {
     return { idUser: idUser };
 }
 
-// ==========================================
-// SOCIOS (MEMBER)
-// ==========================================
+
 
 function updatePhoneDB(phone, idUser) {
     const sql = `UPDATE users SET phone = ? WHERE idUser = ?`;

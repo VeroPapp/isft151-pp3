@@ -3,11 +3,9 @@ const { sendError, BadRequestError, DomainError, UnauthorizedError } = require("
 const { listRegistrationsByActivityDB, registerMemberToActivityDB, cancelRegistrationDB, listMemberRegistrationsDB, getActivityCapacityDB, countActiveRegistrationsDB, getUserRegistrationStatusDB, getUserActiveSchedulesDB, getActivitySchedulesDB } = require("../models/activityRegistration.js");
 const { getMemberByIdDB} = require("../models/member.js");
 const { getRoleByIdDB } = require("../models/roles.js");
-// ==========================================
-// ADMINISTRADORES (CLUB_ADMIN / SUPER_ADMIN)
-// ==========================================
 
-// listar socios inscriptos por actividad
+
+
 function listRegistrationsByActivity(request, response) {
     let bodyRaw = "";
     request.on("data", function(chunk) {
@@ -55,7 +53,7 @@ function removeMemberFromActivity(request, response) {
             }
 
             const cancelled = cancelRegistrationDB(idUser, idActivity);
-            // Si devuelve false, es porque no tenía una inscripción activa
+            
             if (!cancelled) {
                 throw new DomainError("No se encontró una inscripción activa para cancelar asociado a ese usuario.");
             }
@@ -68,11 +66,9 @@ function removeMemberFromActivity(request, response) {
     });
 }
 
-// ==========================================
-// SOCIOS (MEMBER)
-// ==========================================
 
-// inscribirse a una actividad
+
+
 function registerMemberToActivity(request, response) {
     let bodyRaw = "";
 
@@ -88,13 +84,13 @@ function registerMemberToActivity(request, response) {
             }
 
             const data = JSON.parse(bodyRaw);
-            const idActivity = parseInt(data.idActivity, 10); // Asegurar que sea número
+            const idActivity = parseInt(data.idActivity, 10); 
 
             if (!idActivity) {
                 throw new BadRequestError("Falta el ID de la actividad.");
             }
 
-            // ---------- VALIDACIÓN DE CUPO ----------
+            
             const activity = getActivityCapacityDB(idActivity);
             if (!activity) {
                 throw new BadRequestError("La actividad no existe.");
@@ -109,7 +105,7 @@ function registerMemberToActivity(request, response) {
                 }
             }
 
-            // ----------  VALIDACIÓN DE SUPERPOSICIÓN DE HORARIOS ----------
+            
             
             if (existingReg && existingReg.status === 'ACTIVE') {
                 throw new DomainError("Ya estás inscripto en esta actividad.");
@@ -124,9 +120,9 @@ function registerMemberToActivity(request, response) {
                 for (let j = 0; j < userSchedules.length; j++) {
                     const userSched = userSchedules[j];
 
-                    // Comparar solo si es el mismo día
+                    
                     if (newSched.day === userSched.day) {
-                        // Hay choque si: start1 < end2 Y start2 < end1
+                        
                         const hayChoque = 
                             newSched.startTime < userSched.endTime &&
                             userSched.startTime < newSched.endTime;
@@ -144,7 +140,7 @@ function registerMemberToActivity(request, response) {
             }
 
 
-            // ---------- SI PASA TODO, INSCRIBIR ----------
+            
             const result = registerMemberToActivityDB(idUser, idActivity);
 
             if (!result) {
@@ -159,7 +155,7 @@ function registerMemberToActivity(request, response) {
     });
 }
 
-// cancelar inscripción a una actividad
+
 function cancelRegistration(request, response) {
     let bodyRaw = "";
     
@@ -182,7 +178,7 @@ function cancelRegistration(request, response) {
 
             const cancelled = cancelRegistrationDB(idUser, idActivity);
             
-            // Si devuelve false, es porque no tenía una inscripción activa
+            
             if (!cancelled) {
                 throw new DomainError("No se encontró una inscripción activa para cancelar.");
             }
@@ -195,7 +191,7 @@ function cancelRegistration(request, response) {
     });
 }
 
-// listar las actividades inscriptas
+
 function listMemberRegistrations(request, response) {
     try {
         const idUser = request.user ? request.user.idUser : null;

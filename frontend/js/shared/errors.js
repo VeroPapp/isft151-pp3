@@ -1,4 +1,4 @@
-//definición centralizada de errores personalizados
+
 
 export class SpecificationError extends Error {
     constructor(message, detail) {

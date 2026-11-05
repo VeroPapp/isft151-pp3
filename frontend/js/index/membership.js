@@ -4,27 +4,27 @@ import { showMessage } from '../shared/helpers.js';
 export async function onRegisterSubmit(event) {
     event.preventDefault();
     
-    // Usamos event.target para obtener el form directamente y poder hacer reset
+    
     const form = event.target;
 
     const dniValue = document.getElementById("dni").value.trim();
     const birthdateValue = document.getElementById("birthdate").value;
     const phoneValue = document.getElementById("phone").value.trim();
 
-    // Validación de DNI
+    
     if (!/^\d{8}$/.test(dniValue)) {
         showMessage("resultMessage", "El DNI debe tener exactamente 8 dígitos numéricos.", true);
         return;
     }
 
-    // Validación de Fecha de Nacimiento (Año)
+    
     const year = birthdateValue.split("-")[0];
     if (year.length !== 4) {
         showMessage("resultMessage", "El año de nacimiento debe tener 4 dígitos.", true);
         return;
     }
 
-    // Validación de Fecha de Nacimiento (Futuro)
+    
     const birthDateObj = new Date(birthdateValue + "T00:00:00");
     const today = new Date();
     if (birthDateObj > today) {
@@ -32,7 +32,7 @@ export async function onRegisterSubmit(event) {
         return;
     }
 
-    // Validación de número de teléfono (8 a 13 dígitos, solo números)
+    
     if (!/^\d{8,13}$/.test(phoneValue)) {
         showMessage(
             "resultMessage",
@@ -42,7 +42,7 @@ export async function onRegisterSubmit(event) {
         return;
     }
 
-    // Armado de Payload
+    
     const payload = {
         name: document.getElementById("name").value.trim(),
         surname: document.getElementById("surname").value.trim(),
@@ -52,7 +52,7 @@ export async function onRegisterSubmit(event) {
         phone: document.getElementById("phone").value.trim()
     };
 
-    // Envío al backend
+    
     try {
         const response = await RPCWebAPIFetchPublic("/createMembershipApplication", payload);
         const successMessage = response.data.message || "¡Tu solicitud fue enviada con éxito! Pronto nos comunicaremos con vos vía mail.";

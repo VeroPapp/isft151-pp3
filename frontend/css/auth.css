@@ -1,4 +1,4 @@
-/* ---------- Base de páginas auth ---------- */
+
 
 body.login-page,
 body.password-page {
@@ -15,7 +15,7 @@ body.password-page {
     background: radial-gradient(circle at top right, #1e9a5e, #0f5a37);
 }
 
-/* ---------- Card ---------- */
+
 
 .login-card,
 .password-card {
@@ -36,7 +36,7 @@ body.password-page {
     color: var(--primary-dark);
 }
 
-/* ---------- Labels / inputs ---------- */
+
 
 .login-card label,
 .password-card label {
@@ -65,7 +65,7 @@ body.password-page {
     box-shadow: 0 0 0 3px rgba(26, 127, 79, 0.1);
 }
 
-/* ---------- Inputs con botón ojo ---------- */
+
 
 .password-input-wrap {
     position: relative;
@@ -99,7 +99,7 @@ body.password-page {
     color: var(--primary-dark);
 }
 
-/* ---------- Botón submit (login) ---------- */
+
 
 .login-card button[type="submit"],
 .login-card .btn-login {
@@ -123,7 +123,7 @@ body.password-page {
 .login-card button[type="submit"]:disabled,
 .login-card .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
 
-/* ---------- Resultado de login ---------- */
+
 
 .login-result {
     margin-top: 16px;
@@ -151,7 +151,7 @@ body.password-page {
     border-left-width: 5px;
 }
 
-/* ---------- Link volver ---------- */
+
 
 .login-back {
     display: inline-flex;
@@ -173,11 +173,9 @@ body.password-page {
 
 .login-back:hover { color: var(--primary); }
 
-/* ==========================================================
-   PÁGINA CAMBIAR CONTRASEÑA (layout horizontal)
-   ========================================================== */
 
-/* ---------- Header horizontal (icono + título + subtítulo) ---------- */
+
+
 
 .password-card-header {
     display: flex;
@@ -222,7 +220,7 @@ body.password-page {
     margin: 0;
 }
 
-/* ---------- Aviso (obligatorio / voluntario) ---------- */
+
 
 .password-notice {
     margin-bottom: 20px;
@@ -250,7 +248,7 @@ body.password-page {
     margin-bottom: 4px;
 }
 
-/* ---------- Grid de 2 columnas ---------- */
+
 
 .password-form-grid {
     display: grid;
@@ -294,7 +292,7 @@ body.password-page {
     outline: none;
 }
 
-/* ---------- Sidebar (requisitos) ---------- */
+
 
 .password-sidebar {
     display: flex;
@@ -330,7 +328,7 @@ body.password-page {
     margin-bottom: 3px;
 }
 
-/* ---------- Footer de acciones ---------- */
+
 
 .password-actions {
     display: flex;
@@ -368,7 +366,7 @@ body.password-page {
     transform: none;
 }
 
-/* ---------- Cartel de error ---------- */
+
 
 #resultMessage.error {
     background-color: #fee2e2;
@@ -386,7 +384,7 @@ body.password-page {
     display: none;
 }
 
-/* ---------- Vista de éxito ---------- */
+
 
 .success-panel {
     text-align: center;
@@ -436,11 +434,9 @@ body.password-page {
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ==========================================================
-   RESPONSIVE
-   ========================================================== */
 
-/* Tablets chicas: card más angosta, columnas más ajustadas */
+
+
 @media (max-width: 860px) {
     .password-form-grid {
         grid-template-columns: 1fr 280px;
@@ -448,7 +444,7 @@ body.password-page {
     }
 }
 
-/* Mobile / tablets verticales: volvemos a 1 columna apilada */
+
 @media (max-width: 720px) {
     .password-card {
         max-width: 500px;

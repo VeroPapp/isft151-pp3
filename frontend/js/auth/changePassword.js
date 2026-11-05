@@ -17,7 +17,7 @@ export function setupView() {
     const isMandatory = urlParams.get('mandatory') === 'true';
 
     if (isMandatory) {
-        // Configuración para PRIMER INICIO (Obligatorio)
+        
         pageTitle.textContent = "Cambio de contraseña obligatorio";
         
         noticeDiv.className = "password-notice mandatory";
@@ -28,7 +28,7 @@ export function setupView() {
         
         backLink.style.display = "none";
     } else {
-        // Configuración para CAMBIO VOLUNTARIO
+        
         pageTitle.textContent = "Cambiar contraseña";
         pageSubtitle.textContent = "Ingresá tu contraseña actual y elegí una nueva.";
         
@@ -101,7 +101,7 @@ function showSuccessView() {
 
     alert(mensaje);
 
-    // Limpiar tokens
+    
     localStorage.removeItem("accessToken");
     localStorage.removeItem("userRole");
 
@@ -122,7 +122,7 @@ export async function onChangePasswordSubmit(event) {
     const newPassword = newPasswordInput.value;
     const confirmPassword = confirmPasswordInput.value;
 
-    // Validaciones locales
+    
     if (!currentPassword) {
         showError("Ingresá tu contraseña actual.", "currentPassword");
         return;
@@ -154,7 +154,7 @@ export async function onChangePasswordSubmit(event) {
         return;
     }
 
-    // Envío al Backend
+    
     isSubmitting = true;
     submitButton.disabled = true;
     submitButton.textContent = "Cambiando...";
@@ -166,7 +166,7 @@ export async function onChangePasswordSubmit(event) {
             confirmPassword: confirmPassword
         });
 
-        // Mostrar vista de éxito en lugar de redirigir de inmediato
+        
         showSuccessView();
 
     } catch (error) {

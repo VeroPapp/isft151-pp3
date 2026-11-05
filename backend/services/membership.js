@@ -23,10 +23,10 @@ async function createMembershipApplication(request, response) {
                 throw new BadRequestError("El cuerpo de la petición debe contener un JSON válido.");
             }
 
-            // Extrae los datos del body
+            
             const { name, surname, dni, birthdate, email, phone } = data;
 
-            // Validación de datos de entrada
+            
             if (!name || !surname || !dni || !birthdate || !email || !phone) {
                 throw new BadRequestError("Faltan campos obligatorios para realizar la solicitud de membresia")
             }

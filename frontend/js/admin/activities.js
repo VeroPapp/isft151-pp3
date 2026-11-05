@@ -335,7 +335,7 @@ export function resetActivityForm() {
     container.appendChild(createScheduleRow(null));
 }
 
-// --- Modal de Inscriptos ---
+
 async function openRegistrationsModal(idActivity, activityName) {
     const modal = document.getElementById("registrationsModal");
     const title = document.getElementById("modalTitle");

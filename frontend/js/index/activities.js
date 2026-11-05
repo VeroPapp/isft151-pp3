@@ -2,7 +2,7 @@ import { RPCWebAPIFetchPublic } from '../shared/api.js';
 import { clearContainer, createActivityCard } from '../shared/domUtils.js';
 
 export async function loadActivities() {
-    // El módulo busca su propio contenedor
+    
     const container = document.getElementById("activitiesContainer");
     clearContainer(container);
 

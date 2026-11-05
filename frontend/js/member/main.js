@@ -11,24 +11,24 @@ if (!localStorage.getItem("accessToken")) {
 }
 
 function main() {
-    // 1. Header actions
+    
     document.getElementById("logoutButton").onclick = function () {
         handleLogout(RPCWebAPIFetchPrivate);
     };
     document.getElementById("deactivateMembershipButton").onclick = onDeactivateMembershipClick;
 
-    // 2. Delegación de eventos para los contenedores
+    
     document.getElementById("activitiesContainer").onclick = onRegisterClick;
     document.getElementById("registrationsContainer").onclick = onCancelRegisterClick;
 
-    // 3. Evento para el botón de editar teléfono (Delegación)
+    
     document.getElementById("profileContainer").onclick = function (event) {
         if (event.target.closest("#editPhoneBtn")) {
             onEditPhoneClick();
         }
     };
 
-    // 4. Carga inicial de datos
+    
     loadProfile();
     loadActivities();
     loadRegistrations();

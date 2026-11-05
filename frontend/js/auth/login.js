@@ -11,7 +11,7 @@ export async function onLoginSubmit(event) {
     const email = emailInput.value.trim();
     const password = passwordInput.value;
 
-    // Validación rápida de campos vacíos
+    
     if (!email || !password) {
         showMessage("resultMessage", "Los datos ingresados son incorrectos.", true);
         emailInput.value = "";

@@ -1,4 +1,3 @@
-// Función centralizada para responder peticiones exitosas al cliente
 function sendSuccess(response, data, statusCode) {
     if (!statusCode) {
         statusCode = 200;

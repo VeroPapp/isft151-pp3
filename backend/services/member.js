@@ -146,7 +146,7 @@ function deactivateMember(request, response) {
                 throw new DomainError("No se puede desactivar un usuario que no tiene el rol MEMBER.")
             }
 
-            // cambia el estado a "INACTIVE"
+            
             const INACTIVE = 5
             const result = changeMemberStatusDB(INACTIVE, idUser, true);
             if (!result) {
@@ -201,9 +201,9 @@ function activateMember(request, response) {
                 throw new DomainError("No se puede activar un usuario que no tiene el rol MEMBER.");
             }
 
-            // Cambia el estado a "ACTIVE" (3)
+            
             const ACTIVE = 3
-            const result = changeMemberStatusDB(ACTIVE, idUser, false); // Reutilizamos la función que ya hace el UPDATE
+            const result = changeMemberStatusDB(ACTIVE, idUser, false); 
             if (!result) {
                 throw new DomainError("No se pudo reactivar la membresía del socio.");
             }

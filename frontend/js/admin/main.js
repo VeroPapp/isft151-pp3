@@ -9,7 +9,7 @@ if (!localStorage.getItem("accessToken")) {
     window.location.href = "login.html";
 }
 
-// --- Configuración de Tabs ---
+
 function setupTabs() {
     const tabs = document.querySelectorAll(".tab");
     const panels = document.querySelectorAll(".tab-panel");
@@ -25,22 +25,22 @@ function setupTabs() {
 }
 
 function main() {
-    // 1. Cerrar sesión
+    
     document.getElementById("logoutButton").onclick = function () {
         handleLogout(RPCWebAPIFetchPrivate);
     };
 
-    // 2. Asignación directa de eventos (igual que en tu ejemplo)
+    
     document.getElementById("applicationsContainer").onclick = onApplicationActionClick;
     document.getElementById("activitiesContainer").onclick = onActivityActionClick;
     document.getElementById("membersContainer").onclick = onMemberActionClick;
     
-    // 3. Formularios
+    
     document.getElementById("createActivityForm").onsubmit = onCreateActivitySubmit;
     document.getElementById("cancelEditBtn").onclick = resetActivityForm;
     document.getElementById("editMemberForm").onsubmit = onEditMemberSubmit;
 
-    // 4. Botones de horarios y modales
+    
     document.getElementById("addScheduleBtn").onclick = function () {
         document.getElementById("schedulesContainer").appendChild(createScheduleRow(null));
     };
@@ -63,7 +63,7 @@ function main() {
         if (e.target === this) this.style.display = "none";
     });
 
-    // 5. Carga inicial
+    
     resetActivityForm();
     setupTabs();
     loadApplications();

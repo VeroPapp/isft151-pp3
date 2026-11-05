@@ -13,14 +13,14 @@ async function requestDispatcher(request, response) {
     response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
     response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, x-access-token, x-api-version");
-    // le indica al navegador que el cliente puede leer estos headers de la respuesta
+    
     response.setHeader("Access-Control-Expose-Headers", "x-access-token");
 
     const APIVersionServer = '1.0'
 
     try {
 
-        // Responder preflight OPTIONS
+        
         if (request.method === "OPTIONS") {
             response.writeHead(204);
             response.end();
@@ -50,22 +50,22 @@ async function requestDispatcher(request, response) {
 
         const sessionKey = request.headers["x-access-token"];
 
-        // 1. Valida su sesión y su autorización (Ahora es una promesa real)
+        
         const session = await sessionAuthorized(sessionKey, path);
 
-        // 2. Si no está autorizado lanza el error
+        
         if (!session.isAuthorized) {
             throw new UnauthorizedError("Usted no puede realizar dicha acción privada porque requiere de un token de sesión válido o no tiene los permisos requeridos.");
         }
 
-        // 3. Si está autorizado e identificamos al usuario, inyectamos la sesión
+        
         if (session.IDuser !== null) {
             request.user = session;
         } else {
-            request.user = null; // Limpieza para rutas públicas
+            request.user = null; 
         }
 
-        // 4. Ejecuta el controlador de destino
+        
         return await handler.method(request, response);
 
     } catch (error) {

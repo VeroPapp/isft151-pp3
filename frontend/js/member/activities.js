@@ -54,8 +54,8 @@ export async function onRegisterClick(event) {
         const response = await RPCWebAPIFetchPrivate("/registerMemberToActivity", { idActivity: activityId });
         alert(response.data.message || "¡Inscripción exitosa!");
         
-        loadActivities();   // Recarga cupos
-        loadRegistrations();  // Recarga la lista de abajo
+        loadActivities();   
+        loadRegistrations();  
     } catch (error) {
         alert("Error al inscribirse: " + error.message);
         button.disabled = false;

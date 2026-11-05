@@ -7,7 +7,7 @@ function createMembershipApplicationDB(name, surname, dni, birthdate, email, pho
 
     try {
 
-        // Verificar si ya existe un usuario con ese DNI o email
+        
         const sqlCheck = `
             SELECT idUser
             FROM users
@@ -23,8 +23,7 @@ function createMembershipApplicationDB(name, surname, dni, birthdate, email, pho
 
         const passwordHash = calculateHashSHA256(dni)
 
-        // Crear usuario con estado PENDING,
-        // sin rol y con contraseña temporal
+        
         const sqlInsert = `
             INSERT INTO users
             (
@@ -51,10 +50,10 @@ function createMembershipApplicationDB(name, surname, dni, birthdate, email, pho
             birthdate,
             email,
             phone,
-            passwordHash, //* La contraseña temporal es el mismo DNI
-            'NONE', // * la sessionKey al inicio es 'NONE'
-            1, //* El estado PENDINGFORAPPROBATION tiene idStatus = 1
-            1 //* el estado del role es NONE, hasta que el admin lo apruebe y cambie a MEMBER
+            passwordHash, 
+            'NONE', 
+            1, 
+            1 
         )
 
         return result.lastInsertRowid
@@ -85,8 +84,7 @@ function listMembershipApplicationsDB() {
             ORDER BY u.creationDate ASC, u.idUser ASC
         `;
 
-        //Los alias AS status y AS role son para que en el JSON final no aparezcan como name porque aparece en la base de datos, sino como status y role, respectivamente.
-        //(que sería ambiguo, porque tanto userStatus como roles tienen columna name).
+        
 
 
         const stmt = objectDB.prepare(sql);
@@ -100,8 +98,7 @@ function listMembershipApplicationsDB() {
 
 function approveMembershipApplicationDB(idUser) {
     try {
-        // Solo aprobamos si el usuario está PENDINGFORAPPROBATION (idStatus = 1).
-        // Lo pasamos a PENDINGFORPASSWORDCHANGE (idStatus = 2) y le damos rol MEMBER (idRole = 2).
+        
         const sql = `
             UPDATE users
             SET idStatus = 2, idRole = 2
@@ -111,7 +108,7 @@ function approveMembershipApplicationDB(idUser) {
         const stmt = objectDB.prepare(sql);
         const result = stmt.run(idUser);
 
-        return result.changes > 0; // true si actualizó algo, false si no había nada que aprobar
+        return result.changes > 0; 
 
     } catch (error) {
         throw error;
