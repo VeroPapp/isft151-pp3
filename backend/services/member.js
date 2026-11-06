@@ -9,7 +9,7 @@ const { cancelAllMemberRegistrationsDB } = require("../models/activityRegistrati
 function getMember(request, response) {
     let bodyRaw = "";
 
-    request.on('data', chunk => {
+    request.on("data", function(chunk) {
         bodyRaw += chunk.toString();
     });
 
@@ -46,6 +46,7 @@ function getMember(request, response) {
     })
 }
 
+
 function listMembers(request, response) {
     try {
         const members = listMembersDB();
@@ -59,22 +60,23 @@ function listMembers(request, response) {
         }
 
         sendSuccess(response, { members: members }, 200);
+
     } catch (error) {
         sendError(response, error);
     }
 }
 
+
 function updateMember(request, response) {
 
     let bodyRaw = "";
 
-    request.on('data', chunk => {
+    request.on("data", function(chunk) {
         bodyRaw += chunk.toString();
     });
 
     request.on("end", async function () {
         try {
-
             let data;
             try {
                 data = JSON.parse(bodyRaw);
@@ -105,24 +107,22 @@ function updateMember(request, response) {
 
             sendSuccess(response, { message: "Datos del socio actualizados correctamente." }, 200);
 
-
         } catch (error) {
             sendError(response, error);
         }
     })
-
 }
+
 
 function deactivateMember(request, response) {
     let bodyRaw = "";
 
-    request.on('data', chunk => {
+    request.on("data", function(chunk) {
         bodyRaw += chunk.toString();
     });
 
     request.on("end", async function () {
         try {
-
             let data;
             try {
                 data = JSON.parse(bodyRaw);
@@ -145,8 +145,7 @@ function deactivateMember(request, response) {
             if (roleMember.nameRole !== "MEMBER") {
                 throw new DomainError("No se puede desactivar un usuario que no tiene el rol MEMBER.")
             }
-
-            
+   
             const INACTIVE = 5
             const result = changeMemberStatusDB(INACTIVE, idUser, true);
             if (!result) {
@@ -162,17 +161,17 @@ function deactivateMember(request, response) {
 
             sendSuccess(response, { message: "Socio dado de baja correctamente." }, 200);
 
-
         } catch (error) {
             sendError(response, error);
         }
     })
 }
 
+
 function activateMember(request, response) {
     let bodyRaw = "";
 
-    request.on('data', chunk => {
+    request.on("data", function(chunk) {
         bodyRaw += chunk.toString();
     });
 
@@ -201,7 +200,6 @@ function activateMember(request, response) {
                 throw new DomainError("No se puede activar un usuario que no tiene el rol MEMBER.");
             }
 
-            
             const ACTIVE = 3
             const result = changeMemberStatusDB(ACTIVE, idUser, false); 
             if (!result) {
@@ -215,6 +213,7 @@ function activateMember(request, response) {
         }
     })
 }
+
 
 module.exports = {
     getMember,

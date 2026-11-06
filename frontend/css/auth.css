@@ -1,5 +1,3 @@
-
-
 body.login-page,
 body.password-page {
     margin: 0;
@@ -14,7 +12,6 @@ body.password-page {
 body.password-page {
     background: radial-gradient(circle at top right, #1e9a5e, #0f5a37);
 }
-
 
 
 .login-card,
@@ -35,8 +32,6 @@ body.password-page {
     text-align: center;
     color: var(--primary-dark);
 }
-
-
 
 .login-card label,
 .password-card label {
@@ -66,7 +61,6 @@ body.password-page {
 }
 
 
-
 .password-input-wrap {
     position: relative;
     display: flex;
@@ -79,6 +73,7 @@ body.password-page {
     border-color: var(--danger);
     box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
+
 
 .toggle-password {
     position: absolute;
@@ -98,7 +93,6 @@ body.password-page {
     background: #f1f5f9;
     color: var(--primary-dark);
 }
-
 
 
 .login-card button[type="submit"],
@@ -122,7 +116,6 @@ body.password-page {
 
 .login-card button[type="submit"]:disabled,
 .login-card .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
-
 
 
 .login-result {
@@ -152,7 +145,6 @@ body.password-page {
 }
 
 
-
 .login-back {
     display: inline-flex;
     align-items: center;
@@ -172,9 +164,6 @@ body.password-page {
 }
 
 .login-back:hover { color: var(--primary); }
-
-
-
 
 
 .password-card-header {
@@ -221,7 +210,6 @@ body.password-page {
 }
 
 
-
 .password-notice {
     margin-bottom: 20px;
     padding: 12px 16px;
@@ -247,7 +235,6 @@ body.password-page {
     display: block;
     margin-bottom: 4px;
 }
-
 
 
 .password-form-grid {
@@ -293,7 +280,6 @@ body.password-page {
 }
 
 
-
 .password-sidebar {
     display: flex;
     flex-direction: column;
@@ -327,7 +313,6 @@ body.password-page {
 .password-hint li {
     margin-bottom: 3px;
 }
-
 
 
 .password-actions {
@@ -367,7 +352,6 @@ body.password-page {
 }
 
 
-
 #resultMessage.error {
     background-color: #fee2e2;
     color: #991b1b;
@@ -383,7 +367,6 @@ body.password-page {
 #resultMessage:empty {
     display: none;
 }
-
 
 
 .success-panel {
@@ -435,15 +418,12 @@ body.password-page {
 }
 
 
-
-
 @media (max-width: 860px) {
     .password-form-grid {
         grid-template-columns: 1fr 280px;
         gap: 24px;
     }
 }
-
 
 @media (max-width: 720px) {
     .password-card {

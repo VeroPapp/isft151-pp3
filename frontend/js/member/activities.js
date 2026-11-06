@@ -39,6 +39,7 @@ export async function loadActivities() {
     }
 }
 
+
 export async function onRegisterClick(event) {
     const button = event.target.closest(".register-btn");
     if (!button) return;

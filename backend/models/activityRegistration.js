@@ -19,6 +19,7 @@ function listRegistrationsByActivityDB(idActivity) {
     }
 }
 
+
 function registerMemberToActivityDB(idUser, idActivity) {
     try {
         const sql = `
@@ -40,6 +41,7 @@ function registerMemberToActivityDB(idUser, idActivity) {
     }
 }
 
+
 function cancelRegistrationDB(idUser, idActivity) {
     try {
         const sql = `
@@ -54,6 +56,7 @@ function cancelRegistrationDB(idUser, idActivity) {
         throw error;
     }
 }
+
 
 function listMemberRegistrationsDB(idUser) {
     try {
@@ -92,6 +95,7 @@ function listMemberRegistrationsDB(idUser) {
     }
 }
 
+
 function cancelAllMemberRegistrationsDB(idUser) {
     try {
         const sql = `
@@ -111,6 +115,7 @@ function cancelAllMemberRegistrationsDB(idUser) {
     }
 }
 
+
 function getActivityCapacityDB(idActivity) {
     const sql = `SELECT capacity FROM activities WHERE idActivity = ?`;
     try {
@@ -121,6 +126,7 @@ function getActivityCapacityDB(idActivity) {
     }
 }
 
+
 function countActiveRegistrationsDB(idActivity) {
     const sql = `SELECT COUNT(*) as total FROM activityRegistrations WHERE idActivity = ? AND status = 'ACTIVE'`;
     try {
@@ -130,6 +136,7 @@ function countActiveRegistrationsDB(idActivity) {
         throw error;
     }
 }
+
 
 function getUserRegistrationStatusDB(idUser, idActivity) {
     const sql = `SELECT status FROM activityRegistrations WHERE idUser = ? AND idActivity = ?`;
@@ -158,6 +165,7 @@ function getUserActiveSchedulesDB(idUser) {
     return stmt.all(idUser);
 }
 
+
 function getActivitySchedulesDB(idActivity) {
     const sql = `
         SELECT day, startTime, endTime
@@ -167,6 +175,7 @@ function getActivitySchedulesDB(idActivity) {
     const stmt = objectDB.prepare(sql);
     return stmt.all(idActivity);
 }
+
 
 module.exports = {
     listRegistrationsByActivityDB,

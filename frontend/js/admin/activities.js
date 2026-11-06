@@ -97,6 +97,7 @@ export async function loadActivities() {
     }
 }
 
+
 export async function onActivityActionClick(event) {
     const viewBtn = event.target.closest(".view-registrations-btn");
     const deactivateBtn = event.target.closest(".deactivate-btn");
@@ -173,6 +174,7 @@ export async function onActivityActionClick(event) {
     }
 }
 
+
 export function createScheduleRow(schedule) {
     const row = document.createElement("div");
     row.className = "schedule-row";
@@ -221,6 +223,7 @@ export function createScheduleRow(schedule) {
 
     return row;
 }
+
 
 export async function onCreateActivitySubmit(event) {
     event.preventDefault();
@@ -320,6 +323,7 @@ export async function onCreateActivitySubmit(event) {
     }
 }
 
+
 export function resetActivityForm() {
     document.getElementById("createActivityForm").reset();
     document.getElementById("editActivityId").value = "";
@@ -407,6 +411,7 @@ async function openRegistrationsModal(idActivity, activityName) {
         tbody.appendChild(errTr);
     }
 }
+
 
 export async function onRemoveMemberFromActivity(event) {
     const button = event.target.closest(".remove-registration-btn");

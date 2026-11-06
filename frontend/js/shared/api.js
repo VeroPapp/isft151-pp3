@@ -57,10 +57,12 @@ async function RPCWebAPIFetchPublic(path, content = {}) {
     }
 }
 
+
 function getToken() {
     const token = localStorage.getItem("accessToken")
     return token
 }
+
 
 async function RPCWebAPIFetchPrivate(path, content = {}) {
 

@@ -1,5 +1,3 @@
-
-
 .socio-header,
 .admin-header {
     display: flex;
@@ -7,13 +5,7 @@
     align-items: center;
     background: white;
     border-bottom: 1px solid var(--border);
-    
-    /* Magia: alinea el contenido con el contenedor de 1100px */
     padding: 16px max(16px, calc((100vw - 1100px) / 2 + 24px));
-}
-
-.socio-header {
-    /* Le quitamos el margin-bottom porque ahora el padding lo maneja el admin-container */
 }
 
 .admin-header {
@@ -44,13 +36,11 @@
 }
 
 
-
 .admin-container {
     max-width: 1100px;
     margin: 0 auto;
     padding: 24px;
 }
-
 
 
 #membersContainer .actions-cell .btn {
@@ -62,7 +52,6 @@
     min-width: 100%;
     text-align: center;
 }
-
 
 
 .socio-section,
@@ -87,7 +76,6 @@
 .section-card h2 {
     font-size: 1.15rem;
 }
-
 
 
 .profile-grid {
@@ -142,7 +130,6 @@
 }
 
 
-
 .activities-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -159,7 +146,6 @@
     border-radius: 4px;
     display: inline-block;
 }
-
 
 
 .tabs {
@@ -201,7 +187,6 @@
 .tab-panel.active {
     display: block;
 }
-
 
 
 .schedule-row {
@@ -246,8 +231,6 @@
 #addScheduleBtn:hover {
     background: rgba(26, 127, 79, 0.05);
 }
-
-
 
 
 .input-error {
@@ -302,7 +285,6 @@
 }
 
 
-
 .modal-overlay {
     display: none; 
     position: fixed; 
@@ -343,7 +325,6 @@
 }
 
 
-
 .danger-zone {
     border: 1px solid #fca5a5; 
     background-color: #fef2f2; 
@@ -377,8 +358,6 @@
     background-color: var(--danger);
     color: white;
 }
-
-
 
 
 @media (max-width: 700px) {

@@ -17,6 +17,7 @@ function createProfileField(labelText, valueText) {
     return field;
 }
 
+
 export async function loadProfile() {
     const container = document.getElementById("profileContainer");
     clearContainer(container);
@@ -82,6 +83,7 @@ export async function loadProfile() {
     }
 }
 
+
 export function onEditPhoneClick() {
     const phoneField = document.getElementById("phoneField");
     const currentPhone = document.getElementById("phoneDisplay").innerText;
@@ -133,6 +135,7 @@ export function onEditPhoneClick() {
     cancelBtn.onclick = onCancelPhoneClick;
     input.focus();
 }
+
 
 async function onSavePhoneClick() {
     const newPhone = document.getElementById("phoneInput").value.trim();

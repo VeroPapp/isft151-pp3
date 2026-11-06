@@ -4,7 +4,6 @@ const { getMemberByIdDB, updatePhoneDB } = require("../models/member.js");
 
 function getMemberProfile(request, response) {
     try {
-
         const member = getMemberByIdDB(request.user.idUser);
         if (!member) {
             throw new BadRequestError("Usuario no encontrado.");
@@ -21,16 +20,14 @@ function getMemberProfile(request, response) {
 }
 
 function updateMemberProfile(request, response) {
-
     let bodyRaw = "";
 
-    request.on('data', chunk => {
+    request.on("data", function(chunk) {
         bodyRaw += chunk.toString();
     });
 
     request.on("end", async function () {
         try {
-
             let data;
             try {
                 data = JSON.parse(bodyRaw);
@@ -56,13 +53,12 @@ function updateMemberProfile(request, response) {
 
             sendSuccess(response, { message: "Perfil actualizado correctamente." }, 200);
 
-
         } catch (error) {
             sendError(response, error);
         }
     })
-
 }
+
 
 module.exports = {
     getMemberProfile,

@@ -36,6 +36,7 @@ function listAllActivitiesDB() {
     }
 }
 
+
 function createActivityDB(activityData, schedulesData) {
     try {
         const sqlActivity = `INSERT INTO activities (name, description, startDate, endDate, instructor, capacity, scope) VALUES (?, ?, ?, ?, ?, ?, ?)`;
@@ -68,6 +69,7 @@ function createActivityDB(activityData, schedulesData) {
         throw error;
     }
 }
+
 
 function updateActivityDB(idActivity, activityData, schedulesData) {
     try {
@@ -113,6 +115,7 @@ function updateActivityDB(idActivity, activityData, schedulesData) {
     }
 }
 
+
 function deactivateActivityDB(idActivity) {
     try {
         const sql = `UPDATE activities SET status = 'INACTIVE' WHERE idActivity = ?`;
@@ -124,6 +127,7 @@ function deactivateActivityDB(idActivity) {
     }
 }
 
+
 function activateActivityDB(idActivity) {
     try {
         const sql = `UPDATE activities SET status = 'ACTIVE' WHERE idActivity = ?`;
@@ -134,6 +138,7 @@ function activateActivityDB(idActivity) {
         throw error;
     }
 }
+
 
 function listActiveActivitiesDB() {
     try {
@@ -176,6 +181,7 @@ function listActiveActivitiesDB() {
         throw error;
     }
 }
+
 
 module.exports = {
     listAllActivitiesDB,

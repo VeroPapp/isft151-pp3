@@ -1,6 +1,5 @@
 import { RPCWebAPIFetchPrivate } from '../shared/api.js';
 import { handleLogout } from '../shared/helpers.js';
-
 import { loadApplications, onApplicationActionClick } from './applications.js';
 import { loadActivities, onActivityActionClick, onCreateActivitySubmit, resetActivityForm, createScheduleRow, onRemoveMemberFromActivity } from './activities.js';
 import { loadMembers, onMemberActionClick, onEditMemberSubmit } from './members.js';
@@ -30,17 +29,14 @@ function main() {
         handleLogout(RPCWebAPIFetchPrivate);
     };
 
-    
     document.getElementById("applicationsContainer").onclick = onApplicationActionClick;
     document.getElementById("activitiesContainer").onclick = onActivityActionClick;
     document.getElementById("membersContainer").onclick = onMemberActionClick;
-    
     
     document.getElementById("createActivityForm").onsubmit = onCreateActivitySubmit;
     document.getElementById("cancelEditBtn").onclick = resetActivityForm;
     document.getElementById("editMemberForm").onsubmit = onEditMemberSubmit;
 
-    
     document.getElementById("addScheduleBtn").onclick = function () {
         document.getElementById("schedulesContainer").appendChild(createScheduleRow(null));
     };

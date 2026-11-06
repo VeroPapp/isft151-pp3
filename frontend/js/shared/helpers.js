@@ -1,4 +1,3 @@
-
 export function formatDate(dateString) {
     if (!dateString) return "—";
     const datePart = dateString.split(" ")[0]; 
@@ -20,9 +19,7 @@ export function showMessage(containerId, message, isError = false) {
 
     resultDiv.style.display = "block";
     
-    
     let classes = isError ? "error" : "ok";
-    
     
     if (containerId === "resultMessage" && document.body.classList.contains("login-page")) {
         classes = isError ? "login-result login-result-error shake" : "login-result login-result-ok";

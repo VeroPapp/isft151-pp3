@@ -41,7 +41,6 @@ body {
 }
 
 
-
 .btn {
     display: inline-block;
     padding: 8px 16px;
@@ -70,7 +69,6 @@ body {
 .btn-warning:hover:not(:disabled) { background: #d97706; }
 
 
-
 .badge {
     display: inline-block;
     padding: 3px 10px;
@@ -85,7 +83,6 @@ body {
 .badge-pending  { background: var(--warning-bg); color: var(--warning-text); }
 .badge-inactive { background: #f1f5f9;            color: var(--muted); }
 .badge-rejected { background: var(--error-bg);   color: var(--error-text); }
-
 
 
 .form-grid { display: grid; gap: 14px; }
@@ -130,7 +127,6 @@ body {
 }
 
 
-
 #resultado {
     padding: 12px 16px;
     border-radius: 8px;
@@ -152,7 +148,6 @@ body {
     color: var(--error-text);
     border: 1px solid var(--error-border);
 }
-
 
 
 .empty-msg {
@@ -177,7 +172,6 @@ body {
     border-radius: 8px;
     font-size: 0.9rem;
 }
-
 
 
 .data-table {

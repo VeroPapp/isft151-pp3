@@ -16,9 +16,7 @@ function authenticateDB(emailUser, password) {
 
     try {
         const stmt = objectDB.prepare(sql);
-
         const hashedPassword = calculateHashSHA256(password);
-
         const userExists = stmt.get(emailUser, hashedPassword);
 
         if (!userExists) {

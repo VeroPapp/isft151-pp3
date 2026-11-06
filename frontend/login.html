@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión - Comunidad Activa</title>
     <link rel="stylesheet" href="./css/base.css">
     <link rel="stylesheet" href="./css/auth.css">
     <link rel="icon" href="./assets/favicon.ico">
+    <title>Iniciar Sesión - Comunidad Activa</title>
 </head>
+
 <body class="login-page">
     <div class="login-card">
         <h1>Iniciar Sesión</h1>
@@ -34,9 +35,9 @@
         import { setupPasswordToggle } from './js/shared/helpers.js';
         import { onLoginSubmit } from './js/auth/login.js';
 
-        
         setupPasswordToggle();
         document.getElementById("loginForm").onsubmit = onLoginSubmit;
     </script>
+    
 </body>
 </html>

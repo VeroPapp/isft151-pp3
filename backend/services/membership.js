@@ -6,27 +6,23 @@ const { changeMemberStatusDB } = require("../models/member.js");
 
 
 async function createMembershipApplication(request, response) {
-
-    let body = ""
+    let bodyRaw = "";
 
     request.on("data", function(chunk) {
-        body += chunk.toString()
-    })
+        bodyRaw += chunk.toString()
+    });
 
     request.on("end", async function() {
         try {
-
             let data;
             try {
-                data = JSON.parse(body);
+                data = JSON.parse(bodyRaw);
             } catch (error) {
                 throw new BadRequestError("El cuerpo de la petición debe contener un JSON válido.");
             }
-
             
             const { name, surname, dni, birthdate, email, phone } = data;
 
-            
             if (!name || !surname || !dni || !birthdate || !email || !phone) {
                 throw new BadRequestError("Faltan campos obligatorios para realizar la solicitud de membresia")
             }
@@ -42,11 +38,11 @@ async function createMembershipApplication(request, response) {
             sendSuccess(response, message, 201)
 
         } catch (error) {
-
             sendError(response, error)
         }
     })
 }
+
 
 function listMembershipApplications(request, response) {
     try {
@@ -66,6 +62,7 @@ function listMembershipApplications(request, response) {
         sendError(response, error);
     }
 }
+
 
 function approveMembershipApplication(request, response) {
     let bodyRaw = "";
@@ -105,6 +102,7 @@ function approveMembershipApplication(request, response) {
     });
 }
 
+
 function rejectMembershipApplication(request, response) {
     let bodyRaw = "";
 
@@ -143,6 +141,7 @@ function rejectMembershipApplication(request, response) {
     });
 }
 
+
 function deactivateMyMembership(request, response) {
     try {
         const idUser = request.user.idUser;
@@ -158,7 +157,6 @@ function deactivateMyMembership(request, response) {
         if (registrationsAffected === 0) {
             sendSuccess(response, { message: "Socio dado de baja correctamente (no tenía actividades inscriptas)." });            
             return
-
         }
         
         sendSuccess(response, { message: "Tu membresía fue dada de baja correctamente." }, 200);
@@ -167,6 +165,7 @@ function deactivateMyMembership(request, response) {
         sendError(response, error);
     }
 }
+
 
 module.exports = {
     createMembershipApplication,

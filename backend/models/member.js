@@ -1,7 +1,5 @@
 const { objectDB } = require("../database/connectDB.js");
 
-
-
 function getMemberBySessionKeyDB(sessionKey) {
     const sql = `SELECT idUser, idRole, idStatus FROM users WHERE sessionKey = ?`;
     const stmt = objectDB.prepare(sql);
@@ -14,6 +12,7 @@ function getMemberBySessionKeyDB(sessionKey) {
     const { idUser, idRole, idStatus } = userExists;
     return { idUser: idUser, IDrole: idRole, IDstatus: idStatus };
 }
+
 
 function getMemberByIdDB(idUser) {
     const sql = `
@@ -31,6 +30,7 @@ function getMemberByIdDB(idUser) {
 
     return userExists;
 }
+
 
 function listMembersDB() {
     const sql = `
@@ -56,6 +56,7 @@ function listMembersDB() {
     return members; 
 }
 
+
 function changeMemberStatusDB(idStatus, idUser, savePreviousStatus) {
     let sql;
     
@@ -79,6 +80,7 @@ function changeMemberStatusDB(idStatus, idUser, savePreviousStatus) {
     }
 }
 
+
 function updateMemberDB(name, surname, dni, birthdate, phone, email, idUser) {
     const sql = `UPDATE users SET name = ?, surname = ?, dni = ?, birthdate = ?, phone = ?, email = ? WHERE idUser = ?`;
     const stmt = objectDB.prepare(sql);
@@ -90,6 +92,7 @@ function updateMemberDB(name, surname, dni, birthdate, phone, email, idUser) {
 
     return { idUser: idUser };
 }
+
 
 function updateSessionKeyDB(sessionKey, idUser) {
     const sql = `UPDATE users SET sessionKey = ? WHERE idUser = ?`;
@@ -103,6 +106,7 @@ function updateSessionKeyDB(sessionKey, idUser) {
     return { idUser: idUser };
 }
 
+
 function updatePasswordStatusSessionDB(password, idStatus, sessionKey, idUser) {
     const sql = `UPDATE users SET password = ?, idStatus = ?, sessionKey = ? WHERE idUser = ?`;
     const stmt = objectDB.prepare(sql);
@@ -114,7 +118,6 @@ function updatePasswordStatusSessionDB(password, idStatus, sessionKey, idUser) {
 
     return { idUser: idUser };
 }
-
 
 
 function updatePhoneDB(phone, idUser) {

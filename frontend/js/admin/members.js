@@ -79,12 +79,12 @@ export async function loadMembers() {
     }
 }
 
+
 export async function onMemberActionClick(event) {
     const editBtn = event.target.closest(".edit-member-btn");
     const deactivateBtn = event.target.closest(".deactivate-member-btn");
     const activateBtn = event.target.closest(".activate-member-btn");
 
-    
     if (editBtn) {
         const idUser = editBtn.getAttribute("data-id");
         const member = localMembersData.find(function (m) { return m.idUser == idUser; });
@@ -92,7 +92,6 @@ export async function onMemberActionClick(event) {
         return;
     }
 
-    
     if (deactivateBtn) {
         if (!confirm("¿Estás seguro que querés dar de baja a este socio? El usuario ya no podrá iniciar sesión.")) return;
         
@@ -110,7 +109,6 @@ export async function onMemberActionClick(event) {
         }
         return;
     }
-
     
     if (activateBtn) {
         if (!confirm("¿Querés reactivar a este socio? Volverá a poder iniciar sesión.")) return;
@@ -131,6 +129,7 @@ export async function onMemberActionClick(event) {
     }
 }
 
+
 export function openEditMemberModal(member) {
     const numberMember = "#" + String(member.idUser).padStart(4, "0");
 
@@ -149,6 +148,7 @@ export function openEditMemberModal(member) {
 
     document.getElementById("editMemberModal").style.display = "flex";
 }
+
 
 export async function onEditMemberSubmit(event) {
     event.preventDefault();

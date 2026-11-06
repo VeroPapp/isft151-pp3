@@ -6,10 +6,12 @@ function listAllActivities(request, response) {
     try {
         const activities = listAllActivitiesDB();
         sendSuccess(response, { activities }, 200);
+
     } catch (error) {
         sendError(response, error);
     }
 }
+
 
 function listActiveActivities(request, response) {
     try {
@@ -18,16 +20,20 @@ function listActiveActivities(request, response) {
             return sendSuccess(response, { message: "No hay actividades cargadas.", activities: [] }, 200);
         }
         sendSuccess(response, { activities }, 200);
+
     } catch (error) {
         sendError(response, error);
     }
 }
 
+
 function createActivity(request, response) {
     let bodyRaw = "";
+    
     request.on("data", function(chunk) {
         bodyRaw += chunk.toString();
     });
+
     request.on("end", function() {
         try {
             const data = JSON.parse(bodyRaw);
@@ -49,17 +55,21 @@ function createActivity(request, response) {
 
             createActivityDB({ name, description, startDate, endDate, instructor, capacity, scope }, schedules);
             sendSuccess(response, { message: "Actividad creada correctamente." }, 201);
+
         } catch (error) {
             sendError(response, error);
         }
     });
 }
 
+
 function updateActivity(request, response) {
     let bodyRaw = "";
+
     request.on("data", function(chunk) {
         bodyRaw += chunk.toString();
     });
+
     request.on("end", function() {
         try {
             const data = JSON.parse(bodyRaw);
@@ -86,6 +96,7 @@ function updateActivity(request, response) {
             }
 
             sendSuccess(response, { message: "Actividad actualizada correctamente." }, 200);
+
         } catch (error) {
             sendError(response, error);
         }
@@ -94,11 +105,13 @@ function updateActivity(request, response) {
 
 function deactivateActivity(request, response) {
     let bodyRaw = "";
+
     request.on("data", function(chunk) {
         bodyRaw += chunk.toString();
     });
+    
     request.on("end", function() {
-              try {
+        try {
             const data = JSON.parse(bodyRaw);
             const { idActivity } = data;
 
@@ -108,17 +121,21 @@ function deactivateActivity(request, response) {
             if (!ok) throw new DomainError("No se encontró la actividad.");
 
             sendSuccess(response, { message: "Actividad dada de baja correctamente." }, 200);
+
         } catch (error) {
             sendError(response, error);
         }
     });
 }
 
+
 function activateActivity(request, response) {
     let bodyRaw = "";
+
     request.on("data", function(chunk) {
         bodyRaw += chunk.toString();
     });
+
     request.on("end", function() {
         try {
             const data = JSON.parse(bodyRaw);
@@ -130,11 +147,13 @@ function activateActivity(request, response) {
             if (!ok) throw new DomainError("No se encontró la actividad.");
 
             sendSuccess(response, { message: "Actividad reactivada correctamente." }, 200);
+
         } catch (error) {
             sendError(response, error);
         }
     });
 }
+
 
 module.exports = { 
     listAllActivities,

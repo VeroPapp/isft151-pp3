@@ -2,35 +2,25 @@ INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, em
 VALUES (2, 2, 'Carlos', 'Tevez', '123', '1984-02-05', 'carlitos@email.com', '1123456789',
         'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3');
 
-
 INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, email, phone, password)
 VALUES (2, 3, 'Vero', 'Papp', '1234', '1945-07-05', 'verito@email.com', '11456789',
         '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4');
-
 
 INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, email, phone, password)
 VALUES (3, 3, 'adminClub', 'asdd', '123456', '1999-09-09', 'adminclub@email.com', '1125689',
         '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92');
 
-
-
-
-
 INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, email, phone, password)
 VALUES (1, 1, 'Juan', 'Perez', '11111111', '1990-05-12', 'juan.perez@email.com', '1122334455',
         'bcb15f821479b4d5772b1fecb8fba0a4a6b6a029914f8b02d2e061638d6c8b39');
-
 
 INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, email, phone, password)
 VALUES (1, 1, 'Maria', 'Gomez', '22222222', '1985-11-20', 'maria.gomez@email.com', '1155667788',
         '1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z7a8b9c0d1e2f');
 
-
 INSERT OR IGNORE INTO users (idRole, idStatus, name, surname, dni, birthdate, email, phone, password)
 VALUES (1, 1, 'Pedro', 'Lopez', '33333333', '1998-02-14', 'pedro.lopez@email.com', '1199887766',
         '9a8b7c6d5e4f3g2h1i0j9k8l7m6n5o4p3q2r1s0t9u8v7w6x5y4z3a2b1c0d9e8f');
-
-
 
 
 

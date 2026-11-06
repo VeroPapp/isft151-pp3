@@ -2,18 +2,14 @@ const { objectDB } = require("../database/connectDB.js")
 const { DomainError } = require("../helpers/errorHandler.js")
 const { calculateHashSHA256 } = require("../helpers/hash.js")
 
-
 function createMembershipApplicationDB(name, surname, dni, birthdate, email, phone) {
 
     try {
-
-        
         const sqlCheck = `
             SELECT idUser
             FROM users
             WHERE dni = ? OR email = ?
         `
-
         const stmtCheck = objectDB.prepare(sqlCheck)
         const userExists = stmtCheck.get(dni, email)
 
@@ -22,8 +18,7 @@ function createMembershipApplicationDB(name, surname, dni, birthdate, email, pho
         }
 
         const passwordHash = calculateHashSHA256(dni)
-
-        
+ 
         const sqlInsert = `
             INSERT INTO users
             (
@@ -84,9 +79,6 @@ function listMembershipApplicationsDB() {
             ORDER BY u.creationDate ASC, u.idUser ASC
         `;
 
-        
-
-
         const stmt = objectDB.prepare(sql);
         return stmt.all();
 
@@ -96,9 +88,9 @@ function listMembershipApplicationsDB() {
 
 }
 
+
 function approveMembershipApplicationDB(idUser) {
     try {
-        
         const sql = `
             UPDATE users
             SET idStatus = 2, idRole = 2
@@ -115,15 +107,19 @@ function approveMembershipApplicationDB(idUser) {
     }
 }
 
+
 function rejectMembershipApplicationDB(idUser) {
     const sql = `
         UPDATE users
         SET idStatus = 4
         WHERE idUser = ? AND idStatus = 1
     `;
+
     const stmt = objectDB.prepare(sql);
+
     return stmt.run(idUser).changes > 0;
 }
+
 
 module.exports = {
     createMembershipApplicationDB,

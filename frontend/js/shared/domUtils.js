@@ -1,6 +1,5 @@
 import { formatDateForHTML } from "./helpers.js";
 
-
 export function clearContainer(container) {
     while (container.firstChild) {
         container.removeChild(container.firstChild);
@@ -36,26 +35,21 @@ export function createActivityCard(activity, options) {
         options = {};
     }
 
-    
     var card = document.createElement("article");
     card.className = "activity-card";
 
-    
     if (options.showRegisterButton || options.isRegistered) {
         card.style.display = "flex";
         card.style.flexDirection = "column";
         card.style.justifyContent = "space-between";
     }
 
-    
     if (options.isRegistered) {
         card.style.borderLeft = "4px solid var(--success-text)";
     }
 
-    
     var contentDiv = document.createElement("div");
 
-    
     var headerDiv = document.createElement("div");
     headerDiv.className = "activity-header";
 
@@ -63,7 +57,6 @@ export function createActivityCard(activity, options) {
     title.textContent = activity.name;
     headerDiv.appendChild(title);
 
-    
     if (activity.scope && !options.isRegistered) {
         var scope = document.createElement("span");
         scope.className = "activity-scope-badge";
@@ -72,7 +65,6 @@ export function createActivityCard(activity, options) {
     }
     contentDiv.appendChild(headerDiv);
 
-    
     if (activity.startDate || activity.endDate) {
         var dates = document.createElement("p");
         dates.className = "activity-dates";
@@ -80,10 +72,8 @@ export function createActivityCard(activity, options) {
         contentDiv.appendChild(dates);
     }
 
-    
     contentDiv.appendChild(createSchedulesNode(activity.schedules));
 
-    
     if (options.showCapacity && activity.capacity) {
         var disponibles = (activity.availablePlaces !== undefined && activity.availablePlaces !== null) 
             ? activity.availablePlaces 
@@ -97,7 +87,6 @@ export function createActivityCard(activity, options) {
         contentDiv.appendChild(cap);
     }
 
-    
     if (activity.instructor) {
         var inst = document.createElement("p");
         inst.className = "activity-instructor";
@@ -105,7 +94,6 @@ export function createActivityCard(activity, options) {
         contentDiv.appendChild(inst);
     }
 
-    
     if (activity.description) {
         var desc = document.createElement("p");
         desc.className = "activity-desc";
@@ -113,11 +101,8 @@ export function createActivityCard(activity, options) {
         contentDiv.appendChild(desc);
     }
 
-    
     card.appendChild(contentDiv);
 
-    
-    
     if (options.showRegisterButton) {
         
         var registerBtn = document.createElement("button");
@@ -133,7 +118,6 @@ export function createActivityCard(activity, options) {
         var bottomWrap = document.createElement("div");
         bottomWrap.style.marginTop = "15px";
 
-        
         var status = document.createElement("p");
         status.style.color = "var(--success-text)";
         status.style.fontWeight = "bold";
@@ -141,8 +125,7 @@ export function createActivityCard(activity, options) {
         status.style.marginBottom = "8px";
         status.textContent = "✅ Inscripto";
         bottomWrap.appendChild(status);
-
-        
+ 
         var cancelBtn = document.createElement("button");
         cancelBtn.className = "btn btn-danger cancel-register-btn";
         cancelBtn.setAttribute("data-id", activity.idActivity);

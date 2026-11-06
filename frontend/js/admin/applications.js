@@ -70,6 +70,7 @@ export async function loadApplications() {
     }
 }
 
+
 export async function onApplicationActionClick(event) {
     const button = event.target.closest(".action-btn");
     if (!button) return;

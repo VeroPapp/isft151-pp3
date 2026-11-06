@@ -1,15 +1,12 @@
 const { sendSuccess } = require("../helpers/responseHandler.js");
 const { BadRequestError, UnauthorizedError, DomainError, sendError } = require("../helpers/errorHandler.js");
-
 const { authenticateDB } = require("../models/auth.js");
 const { getStatusByIdDB } = require("../models/status.js");
 const { getRoleByIdDB } = require("../models/roles.js");
 const { getMemberByIdDB, updateSessionKeyDB, updatePasswordStatusSessionDB } = require("../models/member.js");
-
 const { UserSession } = require("../services/session.js");
 const { validateChangePassword } = require("../helpers/validateChangePassword.js");
 const { calculateHashSHA256 } = require("../helpers/hash.js");
-
 
 
 function login(request, response) {
@@ -21,7 +18,6 @@ function login(request, response) {
 
     request.on("end", async function () {
         try {
-
             let data;
             try {
                 data = JSON.parse(bodyRaw);
@@ -35,26 +31,22 @@ function login(request, response) {
                 throw new BadRequestError("El email y la contraseña son requeridos.");
             }
 
-            
             const userExists = authenticateDB(email, password);
             if (!userExists) {
                 throw new UnauthorizedError("Credenciales inválidas.");
             }
 
-            
             const roleExists = getRoleByIdDB(userExists.idRole);
             if (!roleExists) {
                 throw new UnauthorizedError("El usuario no tiene un rol válido para iniciar sesión.");
             }
 
-            
             const statusExists = getStatusByIdDB(userExists.idStatus);
             const invalidStatuses = ["PENDINGFORAPPROBATION", "REJECTED", "INACTIVE", "NONE"];
 
             if (!statusExists || invalidStatuses.includes(statusExists.nameStatus)) {
                 throw new UnauthorizedError("El usuario no está habilitado para iniciar sesión.");
             }
-
             
             const userPayload = {
                 idUser: userExists.idUser,
@@ -63,7 +55,6 @@ function login(request, response) {
                 role: roleExists.nameRole,
             };
 
-            
             let currentToken = userExists.sessionKey;
             if (currentToken === "NONE") {
                 const currentSession = new UserSession();
@@ -76,10 +67,8 @@ function login(request, response) {
                 }
             }
 
-            
             response.setHeader("x-access-token", `${currentToken}`);
 
-            
             if (statusExists.nameStatus === "PENDINGFORPASSWORDCHANGE") {
                 return sendSuccess(response, {
                     message: "Contraseña temporal utilizada, redirección a cambio de contraseña",
@@ -88,17 +77,14 @@ function login(request, response) {
                 }, 200);
             }
 
-            
-            sendSuccess(response, {
-                message: "Login exitoso",
-                user: userPayload
-            }, 200);
+            sendSuccess(response, { message: "Login exitoso", user: userPayload }, 200);
 
         } catch (error) {
             sendError(response, error);
         }
     });
 }
+
 
 function logout(request, response) {
     try {
@@ -113,10 +99,12 @@ function logout(request, response) {
         }
 
         sendSuccess(response, { message: "Sesión cerrada correctamente" }, 200);
+
     } catch (error) {
         sendError(response, error);
     }
 }
+
 
 function changePassword(request, response) {
     let bodyRaw = "";
@@ -146,7 +134,6 @@ function changePassword(request, response) {
                 throw new BadRequestError("La nueva contraseña y la confirmación no coinciden.");
             }
 
-            
             if (!validateChangePassword(newPassword)) {
                 throw new BadRequestError("La contraseña debe tener al menos 8 caracteres e incluir una letra mayúscula, una letra minúscula, un número y un carácter especial.");
             }
@@ -156,12 +143,10 @@ function changePassword(request, response) {
                 throw new UnauthorizedError("El usuario no está registrado en la base de datos.");
             }
 
-            
             const currentPasswordHash = calculateHashSHA256(currentPassword);
             if (userExists.password !== currentPasswordHash) {
                 throw new BadRequestError("La contraseña actual ingresada es incorrecta.");
             }
-
             
             const newPasswordHash = calculateHashSHA256(newPassword);
             if (userExists.dni == newPassword || userExists.email == newPassword) {
@@ -170,7 +155,6 @@ function changePassword(request, response) {
             if (userExists.password === newPasswordHash) {
                 throw new BadRequestError("La nueva contraseña no puede ser igual a la anterior.");
             }
-
             
             const updateUser = updatePasswordStatusSessionDB(newPasswordHash, 3, "NONE", idUser);
             if (!updateUser) {
@@ -185,4 +169,9 @@ function changePassword(request, response) {
     });
 }
 
-module.exports = { login, logout, changePassword };
+
+module.exports = { 
+    login, 
+    logout, 
+    changePassword 
+};

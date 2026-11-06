@@ -4,13 +4,13 @@ const { listRegistrationsByActivityDB, registerMemberToActivityDB, cancelRegistr
 const { getMemberByIdDB} = require("../models/member.js");
 const { getRoleByIdDB } = require("../models/roles.js");
 
-
-
 function listRegistrationsByActivity(request, response) {
     let bodyRaw = "";
+
     request.on("data", function(chunk) {
         bodyRaw += chunk.toString();
     });
+
     request.on("end", function() {
         try {
             const data = JSON.parse(bodyRaw);
@@ -28,11 +28,14 @@ function listRegistrationsByActivity(request, response) {
     });
 }
 
+
 function removeMemberFromActivity(request, response) {
     let bodyRaw = "";
+
     request.on("data", function(chunk) {
         bodyRaw += chunk.toString();
     });
+
     request.on("end", function() {
         try {
             const data = JSON.parse(bodyRaw);
@@ -67,8 +70,6 @@ function removeMemberFromActivity(request, response) {
 }
 
 
-
-
 function registerMemberToActivity(request, response) {
     let bodyRaw = "";
 
@@ -89,7 +90,6 @@ function registerMemberToActivity(request, response) {
             if (!idActivity) {
                 throw new BadRequestError("Falta el ID de la actividad.");
             }
-
             
             const activity = getActivityCapacityDB(idActivity);
             if (!activity) {
@@ -105,8 +105,6 @@ function registerMemberToActivity(request, response) {
                 }
             }
 
-            
-            
             if (existingReg && existingReg.status === 'ACTIVE') {
                 throw new DomainError("Ya estás inscripto en esta actividad.");
             }
@@ -119,7 +117,6 @@ function registerMemberToActivity(request, response) {
 
                 for (let j = 0; j < userSchedules.length; j++) {
                     const userSched = userSchedules[j];
-
                     
                     if (newSched.day === userSched.day) {
                         
@@ -139,8 +136,6 @@ function registerMemberToActivity(request, response) {
                 }
             }
 
-
-            
             const result = registerMemberToActivityDB(idUser, idActivity);
 
             if (!result) {
@@ -162,6 +157,7 @@ function cancelRegistration(request, response) {
     request.on("data", function(chunk) {
         bodyRaw += chunk.toString();
     });
+
     request.on("end", function () {
         try {
             const idUser = request.user ? request.user.idUser : null;
@@ -177,7 +173,6 @@ function cancelRegistration(request, response) {
             }
 
             const cancelled = cancelRegistrationDB(idUser, idActivity);
-            
             
             if (!cancelled) {
                 throw new DomainError("No se encontró una inscripción activa para cancelar.");
@@ -214,6 +209,7 @@ function listMemberRegistrations(request, response) {
         sendError(response, error);
     }
 }
+
 
 module.exports = {
     listRegistrationsByActivity,

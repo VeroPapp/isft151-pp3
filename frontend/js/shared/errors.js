@@ -1,5 +1,3 @@
-
-
 export class SpecificationError extends Error {
     constructor(message, detail) {
         super(message);

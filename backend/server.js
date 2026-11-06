@@ -13,14 +13,11 @@ async function requestDispatcher(request, response) {
     response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
     response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, x-access-token, x-api-version");
-    
     response.setHeader("Access-Control-Expose-Headers", "x-access-token");
 
     const APIVersionServer = '1.0'
 
-    try {
-
-        
+    try { 
         if (request.method === "OPTIONS") {
             response.writeHead(204);
             response.end();
@@ -49,23 +46,18 @@ async function requestDispatcher(request, response) {
         }
 
         const sessionKey = request.headers["x-access-token"];
-
-        
         const session = await sessionAuthorized(sessionKey, path);
-
         
         if (!session.isAuthorized) {
             throw new UnauthorizedError("Usted no puede realizar dicha acción privada porque requiere de un token de sesión válido o no tiene los permisos requeridos.");
         }
 
-        
         if (session.IDuser !== null) {
             request.user = session;
         } else {
             request.user = null; 
         }
 
-        
         return await handler.method(request, response);
 
     } catch (error) {

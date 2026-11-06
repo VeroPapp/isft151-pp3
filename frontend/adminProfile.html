@@ -4,14 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - Comunidad Activa</title>
     <link rel="stylesheet" href="./css/base.css">
     <link rel="stylesheet" href="./css/profiles.css">
     <link rel="icon" href="./assets/favicon.ico">
+    <title>Panel de Administración - Comunidad Activa</title>
 </head>
 
 <body class="admin-page">
-
 
     <header class="admin-header">
         <h1>Panel de Administración</h1>
@@ -30,7 +29,6 @@
             <button class="tab" data-tab="members">Socios</button>
         </nav>
 
-
         <section class="tab-panel active" id="tab-applications">
             <div class="section-card">
                 <h2>Solicitudes de Membresía Pendientes</h2>
@@ -39,7 +37,6 @@
                 </div>
             </div>
         </section>
-
 
         <section class="tab-panel" id="tab-activities">
             <div class="section-card">
@@ -57,6 +54,7 @@
                             <input id="activityInstructor" placeholder="Ej: Martín">
                         </div>
                     </div>
+
                     <div class="form-row">
                         <div class="form-field">
                             <label for="activityCapacity">Capacidad</label>
@@ -70,6 +68,7 @@
                             </select>
                         </div>
                     </div>
+
                     <div class="form-field">
                         <label for="activityDescription">Descripción</label>
                         <textarea id="activityDescription" placeholder="Descripción breve de la actividad"></textarea>
@@ -85,12 +84,10 @@
                             <input type="date" id="activityEndDate">
                         </div>
                     </div>
-
                     
                     <div class="form-field">
                         <label>Horarios *</label>
                         <div id="schedulesContainer">
-                            
                         </div>
                         <button type="button" id="addScheduleBtn">+ Agregar otro horario</button>
                     </div>
@@ -111,7 +108,6 @@
             </div>
         </section>
 
-
         <section class="tab-panel" id="tab-members">
             <div class="section-card">
                 <h2>Miembros del Club</h2>
@@ -122,13 +118,13 @@
         </section>
     </div>
 
-
     <div id="registrationsModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modalTitle">Inscriptos</h2>
                 <button id="closeModalBtn" class="btn btn-danger">X</button>
             </div>
+
             <div class="table-wrap">
                 <table class="data-table">
                     <thead>
@@ -151,18 +147,22 @@
                 <h2 id="editMemberTitle">Editar Socio</h2>
                 <button id="closeEditMemberBtn" class="btn btn-danger">X</button>
             </div>
+
             <form id="editMemberForm" class="form-grid" onsubmit="event.preventDefault();">
                 <input type="hidden" id="editMemberId">
+                
                 <div class="form-row">
                     <div class="form-field">
                         <label for="editMemberName">Nombre *</label>
                         <input id="editMemberName" required>
                     </div>
+
                     <div class="form-field">
                         <label for="editMemberSurname">Apellido *</label>
                         <input id="editMemberSurname" required>
                     </div>
                 </div>
+
                 <div class="form-row">
                     <div class="form-field">
                         <label for="editMemberDni">DNI *</label>
@@ -173,17 +173,20 @@
                         <input type="date" id="editMemberBirthdate" required>
                     </div>
                 </div>
+
                 <div class="form-field">
                     <label for="editMemberEmail">Email *</label>
                     <input type="email" id="editMemberEmail" required>
                 </div>
+
                 <div class="form-field">
                     <label for="editMemberPhone">Teléfono *</label>
                     <input type="tel" id="editMemberPhone" required>
                 </div>
+
                 <div style="margin-top: 10px;">
-                    <button type="submit" id="saveEditMemberBtn" class="btn btn-success" style="width: 100%;">Guardar
-                        Cambios</button>
+                    <button type="submit" id="saveEditMemberBtn" class="btn btn-success" style="width: 100%;">
+                        Guardar Cambios</button>
                 </div>
             </form>
         </div>
@@ -191,7 +194,5 @@
 
     <script type="module" src="./js/admin/main.js"></script>
 
-
 </body>
-
 </html>

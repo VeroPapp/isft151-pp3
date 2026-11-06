@@ -5,7 +5,6 @@ function main() {
     
     document.getElementById("membershipForm").onsubmit = onRegisterSubmit;
     
-    
     loadActivities();
 }
 

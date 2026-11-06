@@ -2,7 +2,6 @@ import { RPCWebAPIFetchPublic } from '../shared/api.js';
 import { clearContainer, createActivityCard } from '../shared/domUtils.js';
 
 export async function loadActivities() {
-    
     const container = document.getElementById("activitiesContainer");
     clearContainer(container);
 

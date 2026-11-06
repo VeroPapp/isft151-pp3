@@ -38,6 +38,7 @@ export async function loadRegistrations() {
     }
 }
 
+
 export async function onCancelRegisterClick(event) {
     const button = event.target.closest(".cancel-register-btn");
     if (!button) return;

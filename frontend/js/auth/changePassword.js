@@ -2,8 +2,6 @@ import { RPCWebAPIFetchPrivate } from '../shared/api.js';
 
 const resultDiv = document.getElementById("resultMessage");
 const submitButton = document.getElementById("submitButton");
-const formView = document.getElementById("formView");
-const successView = document.getElementById("successView");
 
 let isSubmitting = false;
 
@@ -46,6 +44,7 @@ export function setupView() {
     }
 }
 
+
 function showError(message, fieldId) {
     resultDiv.style.display = "block";
     resultDiv.className = "error shake";
@@ -69,6 +68,7 @@ function showError(message, fieldId) {
     }, 500);
 }
 
+
 export function clearError() {
     resultDiv.className = "";
     resultDiv.innerText = "";
@@ -79,6 +79,7 @@ export function clearError() {
     });
 }
 
+
 function validatePasswordStrength(password) {
     if (password.length < 8) return "La nueva contraseña debe tener al menos 8 caracteres.";
     if (!/[A-Z]/.test(password)) return "La nueva contraseña debe incluir al menos una letra mayúscula.";
@@ -87,6 +88,7 @@ function validatePasswordStrength(password) {
     if (!/[!@#$%^&*(),.?":{}|<>_+\-=]/.test(password)) return "La nueva contraseña debe incluir al menos un carácter especial.";
     return null;
 }
+
 
 function showSuccessView() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -101,12 +103,12 @@ function showSuccessView() {
 
     alert(mensaje);
 
-    
     localStorage.removeItem("accessToken");
     localStorage.removeItem("userRole");
 
     window.location.replace("login.html");
 }
+
 
 export async function onChangePasswordSubmit(event) {
     event.preventDefault();
@@ -121,8 +123,7 @@ export async function onChangePasswordSubmit(event) {
     const currentPassword = currentPasswordInput.value;
     const newPassword = newPasswordInput.value;
     const confirmPassword = confirmPasswordInput.value;
-
-    
+ 
     if (!currentPassword) {
         showError("Ingresá tu contraseña actual.", "currentPassword");
         return;
@@ -154,7 +155,6 @@ export async function onChangePasswordSubmit(event) {
         return;
     }
 
-    
     isSubmitting = true;
     submitButton.disabled = true;
     submitButton.textContent = "Cambiando...";
@@ -166,7 +166,6 @@ export async function onChangePasswordSubmit(event) {
             confirmPassword: confirmPassword
         });
 
-        
         showSuccessView();
 
     } catch (error) {

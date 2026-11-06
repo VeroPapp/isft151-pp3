@@ -18,6 +18,7 @@ class InternServerError {
     }
 }
 
+
 class BadRequestError {
     constructor(message = "Petición incorrecta") {
         this.code = 400;
@@ -37,6 +38,7 @@ class BadRequestError {
         return this.code;
     }
 }
+
 
 class UnauthorizedError {
     constructor(message = "No autenticado o sin permisos") {
@@ -58,6 +60,7 @@ class UnauthorizedError {
     }
 }
 
+
 class DomainError {
     constructor(message = "La operación no cumple con las reglas del negocio") {
         this.code = 422;
@@ -76,7 +79,6 @@ function sendError(response, error) {
     let codeStatus = null;
     let message = null
     let type = null
-
 
     switch (error.type) {
         case "UnauthorizedError":
@@ -110,8 +112,6 @@ function sendError(response, error) {
             break;
     }
 
-
-
     const data = {
         error: {
             type: type,
@@ -122,6 +122,7 @@ function sendError(response, error) {
     response.writeHead(codeStatus, { "Content-Type": "application/json" });
     response.end(JSON.stringify(data));
 }
+
 
 module.exports = {
     InternServerError,

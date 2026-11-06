@@ -10,6 +10,7 @@ INSERT OR IGNORE INTO userStatus (name) VALUES
         ('REJECTED'),
         ('INACTIVE');
 
+
 CREATE TABLE IF NOT EXISTS roles (
         idRole INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE
@@ -20,6 +21,7 @@ INSERT OR IGNORE INTO roles (name) VALUES
         ('MEMBER'),
         ('CLUB_ADMIN'),
         ('SUPER_ADMIN');
+
 
 CREATE TABLE IF NOT EXISTS users (
         idUser INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -53,6 +55,7 @@ CREATE TABLE IF NOT EXISTS activities (
         status TEXT DEFAULT 'ACTIVE'
 );
 
+
 CREATE TABLE IF NOT EXISTS activitySchedules (
         idSchedule INTEGER PRIMARY KEY AUTOINCREMENT,
         idActivity INTEGER NOT NULL,
@@ -64,6 +67,7 @@ CREATE TABLE IF NOT EXISTS activitySchedules (
         
         FOREIGN KEY (idActivity) REFERENCES activities(idActivity) ON DELETE CASCADE
 );
+
 
 CREATE TABLE IF NOT EXISTS activityRegistrations (
         idRegistration INTEGER PRIMARY KEY AUTOINCREMENT,
