@@ -8,6 +8,7 @@ const { sendError, BadRequestError, UnauthorizedError } = require("./helpers/err
 const ip = instanceConfig.server.ip || 'localhost'; 
 const base = `http://${ip}:${instanceConfig.server.port}`;
 
+
 async function requestDispatcher(request, response) {
 
     response.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
@@ -52,7 +53,7 @@ async function requestDispatcher(request, response) {
             throw new UnauthorizedError("Usted no puede realizar dicha acción privada porque requiere de un token de sesión válido o no tiene los permisos requeridos.");
         }
 
-        if (session.IDuser !== null) {
+        if (session.idUser !== null) {
             request.user = session;
         } else {
             request.user = null; 
