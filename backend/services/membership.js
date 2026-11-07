@@ -3,7 +3,8 @@ const { createMembershipApplicationDB, listMembershipApplicationsDB, approveMemb
 const { sendSuccess } = require("../helpers/responseHandler.js")
 const { cancelAllMemberRegistrationsDB } = require("../models/activityRegistration.js");
 const { changeMemberStatusDB } = require("../models/member.js");
-
+const { getMemberByIdDB } = require("../models/member.js");
+const { sendWelcomeEmail } = require("../helpers/mailer.js");
 
 async function createMembershipApplication(request, response) {
     let bodyRaw = "";
@@ -88,14 +89,19 @@ function approveMembershipApplication(request, response) {
                 throw new BadRequestError("Falta el idUser de la solicitud a aprobar.");
             }
 
+            const user = getMemberByIdDB(idUser);
+
             const ok = approveMembershipApplicationDB(idUser);
 
             if (!ok) {
                 throw new DomainError("No se encontró una solicitud pendiente con ese ID, o ya fue procesada.");
             }
 
-            sendSuccess(response, { message: "Solicitud aprobada. El usuario deberá cambiar su contraseña en el próximo login." }, 200);
+            if (user && user.email) {
+                await sendWelcomeEmail(user.email, user.name);
+            }
 
+            sendSuccess(response, { message: "Solicitud aprobada. El socio fue notificado por correo." }, 200);
         } catch (error) {
             sendError(response, error);
         }
