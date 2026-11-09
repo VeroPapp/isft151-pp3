@@ -98,6 +98,10 @@ function registerMemberToActivity(request, response) {
             
             const existingReg = getUserRegistrationStatusDB(idUser, idActivity);
 
+            if (existingReg && existingReg.status === 'ACTIVE') {
+                throw new DomainError("Ya estás inscripto en esta actividad.");
+            }
+            
             if (activity.capacity) {
                 const currentRegistrations = countActiveRegistrationsDB(idActivity);
                 if (currentRegistrations >= activity.capacity && (!existingReg || existingReg.status !== 'ACTIVE')) {
@@ -105,9 +109,6 @@ function registerMemberToActivity(request, response) {
                 }
             }
 
-            if (existingReg && existingReg.status === 'ACTIVE') {
-                throw new DomainError("Ya estás inscripto en esta actividad.");
-            }
             
             const newSchedules = getActivitySchedulesDB(idActivity);
             const userSchedules = getUserActiveSchedulesDB(idUser);
