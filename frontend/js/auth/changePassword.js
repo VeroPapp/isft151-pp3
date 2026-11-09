@@ -2,6 +2,8 @@ import { RPCWebAPIFetchPrivate } from '../shared/api.js';
 
 const resultDiv = document.getElementById("resultMessage");
 const submitButton = document.getElementById("submitButton");
+const formView = document.getElementById("formView");
+const successView = document.getElementById("successView");
 
 let isSubmitting = false;
 
@@ -10,40 +12,44 @@ export function setupView() {
     const pageTitle = document.getElementById("pageTitle");
     const pageSubtitle = document.getElementById("pageSubtitle");
     const noticeDiv = document.getElementById("passwordNotice");
-
+    
     const urlParams = new URLSearchParams(window.location.search);
-    const isMandatory = urlParams.get("mandatory") === "true";
+    const isMandatory = urlParams.get('mandatory') === 'true';
 
     if (isMandatory) {
         pageTitle.textContent = "Cambio de contraseña obligatorio";
-
         noticeDiv.className = "password-notice mandatory";
-        noticeDiv.textContent = "🔒 Primera sesión. Tu cuenta fue creada con una contraseña temporal. Debés cambiarla antes de continuar.";
-
+        noticeDiv.innerHTML = "<strong>🔒 Primera sesión</strong><br>" +
+            "Tu cuenta fue creada con una contraseña temporal. " +
+            "Por seguridad, debés cambiarla antes de acceder al sistema. " +
+            "Al guardar los cambios, vas a ser redirigido al inicio de sesión para ingresar con tu nueva contraseña.";
+        
         backLink.style.display = "none";
-        return;
-    }
-
-    pageTitle.textContent = "Cambiar contraseña";
-    pageSubtitle.textContent = "Ingresá tu contraseña actual y elegí una nueva.";
-
-    noticeDiv.className = "password-notice voluntary";
-    noticeDiv.textContent = "ℹ️ Una vez que cambies tu contraseña, se cerrará tu sesión actual.";
-
-    const role = localStorage.getItem("userRole");
-    if (role === "CLUB_ADMIN" || role === "SUPER_ADMIN") {
-        backLink.href = "adminProfile.html";
     } else {
-        backLink.href = "memberProfile.html";
+        pageTitle.textContent = "Cambiar contraseña";
+        pageSubtitle.textContent = "Ingresá tu contraseña actual y elegí una nueva.";
+        
+        noticeDiv.className = "password-notice voluntary";
+        noticeDiv.innerHTML = "<strong>ℹ️ Cierre de sesión al finalizar</strong><br>" +
+            "Una vez que cambies tu contraseña, se cerrará tu sesión actual. " +
+            "Vas a ser redirigido al inicio de sesión para ingresar con tu nueva contraseña.";
+        
+        const role = localStorage.getItem("userRole");
+        if (role === "CLUB_ADMIN" || role === "SUPER_ADMIN") {
+            backLink.href = "adminProfile.html";
+        } else {
+            backLink.href = "memberProfile.html";
+        }
     }
 }
 
 function showError(message, fieldId) {
     resultDiv.style.display = "block";
     resultDiv.className = "error shake";
-    resultDiv.textContent = message;
+    resultDiv.innerHTML = `<span>⚠️</span> ${message}`;
+    console.error("[change-password]", message);
 
-    document.querySelectorAll(".password-input-wrap input").forEach((input) => {
+    document.querySelectorAll(".password-input-wrap input").forEach(function(input) {
         input.classList.remove("invalid");
     });
 
@@ -55,7 +61,7 @@ function showError(message, fieldId) {
         }
     }
 
-    setTimeout(() => {
+    setTimeout(function() {
         resultDiv.classList.remove("shake");
     }, 500);
 }
@@ -65,44 +71,32 @@ export function clearError() {
     resultDiv.textContent = "";
     resultDiv.style.display = "";
 
-    document.querySelectorAll(".password-input-wrap input").forEach((input) => {
+    document.querySelectorAll(".password-input-wrap input").forEach(function(input) {
         input.classList.remove("invalid");
     });
 }
 
 function validatePasswordStrength(password) {
-    if (password.length < 8) {
-        return "La nueva contraseña debe tener al menos 8 caracteres.";
-    }
-
-    if (!/[A-Z]/.test(password)) {
-        return "La nueva contraseña debe incluir al menos una letra mayúscula.";
-    }
-
-    if (!/[a-z]/.test(password)) {
-        return "La nueva contraseña debe incluir al menos una letra minúscula.";
-    }
-
-    if (!/[0-9]/.test(password)) {
-        return "La nueva contraseña debe incluir al menos un número.";
-    }
-
-    if (!/[!@#$%^&*(),.?\":{}|<>_+\-=]/.test(password)) {
-        return "La nueva contraseña debe incluir al menos un carácter especial.";
-    }
-
+    if (password.length < 8) return "La nueva contraseña debe tener al menos 8 caracteres.";
+    if (!/[A-Z]/.test(password)) return "La nueva contraseña debe incluir al menos una letra mayúscula.";
+    if (!/[a-z]/.test(password)) return "La nueva contraseña debe incluir al menos una letra minúscula.";
+    if (!/[0-9]/.test(password)) return "La nueva contraseña debe incluir al menos un número.";
+    if (!/[!@#$%^&*(),.?":{}|<>_+\-=]/.test(password)) return "La nueva contraseña debe incluir al menos un carácter especial.";
     return null;
 }
 
 function showSuccessView() {
     const urlParams = new URLSearchParams(window.location.search);
-    const isMandatory = urlParams.get("mandatory") === "true";
+    const isMandatory = urlParams.get('mandatory') === 'true';
+    
+    let mensaje = "";
+    if (isMandatory) {
+        mensaje = "¡Contraseña actualizada!\n\nTu contraseña temporal fue reemplazada correctamente. Ahora podés ingresar al sistema con tu nueva contraseña.";
+    } else {
+        mensaje = "¡Contraseña cambiada!\n\nTu contraseña fue actualizada con éxito. Por seguridad, cerraremos tu sesión actual.";
+    }
 
-    const message = isMandatory
-        ? "¡Contraseña actualizada! Tu contraseña temporal fue reemplazada correctamente. Ahora podés ingresar con tu nueva contraseña."
-        : "¡Contraseña cambiada! Tu contraseña fue actualizada con éxito. Por seguridad, cerraremos tu sesión actual.";
-
-    alert(message);
+    alert(mensaje);
 
     localStorage.removeItem("accessToken");
     localStorage.removeItem("userRole");
@@ -114,7 +108,6 @@ export async function onChangePasswordSubmit(event) {
     event.preventDefault();
 
     if (isSubmitting) return;
-
     clearError();
 
     const currentPasswordInput = document.getElementById("currentPassword");
@@ -162,12 +155,13 @@ export async function onChangePasswordSubmit(event) {
 
     try {
         await RPCWebAPIFetchPrivate("/changePassword", {
-            currentPassword,
-            newPassword,
-            confirmPassword
+            currentPassword: currentPassword,
+            newPassword: newPassword,
+            confirmPassword: confirmPassword
         });
 
         showSuccessView();
+
     } catch (error) {
         isSubmitting = false;
         submitButton.disabled = false;
@@ -182,7 +176,6 @@ export async function onChangePasswordSubmit(event) {
         const lower = message.toLowerCase();
 
         let fieldId = null;
-
         if (lower.includes("actual")) {
             fieldId = "currentPassword";
         } else if (lower.includes("coinciden") || lower.includes("confirmaci")) {
