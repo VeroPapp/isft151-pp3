@@ -4,7 +4,7 @@ En esta carpeta se encuentran los enlaces a los videos de presentación del sist
 
 ## 🎬 Video de Difusión (Promocional)
 
-👉 **[Ver Video de Difusión]( )**
+👉 **[Ver Video de Difusión](https://youtu.be/2RHF87gNJGw)**
 
 ---
 
