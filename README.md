@@ -29,4 +29,4 @@
 *   JAIN, Silvina
 *   PAPP, Verónica
 
-*Proyecto para Prácticas Profesionalizantes III - Tecnicatura Superior en Sistemas (ISFT N° 151).*
+*Proyecto para Prácticas Profesionalizantes III - Tecnicatura Superior en Análisis de Sistemas (ISFT N° 151).*
